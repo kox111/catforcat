@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(uuid())
+  email                 String   @unique
+  name                  String?
+  passwordHash          String?  @map("password_hash")
+  plan                  String   @default("free") // free | pro
+  stripeCustomerId      String?  @unique @map("stripe_customer_id")
+  stripeSubscriptionId  String?  @map("stripe_subscription_id")
+  stripePriceId         String?  @map("stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
+  aiRequestsUsed        Int      @default(0) @map("ai_requests_used")
+  aiRequestsResetAt     DateTime @default(now()) @map("ai_requests_reset_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  projects          Project[]
+  translationMemory TranslationMemory[]
+  glossaryTerms     GlossaryTerm[]
+
+  @@map("users")
+}
+
+model Project {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  name       String
+  srcLang    String   @map("src_lang")
+  tgtLang    String   @map("tgt_lang")
+  sourceFile String?  @map("source_file")
+  fileFormat String?  @map("file_format")
+  status     String   @default("active") // active | completed | archived
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  segments Segment[]
+
+  @@map("projects")
+}
+
+model Segment {
+  id         String   @id @default(uuid())
+  projectId  String   @map("project_id")
+  position   Int
+  sourceText String   @map("source_text")
+  targetText String   @default("") @map("target_text")
+  status     String   @default("empty") // empty | draft | confirmed
+  tmMatchPct Int      @default(0) @map("tm_match_pct")
+  metadata   String   @default("{}") // JSON string (SQLite doesn't have JSONB)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, position])
+  @@map("segments")
+}
+
+model TranslationMemory {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  sourceText String   @map("source_text")
+  targetText String   @map("target_text")
+  srcLang    String   @map("src_lang")
+  tgtLang    String   @map("tgt_lang")
+  domain     String?
+  usageCount Int      @default(1) @map("usage_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, srcLang, tgtLang])
+  @@map("translation_memory")
+}
+
+model GlossaryTerm {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  sourceTerm String   @map("source_term")
+  targetTerm String   @map("target_term")
+  srcLang    String   @map("src_lang")
+  tgtLang    String   @map("tgt_lang")
+  note       String   @default("")
+  domain     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceTerm, srcLang, tgtLang])
+  @@map("glossary_terms")
+}

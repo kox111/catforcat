@@ -1,0 +1,159 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+// GET /api/glossary — list glossary terms for current user
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const searchParams = req.nextUrl.searchParams;
+  const srcLang = searchParams.get("srcLang");
+  const tgtLang = searchParams.get("tgtLang");
+  const query = searchParams.get("q");
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = { userId: user.id };
+  if (srcLang) where.srcLang = srcLang;
+  if (tgtLang) where.tgtLang = tgtLang;
+  if (query) {
+    where.OR = [
+      { sourceTerm: { contains: query } },
+      { targetTerm: { contains: query } },
+    ];
+  }
+
+  const terms = await prisma.glossaryTerm.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: 500,
+  });
+
+  return NextResponse.json(terms);
+}
+
+// POST /api/glossary — add a glossary term
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  try {
+    const { sourceTerm, targetTerm, srcLang, tgtLang, note } = await req.json();
+
+    if (!sourceTerm || !targetTerm || !srcLang || !tgtLang) {
+      return NextResponse.json(
+        { error: "sourceTerm, targetTerm, srcLang, and tgtLang are required" },
+        { status: 400 }
+      );
+    }
+
+    // Upsert: update if same source+lang pair exists
+    const existing = await prisma.glossaryTerm.findFirst({
+      where: {
+        userId: user.id,
+        sourceTerm,
+        srcLang,
+        tgtLang,
+      },
+    });
+
+    if (existing) {
+      const updated = await prisma.glossaryTerm.update({
+        where: { id: existing.id },
+        data: { targetTerm, note: note || "" },
+      });
+      return NextResponse.json(updated);
+    }
+
+    // Plan limit: glossary terms
+    const { canAddGlossaryTerm } = await import("@/lib/plan-limits");
+    const glossaryCheck = await canAddGlossaryTerm(user.id, user.plan);
+    if (!glossaryCheck.allowed) {
+      return NextResponse.json({ error: glossaryCheck.message }, { status: 403 });
+    }
+
+    const term = await prisma.glossaryTerm.create({
+      data: {
+        userId: user.id,
+        sourceTerm,
+        targetTerm,
+        srcLang,
+        tgtLang,
+        note: note || "",
+      },
+    });
+
+    return NextResponse.json(term, { status: 201 });
+  } catch (error) {
+    console.error("Glossary creation error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/glossary — delete a glossary term
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  try {
+    let id = req.nextUrl.searchParams.get("id");
+    if (!id) {
+      try {
+        const body = await req.json();
+        id = body.id;
+      } catch {
+        // no body
+      }
+    }
+    if (!id) {
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
+    }
+
+    const entry = await prisma.glossaryTerm.findFirst({
+      where: { id, userId: user.id },
+    });
+    if (!entry) {
+      return NextResponse.json({ error: "Term not found" }, { status: 404 });
+    }
+
+    await prisma.glossaryTerm.delete({ where: { id } });
+    return NextResponse.json({ deleted: true });
+  } catch (error) {
+    console.error("Glossary deletion error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

@@ -1,0 +1,338 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+/**
+ * POST /api/translate
+ *
+ * Plan-based translation system:
+ * - Free plan: Google Cloud Translation API (server-side key)
+ * - Pro plan ($10/month): DeepL API Pro (server-side key)
+ *
+ * The user does not configure anything — provider is determined by plan.
+ * Both API keys are in .env server-side only.
+ *
+ * Rate limited to 30 requests/minute per user.
+ * Monthly AI request limits: Free = 50/month, Pro = 1000/month.
+ */
+
+// ─────────────────────────────────────────────
+// Rate Limiter (in-memory, sliding window)
+// ─────────────────────────────────────────────
+const rateLimitMap = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 30;
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const timestamps = rateLimitMap.get(userId) || [];
+  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (recent.length >= RATE_LIMIT_MAX) {
+    rateLimitMap.set(userId, recent);
+    return false;
+  }
+
+  recent.push(now);
+  rateLimitMap.set(userId, recent);
+  return true;
+}
+
+// ─────────────────────────────────────────────
+// Plan limits for AI requests per month
+// ─────────────────────────────────────────────
+const AI_LIMITS: Record<string, number> = { free: 50, pro: 1000 };
+
+// ─────────────────────────────────────────────
+// DeepL uses slightly different language codes
+// ─────────────────────────────────────────────
+const DEEPL_LANG_MAP: Record<string, string> = {
+  en: "EN", es: "ES", fr: "FR", de: "DE",
+  pt: "PT-BR", it: "IT", zh: "ZH", ja: "JA", ko: "KO",
+};
+
+// ─────────────────────────────────────────────
+// Request types
+// ─────────────────────────────────────────────
+interface GlossaryTerm {
+  source: string;
+  target: string;
+}
+
+interface TranslateRequestBody {
+  segment: string;
+  srcLang: string;
+  tgtLang: string;
+  glossaryTerms?: GlossaryTerm[];
+  context?: {
+    previousSegment?: string;
+    nextSegment?: string;
+  };
+}
+
+// ─────────────────────────────────────────────
+// Main handler
+// ─────────────────────────────────────────────
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: {
+      id: true,
+      plan: true,
+      aiRequestsUsed: true,
+      aiRequestsResetAt: true,
+    },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Rate limit check (per-minute)
+  if (!checkRateLimit(user.id)) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Maximum 30 requests per minute." },
+      { status: 429 }
+    );
+  }
+
+  // Monthly AI request limit check
+  const plan = user.plan;
+  const monthlyLimit = AI_LIMITS[plan] || AI_LIMITS.free;
+  const now = new Date();
+
+  // Reset counter if new month
+  let currentUsed = user.aiRequestsUsed;
+  if (
+    user.aiRequestsResetAt.getMonth() !== now.getMonth() ||
+    user.aiRequestsResetAt.getFullYear() !== now.getFullYear()
+  ) {
+    currentUsed = 0;
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { aiRequestsUsed: 0, aiRequestsResetAt: now },
+    });
+  }
+
+  if (currentUsed >= monthlyLimit) {
+    return NextResponse.json(
+      {
+        error: `Monthly AI limit reached (${monthlyLimit} requests). ${
+          plan === "free"
+            ? "Upgrade to Pro for 1,000/month."
+            : "Limit resets next month."
+        }`,
+      },
+      { status: 429 }
+    );
+  }
+
+  const body: TranslateRequestBody = await req.json();
+  const { segment, srcLang, tgtLang, glossaryTerms, context } = body;
+
+  if (!segment || !srcLang || !tgtLang) {
+    return NextResponse.json(
+      { error: "segment, srcLang, and tgtLang are required" },
+      { status: 400 }
+    );
+  }
+
+  // Provider determined by plan: free → Google, pro → DeepL
+  const provider = plan === "pro" ? "deepl" : "google";
+
+  try {
+    let translation: string;
+
+    if (provider === "deepl") {
+      translation = await translateWithDeepL(segment, srcLang, tgtLang, glossaryTerms);
+    } else {
+      translation = await translateWithGoogle(segment, srcLang, tgtLang, glossaryTerms, context);
+    }
+
+    // Increment monthly counter
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { aiRequestsUsed: { increment: 1 } },
+    });
+
+    return NextResponse.json({
+      translation,
+      provider,
+      usage: { used: currentUsed + 1, limit: monthlyLimit },
+    });
+  } catch (error) {
+    console.error("Translation error:", error);
+    const message = error instanceof Error ? error.message : "Translation failed";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
+}
+
+// ─────────────────────────────────────────────
+// Google Cloud Translation API v2
+// Server-side key, cost absorbed by platform (Free plan)
+// ─────────────────────────────────────────────
+async function translateWithGoogle(
+  text: string,
+  srcLang: string,
+  tgtLang: string,
+  glossaryTerms?: GlossaryTerm[],
+  context?: { previousSegment?: string; nextSegment?: string }
+): Promise<string> {
+  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
+  if (!apiKey) {
+    throw new Error("Translation service is not configured. Contact support.");
+  }
+
+  let processedText = text;
+  const termMap = new Map<string, string>();
+
+  if (glossaryTerms && glossaryTerms.length > 0) {
+    glossaryTerms.forEach((term, idx) => {
+      const placeholder = `__GLOSS${idx}__`;
+      const regex = new RegExp(escapeRegex(term.source), "gi");
+      processedText = processedText.replace(regex, placeholder);
+      termMap.set(placeholder, term.target);
+    });
+  }
+
+  let contextPrefix = "";
+  if (context?.previousSegment) {
+    contextPrefix = context.previousSegment + " ||| ";
+  }
+
+  const fullText = contextPrefix + processedText;
+
+  const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      q: fullText,
+      source: srcLang,
+      target: tgtLang,
+      format: "text",
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Google Translate API error:", response.status, errorText);
+    if (response.status === 403) {
+      throw new Error("Translation service temporarily unavailable.");
+    }
+    throw new Error("Translation service unavailable");
+  }
+
+  const data = await response.json();
+  let translation = data.data?.translations?.[0]?.translatedText || "";
+
+  if (contextPrefix) {
+    const separatorIdx = translation.indexOf("|||");
+    if (separatorIdx !== -1) {
+      translation = translation.substring(separatorIdx + 3).trim();
+    }
+  }
+
+  for (const [placeholder, target] of termMap) {
+    translation = translation.replace(new RegExp(escapeRegex(placeholder), "gi"), target);
+  }
+
+  translation = decodeHtmlEntities(translation);
+  return translation;
+}
+
+// ─────────────────────────────────────────────
+// DeepL API Pro
+// Server-side key, cost absorbed by platform (Pro plan)
+// ─────────────────────────────────────────────
+async function translateWithDeepL(
+  text: string,
+  srcLang: string,
+  tgtLang: string,
+  glossaryTerms?: GlossaryTerm[]
+): Promise<string> {
+  const apiKey = process.env.DEEPL_API_KEY;
+  if (!apiKey) {
+    throw new Error("DeepL translation is not configured. Contact support.");
+  }
+
+  const deeplSrc = DEEPL_LANG_MAP[srcLang] || srcLang.toUpperCase();
+  const deeplTgt = DEEPL_LANG_MAP[tgtLang] || tgtLang.toUpperCase();
+
+  const isFreeKey = apiKey.endsWith(":fx");
+  const baseUrl = isFreeKey
+    ? "https://api-free.deepl.com/v2/translate"
+    : "https://api.deepl.com/v2/translate";
+
+  let processedText = text;
+  const termMap = new Map<string, string>();
+
+  if (glossaryTerms && glossaryTerms.length > 0) {
+    glossaryTerms.forEach((term, idx) => {
+      const placeholder = `<m id="${idx}">${term.target}</m>`;
+      const regex = new RegExp(escapeRegex(term.source), "gi");
+      processedText = processedText.replace(regex, placeholder);
+      termMap.set(`<m id="${idx}">`, "");
+    });
+  }
+
+  const params = new URLSearchParams({
+    text: processedText,
+    source_lang: deeplSrc,
+    target_lang: deeplTgt,
+  });
+
+  if (termMap.size > 0) {
+    params.set("tag_handling", "xml");
+    params.set("ignore_tags", "m");
+  }
+
+  const response = await fetch(baseUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `DeepL-Auth-Key ${apiKey}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: params.toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("DeepL API error:", response.status, errorText);
+    if (response.status === 403) {
+      throw new Error("Translation service temporarily unavailable.");
+    }
+    if (response.status === 456) {
+      throw new Error("Translation quota exceeded. Contact support.");
+    }
+    throw new Error("DeepL translation service unavailable");
+  }
+
+  const data = await response.json();
+  let translation = data.translations?.[0]?.text || "";
+  translation = translation.replace(/<\/?m[^>]*>/g, "");
+  return translation;
+}
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
