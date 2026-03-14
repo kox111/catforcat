@@ -28,6 +28,15 @@ export interface GlossaryTermForQA {
   targetTerm: string;
 }
 
+export interface QARuleForQA {
+  id: string;
+  type: "wordlist" | "regex";
+  wrong: string;
+  correct: string;
+  severity: "warning" | "error";
+  enabled: boolean;
+}
+
 // ─────────────────────────────────────────────
 // Individual checks
 // ─────────────────────────────────────────────
@@ -336,6 +345,73 @@ function checkURLPreservation(seg: QASegment): QAIssue | null {
 }
 
 /**
+ * Check word list rules: searches for forbidden terms in target text (case-insensitive)
+ */
+function checkWordList(
+  seg: QASegment,
+  rules: QARuleForQA[]
+): QAIssue[] {
+  if (!seg.targetText.trim()) return [];
+
+  const issues: QAIssue[] = [];
+  const targetLower = seg.targetText.toLowerCase();
+
+  for (const rule of rules) {
+    if (rule.type !== "wordlist" || !rule.enabled) continue;
+
+    const wrongLower = rule.wrong.toLowerCase();
+    // Simple case-insensitive word search
+    if (targetLower.includes(wrongLower)) {
+      issues.push({
+        segmentId: seg.id,
+        segmentPosition: seg.position,
+        check: "wordlist_violation",
+        message: `Word list rule: "${rule.wrong}" found in target. Should be "${rule.correct}"`,
+        severity: rule.severity,
+      });
+    }
+  }
+
+  return issues;
+}
+
+/**
+ * Check regex rules: applies regex patterns to target text
+ */
+function checkRegex(
+  seg: QASegment,
+  rules: QARuleForQA[]
+): QAIssue[] {
+  if (!seg.targetText.trim()) return [];
+
+  const issues: QAIssue[] = [];
+
+  for (const rule of rules) {
+    if (rule.type !== "regex" || !rule.enabled) continue;
+
+    try {
+      const regex = new RegExp(rule.wrong, "g");
+      const matches = seg.targetText.match(regex);
+
+      if (matches && matches.length > 0) {
+        issues.push({
+          segmentId: seg.id,
+          segmentPosition: seg.position,
+          check: "regex_violation",
+          message: `Regex rule matched: "${rule.wrong}". ${rule.correct}`,
+          severity: rule.severity,
+        });
+      }
+    } catch (e) {
+      // Invalid regex pattern - skip this rule
+      // (validation should happen at rule creation time)
+    }
+  }
+
+  return issues;
+}
+
+/**
  * Warning: Inconsistency — same source text has different translations in project.
  * Only works in batch mode (needs all segments).
  */
@@ -383,7 +459,8 @@ export function checkInconsistencies(segments: QASegment[]): QAIssue[] {
  */
 export function runQAChecksForSegment(
   seg: QASegment,
-  glossaryTerms: GlossaryTermForQA[] = []
+  glossaryTerms: GlossaryTermForQA[] = [],
+  qaRules: QARuleForQA[] = []
 ): QAIssue[] {
   const issues: QAIssue[] = [];
 
@@ -422,6 +499,10 @@ export function runQAChecksForSegment(
   const urlCheck = checkURLPreservation(seg);
   if (urlCheck) issues.push(urlCheck);
 
+  // Custom QA rules: word list and regex checks
+  issues.push(...checkWordList(seg, qaRules));
+  issues.push(...checkRegex(seg, qaRules));
+
   return issues;
 }
 
@@ -430,12 +511,13 @@ export function runQAChecksForSegment(
  */
 export function runQABatch(
   segments: QASegment[],
-  glossaryTerms: GlossaryTermForQA[] = []
+  glossaryTerms: GlossaryTermForQA[] = [],
+  qaRules: QARuleForQA[] = []
 ): QAIssue[] {
   const allIssues: QAIssue[] = [];
 
   for (const seg of segments) {
-    allIssues.push(...runQAChecksForSegment(seg, glossaryTerms));
+    allIssues.push(...runQAChecksForSegment(seg, glossaryTerms, qaRules));
   }
 
   // Batch-only: inconsistency check across all segments

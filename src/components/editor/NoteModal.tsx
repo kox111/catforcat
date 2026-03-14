@@ -31,7 +31,7 @@ export default function NoteModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "rgba(0,0,0,0.5)",
+        background: "var(--overlay)",
       }}
       onClick={onClose}
     >
@@ -104,7 +104,7 @@ export default function NoteModal({
                   paddingBottom: "0.375rem",
                   borderRadius: "0.25rem",
                   fontSize: "0.75rem",
-                  color: "var(--red, #ef4444)",
+                  color: "var(--red)",
                   border: "1px solid var(--border)",
                   background: "transparent",
                   cursor: "pointer",
@@ -140,8 +140,8 @@ export default function NoteModal({
                 borderRadius: "0.25rem",
                 fontSize: "0.75rem",
                 fontWeight: 500,
-                background: "var(--accent)",
-                color: "#fff",
+                background: "var(--accent-soft)",
+                color: "var(--text-primary)",
                 border: "none",
                 cursor: "pointer",
               }}

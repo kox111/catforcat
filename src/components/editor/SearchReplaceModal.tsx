@@ -188,7 +188,7 @@ export default function SearchReplaceModal({
         right: "1rem",
         zIndex: 50,
         borderRadius: "0.5rem",
-        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+        boxShadow: "var(--shadow-md)",
         width: "24rem",
         background: "var(--bg-panel)",
         border: "1px solid var(--border)",
@@ -380,8 +380,8 @@ export default function SearchReplaceModal({
                   paddingBottom: "0.25rem",
                   borderRadius: "0.25rem",
                   fontSize: "0.75rem",
-                  background: "var(--accent)",
-                  color: "#fff",
+                  background: "var(--accent-soft)",
+                  color: "var(--text-primary)",
                   opacity: targetMatchCount === 0 ? 0.4 : 1,
                   border: "none",
                   cursor: "pointer",
@@ -442,10 +442,10 @@ export default function SearchReplaceModal({
                       <div key={i} style={{ color: "var(--text-secondary)" }}>
                         <span style={{ color: "var(--text-muted)" }}>#{m.segmentPosition}: </span>
                         {before}
-                        <span style={{ background: "var(--red, #ef4444)", color: "#fff", textDecoration: "line-through" }}>
+                        <span style={{ background: "var(--mark-delete-bg)", color: "var(--text-primary)", textDecoration: "line-through" }}>
                           {matched}
                         </span>
-                        <span style={{ background: "var(--green, #22c55e)", color: "#fff" }}>
+                        <span style={{ background: "var(--mark-insert-bg)", color: "var(--text-primary)" }}>
                           {replaceText}
                         </span>
                         {after}

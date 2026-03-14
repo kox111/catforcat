@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { segmentText } from "@/lib/segmenter";
+import {
+  segmentText,
+  segmentJSON,
+  segmentSRT,
+  segmentPO,
+  segmentMarkdown,
+  type RawSegment,
+} from "@/lib/segmenter";
 import { prisma } from "@/lib/prisma";
 import { canImportFormat } from "@/lib/plan-limits";
 
@@ -10,7 +17,7 @@ import { canImportFormat } from "@/lib/plan-limits";
  * Receives a file (multipart/form-data), extracts text, segments it.
  * Returns: { segments: Array<{ text, metadata }>, fileName, fileFormat }
  *
- * Supported: .txt, .docx, .pdf, .xlf, .xliff
+ * Supported: .txt, .docx, .pdf, .xlf, .xliff, .json, .srt, .po, .md
  */
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -110,6 +117,91 @@ export async function POST(req: NextRequest) {
 
       paragraphs = joined.map((text, i) => ({ text, index: i }));
       fileFormat = "pdf";
+    } else if (ext === "json") {
+      // JSON: parse and segment key-value pairs
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const jsonText = buffer.toString("utf-8");
+      fileFormat = "json";
+
+      const rawSegments: RawSegment[] = segmentJSON(jsonText);
+      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
+        rawSegments.map((seg) => ({
+          text: seg.text,
+          metadata: seg.metadata,
+        }));
+
+      return NextResponse.json({
+        segments,
+        fileName,
+        fileFormat,
+        totalParagraphs: segments.length,
+        totalSegments: segments.length,
+        isStructured: true,
+      });
+    } else if (ext === "srt") {
+      // SRT: parse subtitle blocks
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const srtText = buffer.toString("utf-8");
+      fileFormat = "srt";
+
+      const rawSegments: RawSegment[] = segmentSRT(srtText);
+      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
+        rawSegments.map((seg) => ({
+          text: seg.text,
+          metadata: seg.metadata,
+        }));
+
+      return NextResponse.json({
+        segments,
+        fileName,
+        fileFormat,
+        totalParagraphs: segments.length,
+        totalSegments: segments.length,
+        isStructured: true,
+      });
+    } else if (ext === "po") {
+      // PO: parse gettext format
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const poText = buffer.toString("utf-8");
+      fileFormat = "po";
+
+      const rawSegments: RawSegment[] = segmentPO(poText);
+      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
+        rawSegments.map((seg) => ({
+          text: seg.text,
+          targetText: (seg.metadata.targetText as string | undefined) || undefined,
+          metadata: seg.metadata,
+        }));
+
+      return NextResponse.json({
+        segments,
+        fileName,
+        fileFormat,
+        totalParagraphs: segments.length,
+        totalSegments: segments.length,
+        isStructured: true,
+      });
+    } else if (ext === "md") {
+      // Markdown: parse blocks (paragraphs, headings, etc.)
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const mdText = buffer.toString("utf-8");
+      fileFormat = "markdown";
+
+      const rawSegments: RawSegment[] = segmentMarkdown(mdText);
+      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
+        rawSegments.map((seg) => ({
+          text: seg.text,
+          metadata: seg.metadata,
+        }));
+
+      return NextResponse.json({
+        segments,
+        fileName,
+        fileFormat,
+        totalParagraphs: segments.length,
+        totalSegments: segments.length,
+        isStructured: true,
+      });
     } else if (ext === "xlf" || ext === "xliff") {
       // XLIFF: parse XML to extract source/target pairs
       const buffer = Buffer.from(await file.arrayBuffer());
@@ -131,7 +223,9 @@ export async function POST(req: NextRequest) {
       });
     } else {
       return NextResponse.json(
-        { error: `Unsupported file format: .${ext}. Supported: .txt, .docx, .pdf, .xlf` },
+        {
+          error: `Unsupported file format: .${ext}. Supported: .txt, .docx, .pdf, .xlf, .xliff, .json, .srt, .po, .md`,
+        },
         { status: 400 }
       );
     }

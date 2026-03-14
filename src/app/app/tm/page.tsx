@@ -149,7 +149,7 @@ export default function TMPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto" style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1
@@ -181,9 +181,9 @@ export default function TMPage() {
             onClick={() => setShowStats((v) => !v)}
             className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
             style={{
-              background: showStats ? "var(--accent)" : "var(--bg-card)",
-              color: showStats ? "#fff" : "var(--text-secondary)",
-              border: showStats ? "none" : "1px solid var(--border)",
+              background: showStats ? "var(--accent-soft)" : "var(--bg-card)",
+              color: showStats ? "var(--text-primary)" : "var(--text-secondary)",
+              border: "0.5px solid var(--border)",
             }}
           >
             {showStats ? "Hide Stats" : "Stats"}
@@ -265,8 +265,9 @@ export default function TMPage() {
             disabled={exportingTmx}
             className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
             style={{
-              background: "var(--accent)",
-              color: "#fff",
+              background: "var(--accent-soft)",
+              color: "var(--text-primary)",
+              border: "0.5px solid var(--border)",
               opacity: exportingTmx ? 0.6 : 1,
             }}
           >
@@ -287,8 +288,8 @@ export default function TMPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: importResult.startsWith("Error") ? "var(--red, #ef4444)" : "var(--accent)",
-            color: "#fff",
+            background: importResult.startsWith("Error") ? "var(--red-soft)" : "var(--accent-soft)",
+            color: importResult.startsWith("Error") ? "var(--red-text)" : "var(--text-primary)",
           }}
         >
           {importResult}
@@ -359,7 +360,7 @@ export default function TMPage() {
               <div className="flex flex-col gap-1">
                 {stats.mostUsed.map((e, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-primary)" }}>
-                    <span className="shrink-0 px-1.5 py-0.5 rounded" style={{ background: "var(--accent)", color: "#fff" }}>
+                    <span className="shrink-0 px-1.5 py-0.5 rounded" style={{ background: "var(--accent-soft)", color: "var(--text-primary)", border: "0.5px solid var(--border)" }}>
                       {e.usageCount}x
                     </span>
                     <span className="truncate" style={{ color: "var(--text-muted)" }}>{e.sourceText}</span>
@@ -492,8 +493,8 @@ export default function TMPage() {
                     border: "1px solid transparent",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "var(--red, #ef4444)";
-                    e.currentTarget.style.borderColor = "var(--red, #ef4444)";
+                    e.currentTarget.style.color = "var(--red)";
+                    e.currentTarget.style.borderColor = "var(--red)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = "var(--text-muted)";

@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { useTheme } from "@/components/ThemeProvider";
+import { useViewScale } from "@/components/ViewScaleProvider";
+import { type ScaleMode, SCALE_MODES, MODE_ORDER } from "@/lib/view-scale";
 
 interface SettingsData {
   plan: string;
@@ -16,7 +19,66 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<SettingsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
-  const { theme, toggleTheme } = useTheme();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession();
+  const { theme, setTheme } = useTheme();
+  const { mode, setMode } = useViewScale();
+
+  const userName = session?.user?.name || "";
+  const userInitials = userName.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      // Resize to max 200KB
+      const canvas = document.createElement("canvas");
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = () => {
+        img.onload = async () => {
+          const MAX = 128;
+          let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            const scale = MAX / Math.max(w, h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d")?.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          try {
+            const res = await fetch("/api/settings", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ avatarUrl: dataUrl }),
+            });
+            if (res.ok) setAvatarUrl(dataUrl);
+          } catch { /* silent */ }
+          setUploadingAvatar(false);
+        };
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: null }),
+      });
+      if (res.ok) setAvatarUrl(null);
+    } catch { /* silent */ }
+  };
 
   useEffect(() => {
     async function fetchSettings() {
@@ -72,7 +134,7 @@ export default function SettingsPage() {
     : 0;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="p-6 max-w-2xl mx-auto" style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
       <h1 className="text-xl font-semibold mb-6" style={{ color: "var(--text-primary)" }}>
         Settings
       </h1>
@@ -83,6 +145,105 @@ export default function SettingsPage() {
         </div>
       ) : (
         <>
+          {/* Profile Section */}
+          <section
+            style={{
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "24px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+              Profile
+            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar"
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    border: "1.5px solid var(--accent)",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    background: "var(--accent-soft)",
+                    border: "1.5px solid var(--accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 22,
+                    fontWeight: 500,
+                    color: "var(--text-primary)",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                    letterSpacing: "-0.5px",
+                  }}
+                >
+                  {userInitials}
+                </div>
+              )}
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginBottom: 4 }}>
+                  {userName || session?.user?.email || "User"}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    style={{
+                      fontSize: 11,
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      background: "var(--btn-bg)",
+                      border: "1px solid var(--btn-border)",
+                      color: "var(--text-secondary)",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      transition: "background 150ms",
+                    }}
+                  >
+                    {uploadingAvatar ? "Uploading..." : "Upload photo"}
+                  </button>
+                  {avatarUrl && (
+                    <button
+                      onClick={handleRemoveAvatar}
+                      style={{
+                        fontSize: 11,
+                        padding: "4px 10px",
+                        borderRadius: 6,
+                        background: "transparent",
+                        border: "1px solid var(--border)",
+                        color: "var(--text-muted)",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        transition: "background 150ms",
+                      }}
+                    >
+                      Remove photo
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  style={{ display: "none" }}
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Plan Section */}
           <section
             style={{
@@ -100,8 +261,9 @@ export default function SettingsPage() {
               <span
                 className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
                 style={{
-                  background: isPro ? "var(--accent)" : "var(--bg-deep)",
-                  color: isPro ? "#fff" : "var(--text-secondary)",
+                  background: isPro ? "var(--accent-soft)" : "var(--bg-deep)",
+                  color: isPro ? "var(--text-primary)" : "var(--text-secondary)",
+                  border: "0.5px solid var(--border)",
                 }}
               >
                 {isPro ? "Pro" : "Free"}
@@ -175,8 +337,9 @@ export default function SettingsPage() {
                   disabled={upgrading}
                   className="px-5 py-2 rounded text-sm font-medium"
                   style={{
-                    background: "var(--accent)",
-                    color: "#fff",
+                    background: "var(--accent-soft)",
+                    color: "var(--text-primary)",
+                    border: "0.5px solid var(--border)",
                     opacity: upgrading ? 0.6 : 1,
                   }}
                 >
@@ -245,20 +408,9 @@ export default function SettingsPage() {
               <div>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Theme</p>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  Switch between dark and light mode
+                  Current: {theme.charAt(0).toUpperCase() + theme.slice(1)}. Use the theme dots (top-right) to change.
                 </p>
               </div>
-              <button
-                onClick={toggleTheme}
-                className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
-                style={{
-                  background: "var(--bg-deep)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--border)",
-                }}
-              >
-                {theme === "dark" ? "Switch to Light" : "Switch to Dark"}
-              </button>
             </div>
 
             {/* Font Size (F3) */}
@@ -296,6 +448,74 @@ export default function SettingsPage() {
             </div>
           </section>
 
+          {/* Display Scale Section */}
+          <section
+            style={{
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "24px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+              Display Scale
+            </h2>
+            <p className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
+              Auto-scales to fit your monitor. You can also cycle with the button in the top bar.
+            </p>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              {MODE_ORDER.map((key) => {
+                const cfg = SCALE_MODES[key];
+                const isActive = mode === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setMode(key)}
+                    style={{
+                      flex: 1,
+                      padding: "12px 10px",
+                      borderRadius: 10,
+                      background: isActive ? "var(--accent-soft)" : "var(--bg-deep)",
+                      border: isActive ? "1.5px solid var(--accent)" : "1px solid var(--border)",
+                      cursor: "pointer",
+                      transition: "border-color 150ms, background 150ms",
+                      textAlign: "center",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.borderColor = "var(--accent)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.borderColor = "var(--border)";
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontSize: 13,
+                        fontWeight: isActive ? 500 : 400,
+                        color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {cfg.label}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontSize: 9,
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      {cfg.description}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
           {/* Account Section */}
           <section
             style={{
@@ -317,6 +537,21 @@ export default function SettingsPage() {
           </section>
         </>
       )}
+
+      <p
+        style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: 10,
+          fontStyle: "italic",
+          fontWeight: 400,
+          color: "var(--text-muted)",
+          opacity: 0.4,
+          textAlign: "center",
+          marginTop: 40,
+        }}
+      >
+        made with love, for KL.
+      </p>
     </div>
   );
 }

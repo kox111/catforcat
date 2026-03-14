@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import PageTransition from "@/components/PageTransition";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function LoginPage() {
   };
 
   return (
+    <PageTransition>
     <div
       suppressHydrationWarning
       style={{
@@ -70,19 +72,16 @@ export default function LoginPage() {
           border: "1px solid var(--border)",
         }}
       >
-        <h1
-          suppressHydrationWarning
-          style={{
-            fontSize: 24,
-            fontWeight: 700,
-            marginBottom: 8,
-            textAlign: "center",
-            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          TranslatePro
+        <h1 style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: 22,
+          fontWeight: 400,
+          letterSpacing: "0.03em",
+          color: "var(--brand-wordmark)",
+          marginBottom: 8,
+          textAlign: "center",
+        }}>
+          catforcat.
         </h1>
         <p style={{ textAlign: "center", marginBottom: 24, color: "var(--text-secondary)", fontSize: 14 }}>
           Sign in to your account
@@ -95,7 +94,7 @@ export default function LoginPage() {
               padding: 12,
               borderRadius: 6,
               fontSize: 14,
-              background: "rgba(239,68,68,0.1)",
+              background: "var(--red-soft)",
               color: "var(--red)",
             }}
           >
@@ -135,17 +134,17 @@ export default function LoginPage() {
             disabled={loading}
             style={{
               width: "100%",
-              padding: "8px 0",
-              borderRadius: 6,
-              fontSize: 14,
+              padding: "10px 0",
+              borderRadius: 8,
+              fontSize: 13,
               fontWeight: 500,
-              background: "var(--accent)",
-              color: "#fff",
-              border: "none",
+              background: "var(--btn-bg)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--btn-border)",
               cursor: loading ? "not-allowed" : "pointer",
               opacity: loading ? 0.6 : 1,
-              transition: "opacity 200ms",
-              fontFamily: "inherit",
+              transition: "background 150ms",
+              fontFamily: "'Inter', system-ui, sans-serif",
             }}
           >
             {loading ? "Signing in..." : "Sign In"}
@@ -160,5 +159,6 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+    </PageTransition>
   );
 }

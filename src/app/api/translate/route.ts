@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
 
 /**
  * POST /api/translate
@@ -65,6 +66,7 @@ interface TranslateRequestBody {
   srcLang: string;
   tgtLang: string;
   glossaryTerms?: GlossaryTerm[];
+  projectId?: string; // If provided, auto-fetch glossary terms from DB
   context?: {
     previousSegment?: string;
     nextSegment?: string;
@@ -134,13 +136,66 @@ export async function POST(req: NextRequest) {
   }
 
   const body: TranslateRequestBody = await req.json();
-  const { segment, srcLang, tgtLang, glossaryTerms, context } = body;
+  const { segment, srcLang, tgtLang, context, projectId } = body;
+  let { glossaryTerms } = body;
 
   if (!segment || !srcLang || !tgtLang) {
     return NextResponse.json(
       { error: "segment, srcLang, and tgtLang are required" },
       { status: 400 }
     );
+  }
+
+  // Privacy enforcement — check project privacy level
+  if (projectId) {
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, userId: user.id },
+      select: { privacyLevel: true },
+    });
+    if (project) {
+      const privacy = getPrivacyConfig(project.privacyLevel as PrivacyLevel);
+      if (!privacy.aiEnabled) {
+        return NextResponse.json(
+          { error: "AI translation disabled for this privacy level" },
+          { status: 403 }
+        );
+      }
+    }
+  }
+
+  // B.3 — Auto-fetch glossary terms from DB when projectId provided
+  let terminologyUsed = false;
+  let matchedTermsCount = 0;
+
+  if (projectId && (!glossaryTerms || glossaryTerms.length === 0)) {
+    const dbTerms = await prisma.glossaryTerm.findMany({
+      where: {
+        userId: user.id,
+        srcLang,
+        tgtLang,
+      },
+      select: { sourceTerm: true, targetTerm: true },
+    });
+
+    if (dbTerms.length > 0) {
+      // Filter to only terms that actually appear in the segment text
+      const segmentLower = segment.toLowerCase();
+      const matching = dbTerms.filter((t) =>
+        segmentLower.includes(t.sourceTerm.toLowerCase())
+      );
+
+      if (matching.length > 0) {
+        glossaryTerms = matching.map((t) => ({
+          source: t.sourceTerm,
+          target: t.targetTerm,
+        }));
+        terminologyUsed = true;
+        matchedTermsCount = matching.length;
+      }
+    }
+  } else if (glossaryTerms && glossaryTerms.length > 0) {
+    terminologyUsed = true;
+    matchedTermsCount = glossaryTerms.length;
   }
 
   // Provider determined by plan: free → Google, pro → DeepL
@@ -164,6 +219,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       translation,
       provider,
+      terminologyUsed,
+      matchedTerms: matchedTermsCount,
       usage: { used: currentUsed + 1, limit: monthlyLimit },
     });
   } catch (error) {

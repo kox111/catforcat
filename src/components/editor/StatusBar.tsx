@@ -1,5 +1,7 @@
 "use client";
 
+export type SaveStatus = "idle" | "saving" | "saved" | "error";
+
 interface StatusBarProps {
   activeSegmentPosition?: number;
   totalSegments: number;
@@ -7,6 +9,8 @@ interface StatusBarProps {
   totalWordCount: number;
   translationProvider?: string;
   savedIndicator?: boolean;
+  saveStatus?: SaveStatus;
+  focusMode?: boolean;
   onGoToClick?: () => void;
   onProviderClick?: () => void;
   onShortcutsClick?: () => void;
@@ -19,10 +23,24 @@ export default function StatusBar({
   totalWordCount,
   translationProvider = "Google",
   savedIndicator,
+  saveStatus = "idle",
+  focusMode = false,
   onGoToClick,
   onProviderClick,
   onShortcutsClick,
 }: StatusBarProps) {
+  const pillStyle: React.CSSProperties = {
+    background: "var(--bg-hover)",
+    border: "0.5px solid var(--border)",
+    borderRadius: 10,
+    padding: "2px 8px",
+    fontSize: 9,
+    color: "var(--text-muted)",
+    fontFamily: "'JetBrains Mono', monospace",
+    cursor: "pointer",
+    transition: "color 150ms",
+  };
+
   return (
     <div
       style={{
@@ -32,17 +50,17 @@ export default function StatusBar({
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 16px",
-        background: "#0F0F0F",
-        borderTop: "1px solid rgba(255,255,255,0.04)",
-        fontSize: 11,
+        background: "var(--status-bar)",
+        borderTop: "1px solid var(--border)",
+        fontSize: 10,
         fontFamily: "'JetBrains Mono', monospace",
         color: "var(--text-muted)",
         userSelect: "none",
         flexShrink: 0,
       }}
     >
-      {/* Left items */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      {/* Left: Seg X/Y · words · total */}
+      <div style={{ display: "flex", alignItems: "center" }}>
         <button
           onClick={onGoToClick}
           style={{
@@ -50,7 +68,7 @@ export default function StatusBar({
             border: "none",
             color: "var(--text-muted)",
             cursor: "pointer",
-            padding: "0 4px",
+            padding: 0,
             fontFamily: "inherit",
             fontSize: "inherit",
             transition: "color 200ms",
@@ -61,58 +79,79 @@ export default function StatusBar({
         >
           Seg {activeSegmentPosition}/{totalSegments}
         </button>
+        <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+        <span>{activeSegmentWordCount} words</span>
+        <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+        <span>{totalWordCount} total</span>
 
-        <span>
-          {activeSegmentWordCount} words
-          <span style={{ color: "rgba(255,255,255,0.1)", margin: "0 6px" }}>|</span>
-          {totalWordCount} total
-        </span>
+        {/* Focus mode badge */}
+        {focusMode && (
+          <>
+            <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+            <span style={{ color: "var(--accent)", fontWeight: 500 }}>Focus</span>
+          </>
+        )}
+
+        {/* Save status */}
+        {(saveStatus !== "idle" || savedIndicator) && (
+          <>
+            <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                color:
+                  saveStatus === "saving"
+                    ? "var(--amber-text)"
+                    : saveStatus === "error"
+                    ? "var(--red-text)"
+                    : "var(--green-text)",
+                animation: saveStatus === "saving" ? "savePulse 1.5s ease-in-out infinite" : "none",
+              }}
+            >
+              <span
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  background:
+                    saveStatus === "saving"
+                      ? "var(--amber)"
+                      : saveStatus === "error"
+                      ? "var(--red)"
+                      : "var(--green)",
+                }}
+              />
+              {saveStatus === "saving"
+                ? "Saving..."
+                : saveStatus === "error"
+                ? "Error"
+                : "Saved"}
+            </span>
+          </>
+        )}
       </div>
 
-      {/* Right items */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      {/* Right: Provider pill + Shortcuts pill */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <button
           onClick={onProviderClick}
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--accent)",
-            cursor: "pointer",
-            padding: "0 4px",
-            fontFamily: "inherit",
-            fontSize: "inherit",
-            fontWeight: 500,
-            transition: "opacity 200ms",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          style={pillStyle}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
           title="Change translation provider"
         >
           {translationProvider}
         </button>
-
-        {savedIndicator && (
-          <span style={{ color: "var(--green)" }}>Saved</span>
-        )}
-
-        <button
-          onClick={onShortcutsClick}
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--text-muted)",
-            cursor: "pointer",
-            padding: "0 4px",
-            fontFamily: "inherit",
-            fontSize: "inherit",
-            transition: "color 200ms",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-        >
-          Ctrl+/ Shortcuts
-        </button>
       </div>
+
+      <style>{`
+        @keyframes savePulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   );
 }

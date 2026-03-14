@@ -5,13 +5,13 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import ThemeProvider from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "TranslatePro",
-  description: "Computer-Assisted Translation tool for freelance translators",
+  title: "catforcat.",
+  description: "A CAT tool for translators who care about the craft",
   manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3b82f6",
+  themeColor: "#EFC4CC",
 };
 
 export default function RootLayout({
@@ -22,6 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link
           rel="preconnect"
           href="https://fonts.googleapis.com"
@@ -32,7 +35,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap"
           rel="stylesheet"
         />
       </head>

@@ -183,7 +183,7 @@ export default function GlossaryPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto" style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
@@ -199,9 +199,9 @@ export default function GlossaryPage() {
             onClick={() => setShowProjectImport((v) => !v)}
             className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
             style={{
-              background: showProjectImport ? "var(--accent)" : "var(--bg-card)",
-              color: showProjectImport ? "#fff" : "var(--text-secondary)",
-              border: showProjectImport ? "none" : "1px solid var(--border)",
+              background: showProjectImport ? "var(--accent-soft)" : "var(--bg-card)",
+              color: showProjectImport ? "var(--text-primary)" : "var(--text-secondary)",
+              border: "0.5px solid var(--border)",
             }}
           >
             {showProjectImport ? "Cancel" : "From Project"}
@@ -271,9 +271,9 @@ export default function GlossaryPage() {
             onClick={() => setShowAddForm(!showAddForm)}
             className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
             style={{
-              background: showAddForm ? "var(--bg-card)" : "var(--accent)",
-              color: showAddForm ? "var(--text-secondary)" : "#fff",
-              border: showAddForm ? "1px solid var(--border)" : "none",
+              background: showAddForm ? "var(--bg-card)" : "var(--accent-soft)",
+              color: showAddForm ? "var(--text-secondary)" : "var(--text-primary)",
+              border: "0.5px solid var(--border)",
             }}
           >
             {showAddForm ? "Cancel" : "+ Add Term"}
@@ -372,7 +372,7 @@ export default function GlossaryPage() {
             type="submit"
             disabled={submitting}
             className="px-4 py-1.5 rounded text-sm font-medium"
-            style={{ background: "var(--accent)", color: "#fff" }}
+            style={{ background: "var(--accent-soft)", color: "var(--text-primary)", border: "0.5px solid var(--border)" }}
           >
             {submitting ? "Adding..." : "Add Term"}
           </button>
@@ -390,8 +390,8 @@ export default function GlossaryPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: importResult.startsWith("Error") ? "var(--red, #ef4444)" : "var(--accent)",
-            color: "#fff",
+            background: importResult.startsWith("Error") ? "var(--red-soft)" : "var(--accent-soft)",
+            color: importResult.startsWith("Error") ? "var(--red-text)" : "var(--text-primary)",
           }}
         >
           {importResult}
@@ -513,8 +513,8 @@ export default function GlossaryPage() {
                 className="text-xs px-2 py-1 rounded transition-colors shrink-0"
                 style={{ color: "var(--text-muted)", border: "1px solid transparent" }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "var(--red, #ef4444)";
-                  e.currentTarget.style.borderColor = "var(--red, #ef4444)";
+                  e.currentTarget.style.color = "var(--red)";
+                  e.currentTarget.style.borderColor = "var(--red)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.color = "var(--text-muted)";

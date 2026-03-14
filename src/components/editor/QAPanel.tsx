@@ -9,7 +9,7 @@ interface QAPanelProps {
 }
 
 const SEVERITY_CONFIG = {
-  error: { color: "var(--red, #ef4444)", icon: "✕", label: "Errors" },
+  error: { color: "var(--red)", icon: "✕", label: "Errors" },
   warning: { color: "var(--amber)", icon: "⚠", label: "Warnings" },
   info: { color: "var(--accent)", icon: "ℹ", label: "Info" },
 };
@@ -70,7 +70,7 @@ export default function QAPanel({
                 borderRadius: "0.25rem",
                 fontWeight: 500,
                 background: SEVERITY_CONFIG.error.color,
-                color: "#fff",
+                color: "var(--bg-deep)",
               }}
             >
               {grouped.errors.length} error{grouped.errors.length > 1 ? "s" : ""}
@@ -87,7 +87,7 @@ export default function QAPanel({
                 borderRadius: "0.25rem",
                 fontWeight: 500,
                 background: SEVERITY_CONFIG.warning.color,
-                color: "#000",
+                color: "var(--text-primary)",
               }}
             >
               {grouped.warnings.length} warning{grouped.warnings.length > 1 ? "s" : ""}
@@ -104,7 +104,7 @@ export default function QAPanel({
                 borderRadius: "0.25rem",
                 fontWeight: 500,
                 background: SEVERITY_CONFIG.info.color,
-                color: "#fff",
+                color: "var(--text-primary)",
               }}
             >
               {grouped.infos.length} info

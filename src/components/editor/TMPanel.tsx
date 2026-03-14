@@ -187,10 +187,10 @@ export default function TMPanel({
                 <span
                   style={{
                     fontSize: 10,
-                    fontWeight: 700,
+                    fontWeight: 600,
                     padding: "2px 7px",
                     borderRadius: "var(--radius-sm)",
-                    color: "#fff",
+                    color: "var(--text-primary)",
                     background: color,
                     fontFamily: "'JetBrains Mono', monospace",
                   }}

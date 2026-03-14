@@ -75,7 +75,7 @@ export default function ShortcutsModal({ onClose }: ShortcutsModalProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "rgba(0,0,0,0.5)",
+        background: "var(--overlay)",
       }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
@@ -86,7 +86,7 @@ export default function ShortcutsModal({ onClose }: ShortcutsModalProps) {
           maxWidth: "32rem",
           maxHeight: "80vh",
           overflowY: "auto",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          boxShadow: "var(--shadow-md)",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",
         }}

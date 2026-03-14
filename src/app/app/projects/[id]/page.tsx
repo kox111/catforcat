@@ -66,6 +66,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [savedIndicator, setSavedIndicator] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveRetryRef = useRef<number>(0);
+  const [recoveryBanner, setRecoveryBanner] = useState(false);
   const [concordanceOpen, setConcordanceOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   // B1: Auto-Glossary Detection
@@ -84,6 +85,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [noteModal, setNoteModal] = useState<{ segmentId: string; position: number; note: string } | null>(null);
   // F1: Shortcuts modal
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // Focus mode
+  const [focusMode, setFocusMode] = useState(false);
   // Bottom panel tab state
   const [bottomTab, setBottomTab] = useState<"tm" | "glossary">("tm");
   // F3: Font size (persisted in localStorage)
@@ -404,6 +407,32 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     fetchProject();
   }, [id, authStatus, router, setProject, setSegments]);
 
+  // Session recovery: restore drafts from localStorage
+  useEffect(() => {
+    if (segments.length === 0) return;
+    let recovered = false;
+    segments.forEach((segment) => {
+      try {
+        const draftKey = `catforcat-draft-${segment.id}`;
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+          const { text, timestamp } = JSON.parse(raw);
+          // If draft is newer than what's in DB, restore it
+          if (text && text !== segment.targetText) {
+            updateSegmentTarget(segment.id, text);
+            recovered = true;
+          }
+          localStorage.removeItem(draftKey);
+        }
+      } catch { /* ignore parse errors */ }
+    });
+    if (recovered) {
+      setRecoveryBanner(true);
+    }
+    // Only run once on initial load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [segments.length > 0]);
+
   // Auto-propagation: pre-fill targets for repeated source texts
   useEffect(() => {
     if (segments.length === 0) return;
@@ -517,13 +546,26 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       }
     } catch (err) {
       console.error("Auto-save failed:", err);
+      // Save drafts to localStorage as fallback
+      const state2 = useEditorStore.getState();
+      for (const segId of toSave) {
+        const seg = state2.segments.find((s) => s.id === segId);
+        if (seg) {
+          try {
+            localStorage.setItem(`catforcat-draft-${segId}`, JSON.stringify({
+              text: seg.targetText,
+              timestamp: Date.now(),
+              projectId: id,
+            }));
+          } catch { /* localStorage full */ }
+        }
+      }
       saveRetryRef.current += 1;
       if (saveRetryRef.current <= 3) {
         setSaveError(`Save failed — retrying... (${saveRetryRef.current}/3)`);
-        // Retry after 2 seconds
         setTimeout(() => saveSegments(), 2000);
       } else {
-        setSaveError("Save failed — please save manually (Ctrl+S)");
+        setSaveError("Save failed — changes cached locally");
         saveRetryRef.current = 0;
       }
     } finally {
@@ -704,7 +746,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       saveSegments();
-    }, 2000);
+    }, 500);
 
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
@@ -745,6 +787,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       if (e.ctrlKey && e.key === "k") {
         e.preventDefault();
         setConcordanceOpen(true);
+        return;
+      }
+
+      // Ctrl+Shift+F — toggle focus mode
+      if (e.ctrlKey && e.shiftKey && e.key === "F") {
+        e.preventDefault();
+        setFocusMode((v) => !v);
         return;
       }
 
@@ -890,7 +939,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   if (!project || segments.length === 0) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", color: "var(--text-muted)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1, color: "var(--text-muted)" }}>
         Loading editor...
       </div>
     );
@@ -923,7 +972,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#121212" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, background: "var(--bg-deep)" }}>
       {/* ─── Minimal Toolbar ─── */}
       <EditorToolbar
         projectName={project.name}
@@ -948,6 +997,38 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         totalCount={totalSegments}
       />
 
+      {/* ─── Session recovery banner ─── */}
+      {recoveryBanner && (
+        <div
+          style={{
+            padding: "8px 16px",
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "var(--amber-soft)",
+            color: "var(--amber-text)",
+          }}
+        >
+          <span>Recovered unsaved changes from your last session.</span>
+          <button
+            onClick={() => setRecoveryBanner(false)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--amber-text)",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              fontSize: 12,
+              textDecoration: "underline",
+              padding: "0 4px",
+            }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* ─── Toast notifications ─── */}
       {glossaryWarning && (
         <div
@@ -959,13 +1040,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             gap: 8,
             background: "var(--amber-soft)",
             color: "var(--amber)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            borderBottom: "1px solid var(--bg-hover)",
           }}
         >
           <span>{glossaryWarning}</span>
           <button
             onClick={() => setGlossaryWarning(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, padding: "0 4px" }}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
           >
             ×
           </button>
@@ -982,13 +1063,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             gap: 8,
             background: "var(--red-soft)",
             color: "var(--red)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            borderBottom: "1px solid var(--bg-hover)",
           }}
         >
           <span>{aiError}</span>
           <button
             onClick={() => setAiError(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, padding: "0 4px" }}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
           >
             ×
           </button>
@@ -1005,13 +1086,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             gap: 8,
             background: "var(--green-soft)",
             color: "var(--green)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            borderBottom: "1px solid var(--bg-hover)",
           }}
         >
           <span>{preTranslateToast}</span>
           <button
             onClick={() => setPreTranslateToast(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, padding: "0 4px" }}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
           >
             ×
           </button>
@@ -1028,13 +1109,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             gap: 8,
             background: "var(--accent-soft)",
             color: "var(--accent)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            borderBottom: "1px solid var(--bg-hover)",
           }}
         >
           <span>{propagatedCount} identical segment{propagatedCount > 1 ? "s" : ""} auto-filled</span>
           <button
             onClick={() => setPropagatedCount(0)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, padding: "0 4px" }}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
           >
             ×
           </button>
@@ -1052,7 +1133,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             flexWrap: "wrap",
             background: "var(--purple-soft)",
             color: "var(--purple)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            borderBottom: "1px solid var(--bg-hover)",
           }}
         >
           <span style={{ fontWeight: 500 }}>Frequent terms detected:</span>
@@ -1068,7 +1149,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 fontSize: 11,
                 fontWeight: 500,
                 background: "var(--purple)",
-                color: "#fff",
+                color: "var(--text-primary)",
                 border: "none",
                 cursor: "pointer",
               }}
@@ -1099,7 +1180,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           ))}
           <button
             onClick={() => setAutoGlossarySuggestions([])}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, padding: "0 4px" }}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
           >
             ×
           </button>
@@ -1115,8 +1196,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             display: "flex",
             alignItems: "center",
             gap: 8,
-            background: "rgba(255,255,255,0.02)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            background: "var(--bg-hover)",
+            borderBottom: "1px solid var(--bg-hover)",
             color: "var(--text-secondary)",
           }}
         >
@@ -1283,7 +1364,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       })()}
 
       {/* ═══ MAIN LAYOUT: Sidebar + Two Floating Paper Documents ═══ */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden" }}>
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "row", overflow: "hidden" }}>
         {/* Left Tool Sidebar — 56px */}
         <ToolSidebar
           onTranslationProvider={() => {}}
@@ -1300,20 +1381,20 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         />
 
         {/* Content Area — Two floating papers */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
           {/* Document header — language labels */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              padding: "8px 32px 8px 60px",
-              fontSize: 11,
-              fontFamily: "'JetBrains Mono', monospace",
+              padding: "4px 16px 4px 60px",
+              fontSize: 9,
+              fontFamily: "'Inter', system-ui, sans-serif",
               color: "var(--text-muted)",
               userSelect: "none",
               background: "transparent",
-              letterSpacing: "0.04em",
+              letterSpacing: "1px",
               textTransform: "uppercase",
             }}
           >
@@ -1326,7 +1407,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 width: 2,
                 height: 12,
                 borderRadius: 1,
-                background: "rgba(255,255,255,0.08)",
+                background: "var(--border)",
                 cursor: "col-resize",
                 flexShrink: 0,
                 margin: "0 8px",
@@ -1364,12 +1445,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             data-editor-content
             style={{
               flex: 1,
+              minHeight: 0,
               overflowY: "auto",
               margin: "0 20px 16px 20px",
               borderRadius: "var(--radius)",
-              background: "#1C1C1C",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
-              border: "1px solid rgba(255,255,255,0.04)",
+              background: "var(--bg-card)",
+              boxShadow: "0 4px 24px var(--paper-shadow)",
+              border: "1px solid var(--bg-hover)",
             }}
           >
             {filteredSegments.map((segment) => {
@@ -1399,6 +1481,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                   onContextMenu={(e) => setContextMenu({ x: e.clientX, y: e.clientY, segmentId: segment.id })}
                   fontSize={editorFontSize}
                   columnRatio={columnRatio}
+                  dimmed={focusMode && segment.id !== activeSegmentId}
                 />
               );
             })}
@@ -1424,8 +1507,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 style={{
                   display: "flex",
                   fontSize: 12,
-                  borderTop: "1px solid rgba(255,255,255,0.04)",
-                  background: "rgba(255,255,255,0.02)",
+                  borderTop: "1px solid var(--bg-hover)",
+                  background: "var(--bg-hover)",
                   maxHeight: 48,
                   overflowY: "auto",
                   margin: "0 20px",
@@ -1440,7 +1523,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                   </div>
                 )}
                 {next && (
-                  <div style={{ flex: 1, padding: "5px 12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-muted)", borderLeft: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ flex: 1, padding: "5px 12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-muted)", borderLeft: "1px solid var(--bg-hover)" }}>
                     <span style={{ fontWeight: 500, color: "var(--text-secondary)" }}>{next.position} →: </span>
                     {next.sourceText.slice(0, 80)}{next.sourceText.length > 80 ? "…" : ""}
                   </div>
@@ -1449,19 +1532,20 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             );
           })()}
 
-          {/* Bottom Panels: Tabbed TM + Glossary */}
-          {tmPanelVisible && (
+          {/* Bottom Panels: Tabbed TM + Glossary — always visible */}
+          {(
             <div
               style={{
-                borderTop: "1px solid rgba(255,255,255,0.04)",
-                background: "#1A1A1A",
+                borderTop: "1px solid var(--bg-hover)",
+                background: "var(--bg-sidebar)",
+                height: 150,
                 minHeight: 120,
-                maxHeight: 220,
                 display: "flex",
                 flexDirection: "column",
                 margin: "0 20px 8px 20px",
                 borderRadius: "var(--radius-sm)",
                 overflow: "hidden",
+                flexShrink: 0,
               }}
             >
               {/* Tab bar */}
@@ -1469,7 +1553,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 style={{
                   display: "flex",
                   alignItems: "stretch",
-                  borderBottom: "1px solid rgba(255,255,255,0.04)",
+                  borderBottom: "1px solid var(--bg-hover)",
                   padding: "0 12px",
                   gap: 0,
                 }}
@@ -1557,6 +1641,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         totalWordCount={totalWordCount}
         translationProvider="Google"
         savedIndicator={savedIndicator}
+        saveStatus={saving ? "saving" : saveError ? "error" : "idle"}
+        focusMode={focusMode}
         onGoToClick={() => setGoToOpen(true)}
         onProviderClick={() => {}}
         onShortcutsClick={() => setShortcutsOpen(true)}

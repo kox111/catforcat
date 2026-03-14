@@ -218,8 +218,8 @@ export default function TMAlignPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: "var(--amber)",
-            color: "#000",
+            background: "var(--amber-soft)",
+            color: "var(--amber-text)",
           }}
         >
           Line count mismatch: source has {sourceLines} lines, target has {targetLines}. Only the first {Math.min(sourceLines, targetLines)} pairs will be aligned.
@@ -237,8 +237,8 @@ export default function TMAlignPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: result.startsWith("Error") ? "var(--red, #ef4444)" : "var(--green, #22c55e)",
-            color: result.startsWith("Error") ? "#fff" : "#000",
+            background: result.startsWith("Error") ? "var(--red-soft)" : "var(--green-soft)",
+            color: result.startsWith("Error") ? "var(--red-text)" : "var(--green-text)",
           }}
         >
           {result}
@@ -251,8 +251,9 @@ export default function TMAlignPage() {
         disabled={loading || sourceLines === 0 || targetLines === 0}
         className="px-4 py-2 rounded text-sm font-medium"
         style={{
-          background: loading ? "var(--text-muted)" : "var(--accent)",
-          color: "#fff",
+          background: loading ? "var(--text-muted)" : "var(--accent-soft)",
+          color: "var(--text-primary)",
+          border: "0.5px solid var(--border)",
           opacity: (sourceLines === 0 || targetLines === 0) ? 0.5 : 1,
           cursor: loading ? "not-allowed" : "pointer",
         }}

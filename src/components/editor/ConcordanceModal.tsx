@@ -28,7 +28,7 @@ function HighlightText({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} style={{ background: "var(--amber, #f59e0b)", color: "#000", borderRadius: "2px", padding: "0 1px", fontStyle: "inherit" }}>
+          <mark key={i} style={{ background: "var(--mark-bg)", color: "var(--mark-text)", borderRadius: "2px", padding: "0 1px", fontStyle: "inherit" }}>
             {part}
           </mark>
         ) : (
@@ -109,7 +109,7 @@ export default function ConcordanceModal({
         alignItems: "flex-start",
         justifyContent: "center",
         paddingTop: "6rem",
-        background: "rgba(0,0,0,0.5)",
+        background: "var(--overlay)",
       }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
@@ -118,7 +118,7 @@ export default function ConcordanceModal({
           width: "100%",
           maxWidth: "48rem",
           borderRadius: "0.5rem",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          boxShadow: "var(--shadow-md)",
           overflow: "hidden",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",

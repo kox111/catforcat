@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="28.799999999999997" fill="#0a0e17"/>
-  <text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" 
-        font-family="Arial, sans-serif" font-weight="bold" 
-        font-size="67.19999999999999" fill="#3b82f6">TP</text>
+  <rect width="192" height="192" rx="38" fill="#EFC4CC"/>
+  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle"
+        font-family="Georgia, serif" font-weight="400"
+        font-size="28" fill="#5C4A50" letter-spacing="0.03em">catforcat.</text>
 </svg>

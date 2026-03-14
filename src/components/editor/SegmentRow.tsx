@@ -1,11 +1,17 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
-import { Check, MessageSquare, Sparkles } from "lucide-react";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { Check, MessageSquare, Sparkles, BookOpen } from "lucide-react";
 import type { Segment } from "@/lib/store";
 
 interface SegmentRowProps {
-  segment: Segment;
+  segment: Segment & {
+    previousTargetText?: string;
+    reviewStatus?: string;
+    aiScore?: number | null;
+    aiScoreReason?: string | null;
+    terminologyUsed?: boolean;
+  };
   isActive: boolean;
   onActivate: () => void;
   onTargetChange: (text: string) => void;
@@ -19,6 +25,12 @@ interface SegmentRowProps {
   onContextMenu?: (e: React.MouseEvent) => void;
   fontSize?: number;
   columnRatio?: number;
+  // B.1 Review mode
+  reviewMode?: boolean;
+  onAcceptSegment?: () => void;
+  onRejectSegment?: () => void;
+  // Focus mode
+  dimmed?: boolean;
 }
 
 /**
@@ -62,6 +74,98 @@ function HighlightedSource({ text, terms, subtle = false }: { text: string; term
   );
 }
 
+/**
+ * B.1 — Simple diff view: show old text (strikethrough red) and new text (green).
+ */
+function ReviewDiff({ oldText, newText }: { oldText: string; newText: string }) {
+  if (oldText === newText || !oldText) return null;
+  return (
+    <div style={{ marginBottom: 4, fontSize: 12, lineHeight: 1.6 }}>
+      <span
+        style={{
+          textDecoration: "line-through",
+          color: "var(--red)",
+          opacity: 0.6,
+          marginRight: 8,
+        }}
+      >
+        {oldText}
+      </span>
+      <span
+        style={{
+          color: "var(--green)",
+          background: "var(--green-soft)",
+          borderRadius: 3,
+          padding: "1px 4px",
+        }}
+      >
+        {newText}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * B.4 — AI Score badge (18px circle, color-coded).
+ */
+function AIScoreBadge({ score, reason }: { score: number; reason?: string | null }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const color = score >= 90 ? "var(--green)" : score >= 70 ? "var(--amber)" : "var(--red)";
+  const bg = score >= 90
+    ? "var(--green-soft)"
+    : score >= 70
+    ? "var(--amber-soft)"
+    : "var(--red-soft)";
+
+  return (
+    <div style={{ position: "relative", display: "inline-flex" }}>
+      <div
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: "50%",
+          background: bg,
+          color: color,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 8,
+          fontWeight: 500,
+          fontFamily: "'JetBrains Mono', monospace",
+          cursor: reason ? "help" : "default",
+        }}
+      >
+        {score}
+      </div>
+      {showTooltip && reason && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "100%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            marginBottom: 6,
+            padding: "6px 10px",
+            borderRadius: 6,
+            background: "var(--bg-panel)",
+            border: "0.5px solid var(--border)",
+            boxShadow: "var(--shadow-md)",
+            fontSize: 11,
+            color: "var(--text-secondary)",
+            whiteSpace: "nowrap",
+            maxWidth: 250,
+            zIndex: 50,
+          }}
+        >
+          {reason}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SegmentRow({
   segment,
   isActive,
@@ -77,6 +181,12 @@ export default function SegmentRow({
   onContextMenu,
   fontSize = 15,
   columnRatio = 0.5,
+  // B.1 Review mode
+  reviewMode = false,
+  onAcceptSegment,
+  onRejectSegment,
+  // Focus mode
+  dimmed = false,
 }: SegmentRowProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -115,12 +225,13 @@ export default function SegmentRow({
         alignItems: "stretch",
         position: "relative",
         cursor: "pointer",
-        transition: "background 120ms",
+        transition: "background 120ms, opacity 0.3s ease",
         background: isActive ? "var(--bg-active)" : "transparent",
         borderBottom: "1px solid var(--segment-divider)",
+        opacity: dimmed ? 0.25 : 1,
       }}
       onMouseEnter={(e) => {
-        if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.015)";
+        if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
       }}
       onMouseLeave={(e) => {
         if (!isActive) e.currentTarget.style.background = "transparent";
@@ -144,7 +255,7 @@ export default function SegmentRow({
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 10,
             color: isActive ? "var(--text-secondary)" : "var(--text-muted)",
-            fontWeight: isActive ? 600 : 400,
+            fontWeight: isActive ? 500 : 400,
           }}
         >
           {segment.position}
@@ -156,7 +267,11 @@ export default function SegmentRow({
             width: 6,
             height: 6,
             borderRadius: "50%",
-            background: isConfirmed
+            background: segment.reviewStatus === "accepted"
+              ? "var(--purple)"
+              : segment.reviewStatus === "rejected"
+              ? "var(--red)"
+              : isConfirmed
               ? "var(--green)"
               : isDraft
               ? "var(--amber)"
@@ -166,6 +281,11 @@ export default function SegmentRow({
             transition: "background 200ms",
           }}
         />
+
+        {/* B.4 — AI Score badge */}
+        {segment.aiScore != null && (
+          <AIScoreBadge score={segment.aiScore} reason={segment.aiScoreReason} />
+        )}
 
         {/* Note icon */}
         {onNoteClick && (
@@ -214,6 +334,32 @@ export default function SegmentRow({
           position: "relative",
         }}
       >
+        {/* B.1 — Review diff */}
+        {reviewMode && segment.previousTargetText && segment.previousTargetText !== segment.targetText && (
+          <ReviewDiff oldText={segment.previousTargetText} newText={segment.targetText} />
+        )}
+
+        {/* B.3 — Terminology-aware badge */}
+        {segment.terminologyUsed && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 3,
+              fontSize: 10,
+              padding: "2px 6px",
+              borderRadius: 10,
+              background: "var(--purple-soft)",
+              color: "var(--purple)",
+              fontWeight: 500,
+              marginBottom: 4,
+            }}
+            title="This translation was guided by glossary terms"
+          >
+            <BookOpen size={10} /> Terminology-aware
+          </span>
+        )}
+
         <textarea
           ref={setRef}
           value={segment.targetText}
@@ -260,11 +406,11 @@ export default function SegmentRow({
               gap: 4,
               padding: "4px 10px",
               borderRadius: 20,
-              background: aiLoading ? "rgba(255,255,255,0.06)" : "var(--accent)",
-              color: aiLoading ? "var(--text-muted)" : "#fff",
-              border: "none",
+              background: aiLoading ? "var(--bg-hover)" : "var(--accent-soft)",
+              color: aiLoading ? "var(--text-muted)" : "var(--text-primary)",
+              border: "0.5px solid var(--border)",
               fontSize: 11,
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: aiLoading ? "not-allowed" : "pointer",
               opacity: aiLoading ? 0.5 : 1,
               transition: "opacity 200ms, background 200ms",
@@ -277,8 +423,52 @@ export default function SegmentRow({
           </button>
         )}
 
+        {/* B.1 — Accept / Reject buttons in review mode */}
+        {reviewMode && isActive && segment.previousTargetText && segment.previousTargetText !== segment.targetText && (
+          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onAcceptSegment?.(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                padding: "3px 10px",
+                borderRadius: 14,
+                background: "var(--green-soft)",
+                color: "var(--green)",
+                border: "0.5px solid var(--border)",
+                fontSize: 10,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <Check size={10} /> Accept
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onRejectSegment?.(); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                padding: "3px 10px",
+                borderRadius: 14,
+                background: "var(--red-soft)",
+                color: "var(--red)",
+                border: "0.5px solid var(--border)",
+                fontSize: 10,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              ✕ Reject
+            </button>
+          </div>
+        )}
+
         {/* Confirmed checkmark */}
-        {isConfirmed && !isActive && (
+        {isConfirmed && !isActive && !reviewMode && (
           <div
             style={{
               position: "absolute",

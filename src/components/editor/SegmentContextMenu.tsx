@@ -165,7 +165,7 @@ export default function SegmentContextMenu({
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         borderRadius: "var(--radius)",
-        boxShadow: "var(--shadow-md), 0 8px 32px rgba(0,0,0,0.3)",
+        boxShadow: "var(--shadow-md)",
         opacity: visible ? 1 : 0,
         transform: visible ? "scale(1)" : "scale(0.95)",
         transformOrigin: "top left",

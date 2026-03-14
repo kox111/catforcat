@@ -142,10 +142,10 @@ export default function AnalysisModal({
   }, [segments, srcLang, tgtLang]);
 
   const buckets: TMMatchBucket[] = [
-    { label: "100% TM Match", count: data.tm100, color: "var(--green, #22c55e)" },
-    { label: "75-99% TM Match", count: data.tm75_99, color: "var(--accent, #3b82f6)" },
-    { label: "50-74% TM Match", count: data.tm50_74, color: "var(--amber, #f59e0b)" },
-    { label: "No Match (new)", count: data.noMatch, color: "var(--red, #ef4444)" },
+    { label: "100% TM Match", count: data.tm100, color: "var(--green)" },
+    { label: "75-99% TM Match", count: data.tm75_99, color: "var(--accent)" },
+    { label: "50-74% TM Match", count: data.tm50_74, color: "var(--amber)" },
+    { label: "No Match (new)", count: data.noMatch, color: "var(--red)" },
   ];
 
   return (
@@ -158,7 +158,7 @@ export default function AnalysisModal({
         alignItems: "flex-start",
         justifyContent: "center",
         paddingTop: "5rem",
-        background: "rgba(0,0,0,0.5)",
+        background: "var(--overlay)",
       }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
@@ -167,7 +167,7 @@ export default function AnalysisModal({
           width: "100%",
           maxWidth: "32rem",
           borderRadius: "0.5rem",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          boxShadow: "var(--shadow-md)",
           overflow: "hidden",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",
@@ -243,8 +243,8 @@ export default function AnalysisModal({
                 Translation Status
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "0.75rem" }}>
-                <StatBox label="Confirmed" value={data.confirmed} color="var(--green, #22c55e)" />
-                <StatBox label="Draft" value={data.draft} color="var(--amber, #f59e0b)" />
+                <StatBox label="Confirmed" value={data.confirmed} color="var(--green)" />
+                <StatBox label="Draft" value={data.draft} color="var(--amber)" />
                 <StatBox label="Empty" value={data.empty} color="var(--text-muted)" />
               </div>
             </div>

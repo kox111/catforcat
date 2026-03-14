@@ -10,6 +10,12 @@ import {
   HeadingLevel,
   AlignmentType,
 } from "docx";
+import {
+  exportToJSON,
+  exportToSRT,
+  exportToPO,
+  exportToMarkdown,
+} from "@/lib/segmenter";
 import { canExportFormat } from "@/lib/plan-limits";
 
 /**
@@ -75,6 +81,14 @@ export async function GET(req: NextRequest) {
         return exportXliff(project);
       case "html-bilingual":
         return exportHtmlBilingual(project);
+      case "json":
+        return exportJsonFormat(project);
+      case "srt":
+        return exportSrtFormat(project);
+      case "po":
+        return exportPoFormat(project);
+      case "markdown":
+        return exportMarkdownFormat(project);
       default:
         return NextResponse.json(
           { error: `Unsupported format: ${format}` },
@@ -394,6 +408,115 @@ function escapeXml(text: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
+}
+
+// ─────────────────────────────────────────────
+// JSON Format Export
+// ─────────────────────────────────────────────
+function exportJsonFormat(project: ProjectWithSegments) {
+  const segments = project.segments.map((seg) => ({
+    sourceText: seg.sourceText,
+    targetText: seg.targetText || "",
+    metadata: seg.status === "confirmed" ? { status: "confirmed" } : {},
+  }));
+
+  // Build a simple flat JSON structure with translations
+  const result: Record<string, string> = {};
+  for (let i = 0; i < segments.length; i++) {
+    result[`segment_${i + 1}`] = segments[i].targetText || segments[i].sourceText;
+  }
+
+  const content = JSON.stringify(result, null, 2);
+  const fileName = `${sanitizeFileName(project.name)}_${project.tgtLang}.json`;
+
+  return new NextResponse(content, {
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+// ─────────────────────────────────────────────
+// SRT Format Export
+// ─────────────────────────────────────────────
+function exportSrtFormat(project: ProjectWithSegments) {
+  const segments = project.segments.map((seg) => ({
+    sourceText: seg.sourceText,
+    targetText: seg.targetText || "",
+    metadata: { sequenceNumber: seg.position, timestamps: "00:00:00,000 --> 00:00:02,000" },
+  }));
+
+  const content = exportToSRT(segments);
+  const fileName = `${sanitizeFileName(project.name)}_${project.tgtLang}.srt`;
+
+  return new NextResponse(content, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+// ─────────────────────────────────────────────
+// PO Format Export
+// ─────────────────────────────────────────────
+function exportPoFormat(project: ProjectWithSegments) {
+  const segments = project.segments.map((seg) => ({
+    sourceText: seg.sourceText,
+    targetText: seg.targetText || "",
+    metadata: {},
+  }));
+
+  const content = exportToPO(segments);
+  const fileName = `${sanitizeFileName(project.name)}_${project.tgtLang}.po`;
+
+  return new NextResponse(content, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+// ─────────────────────────────────────────────
+// Markdown Format Export
+// ─────────────────────────────────────────────
+function exportMarkdownFormat(project: ProjectWithSegments) {
+  const lines: string[] = [];
+
+  // Add title and metadata
+  lines.push(`# ${project.name}`);
+  lines.push(`Translation: ${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()}`);
+  lines.push("");
+  lines.push("---");
+  lines.push("");
+
+  // Add segments
+  for (let i = 0; i < project.segments.length; i++) {
+    const seg = project.segments[i];
+    const text = seg.targetText || seg.sourceText;
+    const statusBadge =
+      seg.status === "confirmed"
+        ? "✓"
+        : seg.status === "draft"
+          ? "~"
+          : "○";
+
+    lines.push(`## Segment ${i + 1} [${statusBadge}]`);
+    lines.push(text);
+    lines.push("");
+  }
+
+  const content = lines.join("\n");
+  const fileName = `${sanitizeFileName(project.name)}_${project.tgtLang}.md`;
+
+  return new NextResponse(content, {
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
 }
 
 // ─────────────────────────────────────────────

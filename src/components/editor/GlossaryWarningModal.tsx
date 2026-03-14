@@ -25,7 +25,7 @@ export default function GlossaryWarningModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "rgba(0,0,0,0.5)",
+        background: "var(--overlay)",
       }}
     >
       <div
@@ -33,7 +33,7 @@ export default function GlossaryWarningModal({
           width: "100%",
           maxWidth: "28rem",
           borderRadius: "0.5rem",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          boxShadow: "var(--shadow-md)",
           overflow: "hidden",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",
@@ -48,8 +48,8 @@ export default function GlossaryWarningModal({
             display: "flex",
             alignItems: "center",
             gap: "0.5rem",
-            background: "var(--amber, #f59e0b)",
-            color: "#000",
+            background: "var(--amber-soft)",
+            color: "var(--amber-text)",
           }}
         >
           <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>⚠ Glossary Mismatch</span>
@@ -107,8 +107,8 @@ export default function GlossaryWarningModal({
               borderRadius: "0.25rem",
               fontSize: "0.75rem",
               fontWeight: 500,
-              background: "var(--accent)",
-              color: "#fff",
+              background: "var(--accent-soft)",
+              color: "var(--text-primary)",
               border: "none",
               cursor: "pointer",
             }}

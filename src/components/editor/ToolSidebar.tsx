@@ -5,13 +5,13 @@ import {
   Languages,
   Zap,
   BarChart3,
-  CopyCheck,
   ShieldCheck,
   Search,
   BookOpen,
   Download,
   Keyboard,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import TranslationProviderPopover, { type TranslationProvider } from "./TranslationProviderPopover";
 
@@ -57,9 +57,9 @@ function ToolButton({ icon, label, onClick, disabled, active, shortcut, accent }
           justifyContent: "center",
           borderRadius: "var(--radius-sm)",
           background: active
-            ? "rgba(59,130,246,0.10)"
+            ? "var(--accent-soft)"
             : hovered
-            ? "rgba(255,255,255,0.06)"
+            ? "var(--bg-hover)"
             : "transparent",
           color: active
             ? "var(--accent)"
@@ -88,13 +88,13 @@ function ToolButton({ icon, label, onClick, disabled, active, shortcut, accent }
             left: "calc(100% + 8px)",
             top: "50%",
             transform: "translateY(-50%)",
-            background: "#252525",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border)",
             borderRadius: "var(--radius-sm)",
             padding: "5px 10px",
             whiteSpace: "nowrap",
             zIndex: 100,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+            boxShadow: "var(--shadow-md)",
             pointerEvents: "none",
           }}
         >
@@ -123,10 +123,10 @@ function Divider() {
   return (
     <div
       style={{
-        width: 20,
+        width: "60%",
         height: 1,
-        background: "rgba(255,255,255,0.06)",
-        margin: "6px auto",
+        background: "var(--border)",
+        margin: "4px auto",
       }}
     />
   );
@@ -152,8 +152,8 @@ export default function ToolSidebar({
       style={{
         width: 56,
         minWidth: 56,
-        background: "#1A1A1A",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-sidebar)",
+        borderRight: "1px solid var(--border)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -165,13 +165,48 @@ export default function ToolSidebar({
         flexShrink: 0,
       }}
     >
-      {/* Translation Provider */}
+      {/* Group 1 — Constant use */}
+      <ToolButton
+        icon={<Search size={17} />}
+        label="Concordance Search"
+        onClick={onConcordanceOpen}
+        shortcut="Ctrl+K"
+      />
+
+      <ToolButton
+        icon={<BookOpen size={17} />}
+        label="Glossary"
+        onClick={onSearchOpen}
+      />
+
+      <Divider />
+
+      {/* Group 2 — Frequent use */}
+      <ToolButton
+        icon={<ShieldCheck size={17} />}
+        label="QA Check"
+        onClick={onRunQA}
+        disabled={qaRunning}
+        shortcut="Ctrl+Shift+Q"
+      />
+
+      <ToolButton
+        icon={<Search size={17} style={{ transform: "scaleX(-1)" }} />}
+        label="Find & Replace"
+        onClick={onSearchOpen}
+        shortcut="Ctrl+H"
+      />
+
+      <Divider />
+
+      {/* Group 3 — Occasional use */}
       <div style={{ position: "relative" }}>
         <ToolButton
-          icon={<Languages size={17} />}
-          label="Translation Provider"
-          onClick={() => setProviderOpen(!providerOpen)}
-          active={providerOpen}
+          icon={<Zap size={17} />}
+          label="Pre-translate"
+          onClick={() => onPreTranslate?.("full")}
+          disabled={preTranslating}
+          shortcut="Ctrl+Shift+Enter"
           accent
         />
         {providerOpen && (
@@ -184,51 +219,15 @@ export default function ToolSidebar({
       </div>
 
       <ToolButton
-        icon={<Zap size={17} />}
-        label="Pre-translate"
-        onClick={() => onPreTranslate?.("full")}
-        disabled={preTranslating}
-        shortcut="Ctrl+Shift+P"
-      />
-
-      <Divider />
-
-      <ToolButton
         icon={<BarChart3 size={17} />}
         label="Analysis"
         onClick={onAnalysis}
       />
 
       <ToolButton
-        icon={<CopyCheck size={17} />}
-        label="Copy Source to Target"
-        onClick={onCopyAllSource}
+        icon={<ClipboardList size={17} />}
+        label="Notes"
       />
-
-      <ToolButton
-        icon={<ShieldCheck size={17} />}
-        label="Run QA"
-        onClick={onRunQA}
-        disabled={qaRunning}
-      />
-
-      <Divider />
-
-      <ToolButton
-        icon={<Search size={17} />}
-        label="Search & Replace"
-        onClick={onSearchOpen}
-        shortcut="Ctrl+F"
-      />
-
-      <ToolButton
-        icon={<BookOpen size={17} />}
-        label="Concordance"
-        onClick={onConcordanceOpen}
-        shortcut="Ctrl+K"
-      />
-
-      <Divider />
 
       <ToolButton
         icon={<Download size={17} />}

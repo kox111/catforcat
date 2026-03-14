@@ -1,0 +1,100 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+/**
+ * POST /api/projects/[id]/start-review
+ *
+ * Start review mode for a project:
+ * 1. Change project.status to "review"
+ * 2. For all segments with non-empty targetText, copy targetText → previousTargetText
+ * 3. Return the updated project
+ */
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Verify project ownership
+  const project = await prisma.project.findFirst({
+    where: { id, userId: user.id },
+    include: {
+      segments: {
+        orderBy: { position: "asc" },
+      },
+    },
+  });
+  if (!project) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  try {
+    const body = await req.json();
+    const { reviewerId } = body;
+
+    if (!reviewerId) {
+      return NextResponse.json(
+        { error: "reviewerId is required" },
+        { status: 400 }
+      );
+    }
+
+    // Update project status to "review"
+    const updatedProject = await prisma.project.update({
+      where: { id },
+      data: {
+        status: "review",
+      },
+    });
+
+    // For all segments with non-empty targetText, copy targetText → previousTargetText
+    const segmentsToUpdate = project.segments.filter(
+      (seg) => seg.targetText && seg.targetText.trim() !== ""
+    );
+
+    if (segmentsToUpdate.length > 0) {
+      await prisma.$transaction(
+        segmentsToUpdate.map((seg) =>
+          prisma.segment.update({
+            where: { id: seg.id },
+            data: {
+              previousTargetText: seg.targetText,
+            },
+          })
+        )
+      );
+    }
+
+    // Fetch the updated project with segments
+    const projectWithSegments = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        segments: {
+          orderBy: { position: "asc" },
+        },
+      },
+    });
+
+    return NextResponse.json({ project: projectWithSegments });
+  } catch (error) {
+    console.error("Start review error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

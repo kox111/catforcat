@@ -14,7 +14,7 @@ const LANGUAGES = [
   { code: "ko", label: "한국어" },
 ];
 
-const ACCEPTED_EXTENSIONS = [".txt", ".docx", ".pdf", ".xlf", ".xliff"];
+const ACCEPTED_EXTENSIONS = [".txt", ".docx", ".pdf", ".xlf", ".xliff", ".json", ".srt", ".po", ".md"];
 
 interface ParsedSegment {
   text: string;
@@ -184,7 +184,7 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ background: "rgba(0,0,0,0.6)" }}
+      style={{ background: "var(--overlay)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -215,7 +215,7 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
               padding: "12px",
               borderRadius: "6px",
               fontSize: "14px",
-              background: "rgba(239,68,68,0.1)",
+              background: "var(--red-soft)",
               color: "var(--red)",
             }}
           >
@@ -281,9 +281,10 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
               onClick={() => setInputMode("text")}
               className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
               style={{
-                background: inputMode === "text" ? "var(--accent)" : "var(--bg-card)",
-                color: inputMode === "text" ? "#fff" : "var(--text-secondary)",
-                border: inputMode === "text" ? "none" : "1px solid var(--border)",
+                background: inputMode === "text" ? "var(--accent-soft)" : "var(--bg-card)",
+                color: inputMode === "text" ? "var(--text-primary)" : "var(--text-secondary)",
+                border: inputMode === "text" ? "0.5px solid var(--accent)" : "1px solid var(--border)",
+                borderRadius: 8,
               }}
             >
               Paste Text
@@ -293,9 +294,10 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
               onClick={() => setInputMode("file")}
               className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
               style={{
-                background: inputMode === "file" ? "var(--accent)" : "var(--bg-card)",
-                color: inputMode === "file" ? "#fff" : "var(--text-secondary)",
-                border: inputMode === "file" ? "none" : "1px solid var(--border)",
+                background: inputMode === "file" ? "var(--accent-soft)" : "var(--bg-card)",
+                color: inputMode === "file" ? "var(--text-primary)" : "var(--text-secondary)",
+                border: inputMode === "file" ? "0.5px solid var(--accent)" : "1px solid var(--border)",
+                borderRadius: 8,
               }}
             >
               Upload File
@@ -350,7 +352,7 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                   transition: "colors 0.2s ease",
                   padding: "32px",
                   border: `2px dashed ${dragOver ? "var(--accent)" : "var(--border)"}`,
-                  background: dragOver ? "rgba(59,130,246,0.05)" : "var(--bg-card)",
+                  background: dragOver ? "var(--accent-soft)" : "var(--bg-card)",
                 }}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -363,7 +365,7 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".txt,.docx,.pdf,.xlf,.xliff"
+                  accept=".txt,.docx,.pdf,.xlf,.xliff,.json,.srt,.po,.md"
                   onChange={handleFileSelect}
                   className="hidden"
                 />
@@ -392,7 +394,7 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                       Drag & drop a file here, or click to browse
                     </div>
                     <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                      Supported: .txt, .docx, .pdf, .xlf
+                      Supported: .txt, .docx, .pdf, .xlf, .json, .srt, .po, .md
                     </div>
                   </div>
                 )}
@@ -467,11 +469,24 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded text-sm"
               style={{
-                background: "var(--bg-card)",
+                padding: "8px 20px",
+                borderRadius: 8,
+                fontSize: 13,
+                background: "transparent",
                 color: "var(--text-secondary)",
-                border: "1px solid var(--border)",
+                border: "0.5px solid var(--border)",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                transition: "background 150ms, border-color 150ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent)";
+                e.currentTarget.style.color = "var(--text-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--border)";
+                e.currentTarget.style.color = "var(--text-secondary)";
               }}
             >
               Cancel
@@ -479,11 +494,29 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
             <button
               type="submit"
               disabled={loading || parsing}
-              className="px-4 py-2 rounded text-sm font-medium transition-opacity"
               style={{
-                background: "var(--accent)",
-                color: "#fff",
+                padding: "8px 20px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                background: "var(--accent-soft)",
+                color: "var(--text-primary)",
+                border: "0.5px solid var(--border)",
+                backdropFilter: "blur(4px)",
+                cursor: loading || parsing ? "default" : "pointer",
                 opacity: loading || parsing ? 0.6 : 1,
+                fontFamily: "inherit",
+                transition: "background 150ms, border-color 150ms",
+              }}
+              onMouseEnter={(e) => {
+                if (!loading && !parsing) {
+                  e.currentTarget.style.background = "var(--bg-hover)";
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--accent-soft)";
+                e.currentTarget.style.borderColor = "var(--border)";
               }}
             >
               {loading ? "Creating..." : "Create Project"}

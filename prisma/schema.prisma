@@ -17,6 +17,7 @@ model User {
   stripeSubscriptionId  String?  @map("stripe_subscription_id")
   stripePriceId         String?  @map("stripe_price_id")
   stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
+  avatarUrl             String?  @map("avatar_url")
   aiRequestsUsed        Int      @default(0) @map("ai_requests_used")
   aiRequestsResetAt     DateTime @default(now()) @map("ai_requests_reset_at")
   createdAt             DateTime @default(now()) @map("created_at")
@@ -37,12 +38,14 @@ model Project {
   tgtLang    String   @map("tgt_lang")
   sourceFile String?  @map("source_file")
   fileFormat String?  @map("file_format")
-  status     String   @default("active") // active | completed | archived
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  status        String   @default("active") // active | completed | archived
+  privacyLevel  String   @default("standard") @map("privacy_level") // "standard" | "private" | "confidential"
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   segments Segment[]
+  qaRules  QARule[]
 
   @@map("projects")
 }
@@ -52,10 +55,17 @@ model Segment {
   projectId  String   @map("project_id")
   position   Int
   sourceText String   @map("source_text")
-  targetText String   @default("") @map("target_text")
-  status     String   @default("empty") // empty | draft | confirmed
-  tmMatchPct Int      @default(0) @map("tm_match_pct")
-  metadata   String   @default("{}") // JSON string (SQLite doesn't have JSONB)
+  targetText         String   @default("") @map("target_text")
+  status             String   @default("empty") // empty | draft | confirmed
+  tmMatchPct         Int      @default(0) @map("tm_match_pct")
+  metadata           String   @default("{}") // JSON string (SQLite doesn't have JSONB)
+  previousTargetText String   @default("") @map("previous_target_text")
+  reviewStatus       String   @default("pending") @map("review_status") // pending | accepted | rejected
+  reviewedBy         String?  @map("reviewed_by")
+  reviewedAt         DateTime? @map("reviewed_at")
+  aiScore            Int?     @map("ai_score")
+  aiScoreReason      String?  @map("ai_score_reason")
+  aiScoredAt         DateTime? @map("ai_scored_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
@@ -98,4 +108,19 @@ model GlossaryTerm {
 
   @@unique([userId, sourceTerm, srcLang, tgtLang])
   @@map("glossary_terms")
+}
+
+model QARule {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  type      String   // "wordlist" | "regex"
+  wrong     String   // the incorrect term or regex pattern
+  correct   String   // the correct term or error description
+  severity  String   @default("warning") // "warning" | "error"
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("qa_rules")
 }

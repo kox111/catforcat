@@ -69,7 +69,7 @@ export default function TranslationProviderPopover({
       id: "deepl",
       name: "DeepL Pro",
       description: "Neural MT, professional quality",
-      icon: <Sparkles size={18} style={{ color: "#5B8DEF" }} />,
+      icon: <Sparkles size={18} style={{ color: "var(--accent)" }} />,
       available: isPro,
       badge: isPro ? undefined : "PRO",
       stars: 3,
@@ -114,7 +114,7 @@ export default function TranslationProviderPopover({
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         borderRadius: "var(--radius)",
-        boxShadow: "var(--shadow-md), 0 8px 32px rgba(0,0,0,0.3)",
+        boxShadow: "var(--shadow-md)",
         zIndex: 200,
         opacity: visible ? 1 : 0,
         transform: visible ? "translateX(0)" : "translateX(-8px)",
@@ -278,7 +278,7 @@ export default function TranslationProviderPopover({
                   <span
                     style={{
                       fontSize: 13,
-                      fontWeight: isSelected ? 600 : 500,
+                      fontWeight: 600,
                       color: isSelected ? "var(--accent)" : "var(--text-primary)",
                     }}
                   >
@@ -288,16 +288,16 @@ export default function TranslationProviderPopover({
                     <span
                       style={{
                         fontSize: 9,
-                        fontWeight: 700,
+                        fontWeight: 600,
                         padding: "1px 6px",
                         borderRadius: 4,
                         background:
                           provider.badge === "PRO"
-                            ? "var(--accent)"
+                            ? "var(--accent-soft)"
                             : "var(--purple-soft)",
                         color:
                           provider.badge === "PRO"
-                            ? "#fff"
+                            ? "var(--text-primary)"
                             : "var(--purple)",
                         letterSpacing: "0.5px",
                         textTransform: "uppercase",
@@ -359,8 +359,8 @@ export default function TranslationProviderPopover({
               width: "100%",
               padding: "8px 14px",
               borderRadius: "var(--radius-sm)",
-              background: "var(--accent)",
-              color: "#fff",
+              background: "var(--accent-soft)",
+              color: "var(--text-primary)",
               border: "none",
               fontSize: 12,
               fontWeight: 600,

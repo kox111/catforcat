@@ -41,6 +41,7 @@ export async function GET() {
       sourceFile: p.sourceFile,
       fileFormat: p.fileFormat,
       status: p.status,
+      privacyLevel: p.privacyLevel,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
       totalSegments: total,
