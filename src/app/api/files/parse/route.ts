@@ -9,15 +9,13 @@ import {
   segmentMarkdown,
   type RawSegment,
 } from "@/lib/segmenter";
-import { prisma } from "@/lib/prisma";
-import { canImportFormat } from "@/lib/plan-limits";
-
 /**
  * POST /api/files/parse
  * Receives a file (multipart/form-data), extracts text, segments it.
  * Returns: { segments: Array<{ text, metadata }>, fileName, fileFormat }
  *
  * Supported: .txt, .docx, .pdf, .xlf, .xliff, .json, .srt, .po, .md
+ * All formats are available for both Free and Pro plans.
  */
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -35,16 +33,6 @@ export async function POST(req: NextRequest) {
 
     const fileName = file.name;
     const ext = fileName.split(".").pop()?.toLowerCase() || "";
-
-    // Plan limit: import format
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { plan: true },
-    });
-    const formatCheck = canImportFormat(user?.plan || "free", ext);
-    if (!formatCheck.allowed) {
-      return NextResponse.json({ error: formatCheck.message }, { status: 403 });
-    }
 
     let extractedText = "";
     let fileFormat = ext;

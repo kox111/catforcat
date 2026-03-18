@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import NewProjectModal from "@/components/NewProjectModal";
 import PrivacySelector, { PrivacyBadge } from "@/components/PrivacySelector";
@@ -24,18 +24,32 @@ interface ProjectSummary {
 }
 
 const LANG_LABELS: Record<string, string> = {
-  en: "English",
-  es: "Español",
-  fr: "Français",
-  de: "Deutsch",
-  pt: "Português",
-  it: "Italiano",
-  zh: "中文",
-  ja: "日本語",
-  ko: "한국어",
+  en: "English", "en-US": "English (US)", "en-GB": "English (UK)", "en-AU": "English (AU)", "en-CA": "English (CA)",
+  es: "Español", "es-ES": "Español (ES)", "es-419": "Español (LATAM)", "es-MX": "Español (MX)", "es-PE": "Español (PE)",
+  "es-AR": "Español (AR)", "es-CO": "Español (CO)", "es-CL": "Español (CL)",
+  fr: "Français", "fr-FR": "Français (FR)", "fr-CA": "Français (CA)", "fr-BE": "Français (BE)",
+  de: "Deutsch", "de-DE": "Deutsch (DE)", "de-AT": "Deutsch (AT)", "de-CH": "Deutsch (CH)",
+  pt: "Português", "pt-BR": "Português (BR)", "pt-PT": "Português (PT)",
+  it: "Italiano", "it-IT": "Italiano (IT)", "it-CH": "Italiano (CH)",
+  zh: "中文", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)",
+  ja: "日本語", "ja-JP": "日本語",
+  ko: "한국어", "ko-KR": "한국어",
+  "ar-EG": "العربية (EG)", "ar-SA": "العربية (SA)",
+  "ru-RU": "Русский",
+  "nl-NL": "Nederlands (NL)", "nl-BE": "Nederlands (BE)",
+  "pl-PL": "Polski",
+  "tr-TR": "Türkçe",
 };
 
 export default function ProjectsPage() {
+  return (
+    <Suspense fallback={<div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 13 }}>Loading projects...</div>}>
+      <ProjectsContent />
+    </Suspense>
+  );
+}
+
+function ProjectsContent() {
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,7 +125,32 @@ export default function ProjectsPage() {
         >
           Projects
         </h1>
-        {/* + New Project button is in TopBar */}
+        <button
+          onClick={() => setShowNewProject(true)}
+          style={{
+            padding: "8px 20px",
+            borderRadius: 22,
+            fontSize: 13,
+            fontWeight: 500,
+            fontFamily: "'Inter', system-ui, sans-serif",
+            background: "var(--accent-soft)",
+            color: "var(--text-primary)",
+            border: "0.5px solid var(--border)",
+            backdropFilter: "blur(4px)",
+            cursor: "pointer",
+            transition: "background 150ms, border-color 150ms",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--bg-hover)";
+            e.currentTarget.style.borderColor = "var(--accent)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "var(--accent-soft)";
+            e.currentTarget.style.borderColor = "var(--border)";
+          }}
+        >
+          + New Project
+        </button>
       </div>
 
       {/* Recent Projects Widget */}

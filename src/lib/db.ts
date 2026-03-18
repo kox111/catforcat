@@ -2,7 +2,7 @@ import Dexie, { type Table } from "dexie";
 
 // ────────────────────────────────────────────
 // Local IndexedDB schema — spec section 3.2
-// Database: "translatepro_local", version 1
+// Database: "catforcat_local", version 1
 // ────────────────────────────────────────────
 
 export interface LocalProject {
@@ -53,7 +53,7 @@ export interface SyncQueueEntry {
   timestamp: number; // Date.now()
 }
 
-class TranslateProDB extends Dexie {
+class CATforCATDB extends Dexie {
   projects!: Table<LocalProject, string>;
   segments!: Table<LocalSegment, string>;
   tm!: Table<LocalTMEntry, string>;
@@ -61,7 +61,7 @@ class TranslateProDB extends Dexie {
   syncQueue!: Table<SyncQueueEntry, number>;
 
   constructor() {
-    super("translatepro_local");
+    super("catforcat_local");
 
     this.version(1).stores({
       projects: "id, name, srcLang, tgtLang, status, createdAt",
@@ -73,4 +73,4 @@ class TranslateProDB extends Dexie {
   }
 }
 
-export const db = new TranslateProDB();
+export const db = new CATforCATDB();

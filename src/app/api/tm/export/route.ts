@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
   lines.push('<?xml version="1.0" encoding="UTF-8"?>');
   lines.push('<tmx version="1.4">');
   lines.push(
-    `  <header creationtool="TranslatePro" creationtoolversion="1.0" srclang="${srcLang || "*all*"}" datatype="plaintext" segtype="sentence" adminlang="en"/>`
+    `  <header creationtool="CATforCAT" creationtoolversion="1.0" srclang="${srcLang || "*all*"}" datatype="plaintext" segtype="sentence" adminlang="en"/>`
   );
   lines.push("  <body>");
 

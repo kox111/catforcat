@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEditorStore } from "@/lib/store";
 import EditorToolbar from "@/components/editor/EditorToolbar";
-import ToolSidebar from "@/components/editor/ToolSidebar";
+import EditorToolstrip from "@/components/editor/EditorToolstrip";
 import StatusBar from "@/components/editor/StatusBar";
 import SegmentRow from "@/components/editor/SegmentRow";
 import TMPanel from "@/components/editor/TMPanel";
@@ -27,10 +27,13 @@ import { mirrorProject, mirrorSegments, enqueueSync, isOnline as checkOnline } f
 import { findPropagations } from "@/lib/auto-propagate";
 import type { SegmentFilter, PreTranslateProgress } from "@/components/editor/EditorToolbar";
 
-const LANG_LABELS: Record<string, string> = {
-  en: "EN", es: "ES", fr: "FR", de: "DE", pt: "PT",
-  it: "IT", zh: "ZH", ja: "JA", ko: "KO",
-};
+/* Maps lang codes to short display labels. Handles both old ("en") and new regional ("en-US") codes. */
+function getLangLabel(code: string): string {
+  // Regional codes: "en-US" → "EN-US", "es-PE" → "ES-PE"
+  if (code.includes("-")) return code.toUpperCase();
+  // Legacy short codes
+  return code.toUpperCase();
+}
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -63,7 +66,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [propagatedCount, setPropagatedCount] = useState(0);
   const [preTranslateProgress, setPreTranslateProgress] = useState<PreTranslateProgress | null>(null);
   const [preTranslateToast, setPreTranslateToast] = useState<string | null>(null);
-  const [savedIndicator, setSavedIndicator] = useState(false);
+  const [generalToast, setGeneralToast] = useState<string | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const saveRetryRef = useRef<number>(0);
   const [recoveryBanner, setRecoveryBanner] = useState(false);
@@ -89,6 +93,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [focusMode, setFocusMode] = useState(false);
   // Bottom panel tab state
   const [bottomTab, setBottomTab] = useState<"tm" | "glossary">("tm");
+  // Export dropdown (controlled from sidebar)
+  const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
+  // Bottom panel collapse/resize
+  const [bottomPanelCollapsed, setBottomPanelCollapsed] = useState(false);
+  const [bottomPanelHeight, setBottomPanelHeight] = useState(150);
+  const [tmMatchCount, setTmMatchCount] = useState(0);
+  const bottomDragRef = useRef<{ startY: number; startH: number } | null>(null);
   // F3: Font size (persisted in localStorage)
   const [editorFontSize, setEditorFontSize] = useState(13);
   // F4: Column width ratio (0.5 = equal, persisted in localStorage)
@@ -104,12 +115,30 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       if (savedFontSize) setEditorFontSize(Number(savedFontSize));
       const savedRatio = localStorage.getItem("tp-column-ratio");
       if (savedRatio) setColumnRatio(Number(savedRatio));
+      const savedPanelH = localStorage.getItem("tp-bottom-panel-height");
+      if (savedPanelH) setBottomPanelHeight(Number(savedPanelH));
     } catch { /* ignore */ }
   }, []);
 
-  // Keep TM matches in ref for keyboard shortcut access
+  // Auto-collapse bottom panel on small viewports
+  useEffect(() => {
+    const check = () => {
+      if (window.innerHeight < 900) {
+        setBottomPanelCollapsed(true);
+      }
+    };
+    check();
+    // Only run on mount, not on resize (user might manually expand)
+  }, []);
+
+  // Keep TM matches in ref for keyboard shortcut access + auto-expand panel
   const handleTMMatchesUpdate = useCallback((matches: TMMatch[]) => {
     tmMatchesRef.current = matches;
+    setTmMatchCount(matches.length);
+    // Auto-expand when matches appear
+    if (matches.length > 0) {
+      setBottomPanelCollapsed(false);
+    }
   }, []);
 
   // Track glossary terms found in active segment
@@ -140,6 +169,14 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       return () => clearTimeout(timer);
     }
   }, [preTranslateToast]);
+
+  // Auto-dismiss general toast
+  useEffect(() => {
+    if (generalToast) {
+      const timer = setTimeout(() => setGeneralToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [generalToast]);
 
   // Auto-dismiss auto-glossary suggestions
   useEffect(() => {
@@ -511,9 +548,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         if (res.ok) {
           markSaved(toSave);
           saveRetryRef.current = 0;
-          // Show "Saved" indicator briefly
-          setSavedIndicator(true);
-          setTimeout(() => setSavedIndicator(false), 2000);
+          setLastSavedAt(Date.now());
         } else {
           throw new Error(`Save failed: ${res.status}`);
         }
@@ -532,8 +567,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           });
         }
         markSaved(toSave);
-        setSavedIndicator(true);
-        setTimeout(() => setSavedIndicator(false), 2000);
+        setLastSavedAt(Date.now());
       }
 
       // Always mirror segments to IndexedDB
@@ -739,19 +773,16 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     updateSegmentTarget(activeSegmentId, text);
   }, [activeSegmentId, updateSegmentTarget]);
 
-  // Trigger debounced save when pendingSaves changes
+  // Autosave: 15-second interval (only saves if there are pending changes)
   useEffect(() => {
-    if (pendingSaves.size === 0) return;
-
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      saveSegments();
-    }, 500);
-
-    return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
-  }, [pendingSaves, saveSegments]);
+    const interval = setInterval(() => {
+      const state = useEditorStore.getState();
+      if (state.pendingSaves.size > 0) {
+        saveSegments();
+      }
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [saveSegments]);
 
   // Scroll to active segment
   useEffect(() => {
@@ -977,24 +1008,22 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       <EditorToolbar
         projectName={project.name}
         projectId={project.id}
-        srcLang={LANG_LABELS[project.srcLang] || project.srcLang}
-        tgtLang={LANG_LABELS[project.tgtLang] || project.tgtLang}
+        srcLang={getLangLabel(project.srcLang)}
+        tgtLang={getLangLabel(project.tgtLang)}
         saving={saving}
-        onSave={saveSegments}
-        onRunQA={handleRunQA}
-        qaRunning={qaRunning}
+        hasPendingChanges={pendingSaves.size > 0}
         isOnline={online}
         segmentFilter={segmentFilter}
         onFilterChange={setSegmentFilter}
-        onPreTranslate={online ? handlePreTranslate : undefined}
         preTranslateProgress={preTranslateProgress}
-        savedIndicator={savedIndicator}
+        lastSavedAt={lastSavedAt}
         saveError={saveError}
-        onAnalysis={() => setAnalysisOpen(true)}
-        onCopyAllSource={handleCopyAllSource}
         progress={progress}
         confirmedCount={confirmedSegments}
         totalCount={totalSegments}
+        onToast={setGeneralToast}
+        exportOpen={exportDropdownOpen}
+        onExportOpenChange={setExportDropdownOpen}
       />
 
       {/* ─── Session recovery banner ─── */}
@@ -1092,6 +1121,29 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <span>{preTranslateToast}</span>
           <button
             onClick={() => setPreTranslateToast(null)}
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {generalToast && (
+        <div
+          style={{
+            padding: "6px 20px",
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "var(--amber-soft)",
+            color: "var(--amber-text)",
+            borderBottom: "1px solid var(--bg-hover)",
+          }}
+        >
+          <span>{generalToast}</span>
+          <button
+            onClick={() => setGeneralToast(null)}
             style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
           >
             ×
@@ -1363,25 +1415,26 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         );
       })()}
 
-      {/* ═══ MAIN LAYOUT: Sidebar + Two Floating Paper Documents ═══ */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "row", overflow: "hidden" }}>
-        {/* Left Tool Sidebar — 56px */}
-        <ToolSidebar
-          onTranslationProvider={() => {}}
-          onPreTranslate={online ? handlePreTranslate : undefined}
-          preTranslating={!!preTranslateProgress?.running}
-          onAnalysis={() => setAnalysisOpen(true)}
-          onCopyAllSource={handleCopyAllSource}
-          onRunQA={handleRunQA}
-          qaRunning={qaRunning}
-          onSearchOpen={() => setSearchOpen(true)}
-          onConcordanceOpen={() => setConcordanceOpen(true)}
-          onExportOpen={() => {}}
-          onShortcutsOpen={() => setShortcutsOpen(true)}
-        />
+      {/* ═══ Horizontal Toolbar ═══ */}
+      <EditorToolstrip
+        onPreTranslate={online ? handlePreTranslate : undefined}
+        preTranslating={!!preTranslateProgress?.running}
+        onAnalysis={() => setAnalysisOpen(true)}
+        onRunQA={handleRunQA}
+        qaRunning={qaRunning}
+        onSearchOpen={() => setSearchOpen(true)}
+        onConcordanceOpen={() => setConcordanceOpen(true)}
+        onGlossaryOpen={() => setBottomTab("glossary")}
+        onExportOpen={() => setExportDropdownOpen(true)}
+        editorFontSize={editorFontSize}
+        onFontSizeChange={(size) => {
+          setEditorFontSize(size);
+          try { localStorage.setItem("tp-editor-font-size", String(size)); } catch { /* ignore */ }
+        }}
+      />
 
-        {/* Content Area — Two floating papers */}
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      {/* ═══ MAIN LAYOUT: Full-width segments ═══ */}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
           {/* Document header — language labels */}
           <div
@@ -1399,7 +1452,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             }}
           >
             <div style={{ flex: columnRatio, paddingRight: 8 }}>
-              Source — {LANG_LABELS[project.srcLang] || project.srcLang}
+              Source — {getLangLabel(project.srcLang)}
             </div>
             {/* Drag handle */}
             <div
@@ -1436,7 +1489,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               }}
             />
             <div style={{ flex: 1 - columnRatio, paddingLeft: 8 }}>
-              Target — {LANG_LABELS[project.tgtLang] || project.tgtLang}
+              Target — {getLangLabel(project.tgtLang)}
             </div>
           </div>
 
@@ -1493,6 +1546,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               issues={qaIssues}
               onClose={() => setQaVisible(false)}
               onNavigateToSegment={(segmentId) => setActiveSegment(segmentId)}
+              translatedCount={segments.filter((s) => s.targetText && s.targetText.trim() !== "").length}
             />
           )}
 
@@ -1532,66 +1586,155 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             );
           })()}
 
-          {/* Bottom Panels: Tabbed TM + Glossary — always visible */}
-          {(
+          {/* Bottom Panels: Collapsible TM + Glossary */}
+          <div
+            style={{
+              background: "var(--bg-sidebar)",
+              height: bottomPanelCollapsed ? 28 : bottomPanelHeight,
+              minHeight: 28,
+              maxHeight: 300,
+              display: "flex",
+              flexDirection: "column",
+              margin: "0 20px 8px 20px",
+              borderRadius: "var(--radius-sm)",
+              overflow: "hidden",
+              flexShrink: 0,
+              transition: bottomDragRef.current ? "none" : "height 150ms ease",
+            }}
+          >
+            {/* Drag handle */}
             <div
               style={{
-                borderTop: "1px solid var(--bg-hover)",
-                background: "var(--bg-sidebar)",
-                height: 150,
-                minHeight: 120,
-                display: "flex",
-                flexDirection: "column",
-                margin: "0 20px 8px 20px",
-                borderRadius: "var(--radius-sm)",
-                overflow: "hidden",
+                height: 4,
+                cursor: "ns-resize",
+                background: "transparent",
                 flexShrink: 0,
+                position: "relative",
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                if (bottomPanelCollapsed) return;
+                bottomDragRef.current = { startY: e.clientY, startH: bottomPanelHeight };
+                const onMove = (ev: MouseEvent) => {
+                  if (!bottomDragRef.current) return;
+                  const delta = bottomDragRef.current.startY - ev.clientY;
+                  const newH = Math.max(80, Math.min(300, bottomDragRef.current.startH + delta));
+                  setBottomPanelHeight(newH);
+                };
+                const onUp = () => {
+                  if (bottomDragRef.current) {
+                    try { localStorage.setItem("tp-bottom-panel-height", String(bottomPanelHeight)); } catch { /* */ }
+                  }
+                  bottomDragRef.current = null;
+                  window.removeEventListener("mousemove", onMove);
+                  window.removeEventListener("mouseup", onUp);
+                };
+                window.addEventListener("mousemove", onMove);
+                window.addEventListener("mouseup", onUp);
               }}
             >
-              {/* Tab bar */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "stretch",
-                  borderBottom: "1px solid var(--bg-hover)",
-                  padding: "0 12px",
-                  gap: 0,
-                }}
-              >
-                {([
-                  { id: "tm" as const, label: "TM Matches" },
-                  { id: "glossary" as const, label: "Glossary" },
-                ]).map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setBottomTab(tab.id)}
-                    style={{
-                      padding: "8px 14px",
-                      fontSize: 11,
-                      fontWeight: bottomTab === tab.id ? 600 : 400,
-                      color: bottomTab === tab.id ? "var(--accent)" : "var(--text-muted)",
-                      background: "transparent",
-                      border: "none",
-                      borderBottom: bottomTab === tab.id ? "2px solid var(--accent)" : "2px solid transparent",
-                      cursor: "pointer",
-                      transition: "color 150ms, border-color 150ms",
-                      fontFamily: "inherit",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (bottomTab !== tab.id) e.currentTarget.style.color = "var(--text-secondary)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (bottomTab !== tab.id) e.currentTarget.style.color = "var(--text-muted)";
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              {/* Visual grip line */}
+              <div style={{
+                position: "absolute",
+                left: "50%",
+                top: 1,
+                transform: "translateX(-50%)",
+                width: 32,
+                height: 2,
+                borderRadius: 1,
+                background: "var(--border)",
+              }} />
+            </div>
 
-              {/* Tab content */}
+            {/* Tab bar (always visible — acts as collapsed header) */}
+            <div
+              onClick={() => {
+                if (bottomPanelCollapsed) setBottomPanelCollapsed(false);
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                borderBottom: bottomPanelCollapsed ? "none" : "1px solid var(--bg-hover)",
+                padding: "0 12px",
+                gap: 0,
+                cursor: bottomPanelCollapsed ? "pointer" : "default",
+                flexShrink: 0,
+                minHeight: 24,
+              }}
+            >
+              {([
+                { id: "tm" as const, label: "TM Matches" },
+                { id: "glossary" as const, label: "Glossary" },
+              ]).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setBottomTab(tab.id);
+                    if (bottomPanelCollapsed) setBottomPanelCollapsed(false);
+                  }}
+                  style={{
+                    padding: "4px 14px",
+                    fontSize: 10,
+                    fontWeight: bottomTab === tab.id ? 600 : 400,
+                    color: bottomTab === tab.id ? "var(--accent)" : "var(--text-muted)",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: bottomPanelCollapsed ? "none" : (bottomTab === tab.id ? "2px solid var(--accent)" : "2px solid transparent"),
+                    cursor: "pointer",
+                    transition: "color 150ms, border-color 150ms",
+                    fontFamily: "inherit",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (bottomTab !== tab.id) e.currentTarget.style.color = "var(--text-secondary)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (bottomTab !== tab.id) e.currentTarget.style.color = "var(--text-muted)";
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+
+              {/* Match count summary + collapse toggle */}
+              <div style={{ flex: 1 }} />
+              {bottomPanelCollapsed && tmMatchCount > 0 && (
+                <span style={{ fontSize: 9, color: "var(--text-muted)", marginRight: 8 }}>
+                  {tmMatchCount} match{tmMatchCount !== 1 ? "es" : ""} — click to expand
+                </span>
+              )}
+              {bottomPanelCollapsed && tmMatchCount === 0 && (
+                <span style={{ fontSize: 9, color: "var(--text-muted)", marginRight: 8 }}>
+                  No matches
+                </span>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setBottomPanelCollapsed(!bottomPanelCollapsed);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  padding: "2px 4px",
+                  lineHeight: 1,
+                  transition: "color 150ms",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                title={bottomPanelCollapsed ? "Expand panel" : "Collapse panel"}
+              >
+                {bottomPanelCollapsed ? "↑" : "↓"}
+              </button>
+            </div>
+
+            {/* Tab content (hidden when collapsed) */}
+            {!bottomPanelCollapsed && (
               <div style={{ flex: 1, overflowY: "auto" }}>
                 {bottomTab === "tm" && (
                   <TMPanel
@@ -1628,9 +1771,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                   />
                 )}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
       </div>
 
       {/* Status Bar */}
@@ -1640,8 +1782,6 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         activeSegmentWordCount={activeSegmentWordCount}
         totalWordCount={totalWordCount}
         translationProvider="Google"
-        savedIndicator={savedIndicator}
-        saveStatus={saving ? "saving" : saveError ? "error" : "idle"}
         focusMode={focusMode}
         onGoToClick={() => setGoToOpen(true)}
         onProviderClick={() => {}}

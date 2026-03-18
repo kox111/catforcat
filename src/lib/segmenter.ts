@@ -1,5 +1,5 @@
 /**
- * TranslatePro — Segmentation Engine
+ * CATforCAT — Segmentation Engine
  * Converts raw text into translatable segments (sentences).
  * Based on simplified SRX rules per spec section 4.1.
  */

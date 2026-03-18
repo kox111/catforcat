@@ -5,6 +5,7 @@ import BreakReminder from "@/components/BreakReminder";
 import ViewScaleProvider, { ViewScaleContainer } from "@/components/ViewScaleProvider";
 import ZoomFAB from "@/components/ZoomFAB";
 import Onboarding from "@/components/Onboarding";
+import UserPlanProvider from "@/components/UserPlanProvider";
 
 export default function AppLayout({
   children,
@@ -12,6 +13,7 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
+    <UserPlanProvider>
     <ViewScaleProvider>
       <ViewScaleContainer>
         <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
@@ -28,5 +30,6 @@ export default function AppLayout({
       <BreakReminder />
       <Onboarding />
     </ViewScaleProvider>
+    </UserPlanProvider>
   );
 }

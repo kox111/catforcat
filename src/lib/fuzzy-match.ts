@@ -1,5 +1,5 @@
 /**
- * TranslatePro — Fuzzy Matching Engine
+ * CATforCAT — Fuzzy Matching Engine
  * Calculates similarity between translation memory entries and source segments.
  * Based on Levenshtein distance per spec section 4.2.
  */

@@ -25,6 +25,15 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const { mode, setMode } = useViewScale();
+  const [breakEnabled, setBreakEnabled] = useState(true);
+
+  // Load break reminder preference
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("catforcat-break-interval");
+      if (v !== null) setBreakEnabled(parseInt(v, 10) !== 0);
+    } catch { /* ignore */ }
+  }, []);
 
   const userName = session?.user?.name || "";
   const userInitials = userName.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
@@ -321,8 +330,8 @@ export default function SettingsPage() {
                     ["Segments/project", "500", "Unlimited"],
                     ["AI suggestions", "50/month", "1,000/month"],
                     ["TM entries", "1,000", "Unlimited"],
-                    ["Import formats", "TXT", "TXT, DOCX, PDF, XLIFF"],
-                    ["Export formats", "TXT", "TXT, DOCX, XLIFF, TMX"],
+                    ["Import formats", "All formats", "All formats"],
+                    ["Export formats", "All formats", "All formats"],
                   ].map(([feature, free, pro]) => (
                     <div key={feature} className="grid grid-cols-3 gap-2 text-xs py-1.5" style={{ borderTop: "1px solid var(--border)" }}>
                       <div style={{ color: "var(--text-secondary)" }}>{feature}</div>
@@ -389,7 +398,7 @@ export default function SettingsPage() {
             </p>
           </section>
 
-          {/* Appearance Section (F2 + F3) */}
+          {/* Appearance Section */}
           <section
             style={{
               borderRadius: "8px",
@@ -403,17 +412,43 @@ export default function SettingsPage() {
               Appearance
             </h2>
 
-            {/* Theme Toggle */}
+            {/* Theme Picker */}
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Theme</p>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  Current: {theme.charAt(0).toUpperCase() + theme.slice(1)}. Use the theme dots (top-right) to change.
+                  {theme.charAt(0).toUpperCase() + theme.slice(1)}
                 </p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {([
+                  { id: "dark" as const, color: "#202124", border: "0.5px solid #3C3C3F" },
+                  { id: "sakura" as const, color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.2)" },
+                  { id: "light" as const, color: "#F7F6F3", border: "0.5px solid #ECEAE5" },
+                  { id: "linen" as const, color: "#C4AA90", border: "0.5px solid #B09878" },
+                ]).map((t) => (
+                  <div
+                    key={t.id}
+                    onClick={() => setTheme(t.id)}
+                    style={{
+                      width: theme === t.id ? 20 : 16,
+                      height: theme === t.id ? 20 : 16,
+                      borderRadius: "50%",
+                      background: t.color,
+                      border: theme === t.id ? "1.5px solid var(--accent)" : t.border,
+                      cursor: "pointer",
+                      transition: "all 150ms",
+                      boxShadow: theme === t.id
+                        ? "0 0 0 2px var(--bg-deep), 0 0 0 4px var(--accent)"
+                        : "none",
+                    }}
+                    title={t.id.charAt(0).toUpperCase() + t.id.slice(1)}
+                  />
+                ))}
               </div>
             </div>
 
-            {/* Font Size (F3) */}
+            {/* Font Size */}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Editor Font Size</p>
@@ -445,6 +480,64 @@ export default function SettingsPage() {
                     : "13"}px
                 </span>
               </div>
+            </div>
+          </section>
+
+          {/* Break Reminder Section */}
+          <section
+            style={{
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "24px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+              Break Reminder
+            </h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Break reminder (20-20-20 rule)</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  Reminds you to look at something 20ft away for 20 seconds every 20 minutes while in the editor.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  const next = !breakEnabled;
+                  setBreakEnabled(next);
+                  try {
+                    localStorage.setItem("catforcat-break-interval", next ? "20" : "0");
+                  } catch { /* ignore */ }
+                }}
+                style={{
+                  width: 40,
+                  height: 22,
+                  borderRadius: 11,
+                  border: "1px solid var(--border)",
+                  background: breakEnabled ? "var(--accent)" : "var(--bg-hover)",
+                  cursor: "pointer",
+                  position: "relative",
+                  transition: "background 200ms",
+                  padding: 0,
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    background: "#fff",
+                    position: "absolute",
+                    top: 2,
+                    left: breakEnabled ? 20 : 2,
+                    transition: "left 200ms",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                  }}
+                />
+              </button>
             </div>
           </section>
 

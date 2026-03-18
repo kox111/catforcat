@@ -1,5 +1,5 @@
 /**
- * QA Checks for TranslatePro
+ * QA Checks for CATforCAT
  *
  * Runs quality assurance checks on translated segments.
  * Each check returns an array of QAIssue objects.

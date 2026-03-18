@@ -16,13 +16,11 @@ import {
   exportToPO,
   exportToMarkdown,
 } from "@/lib/segmenter";
-import { canExportFormat } from "@/lib/plan-limits";
-
 /**
  * GET /api/files/export?projectId=xxx&format=txt-bilingual|txt-target|docx|tmx
  *
  * Exports project data in the requested format.
- * Returns the file as a downloadable response.
+ * All formats are available for both Free and Pro plans.
  */
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -45,12 +43,6 @@ export async function GET(req: NextRequest) {
       { error: "projectId and format are required" },
       { status: 400 }
     );
-  }
-
-  // Plan limit: export format
-  const exportCheck = canExportFormat(user.plan, format);
-  if (!exportCheck.allowed) {
-    return NextResponse.json({ error: exportCheck.message }, { status: 403 });
   }
 
   // Get project with segments
@@ -124,7 +116,7 @@ function exportTxtBilingual(project: ProjectWithSegments) {
   const lines: string[] = [];
   lines.push(`# ${project.name}`);
   lines.push(`# ${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()}`);
-  lines.push(`# Exported from TranslatePro`);
+  lines.push(`# Exported from CATforCAT`);
   lines.push("");
 
   for (const seg of project.segments) {
@@ -320,7 +312,7 @@ function exportTmx(project: ProjectWithSegments) {
   lines.push('<?xml version="1.0" encoding="UTF-8"?>');
   lines.push('<tmx version="1.4">');
   lines.push(
-    `  <header creationtool="TranslatePro" creationtoolversion="1.0" srclang="${project.srcLang}" datatype="plaintext" segtype="sentence" adminlang="en"/>`
+    `  <header creationtool="CATforCAT" creationtoolversion="1.0" srclang="${project.srcLang}" datatype="plaintext" segtype="sentence" adminlang="en"/>`
   );
   lines.push("  <body>");
 
@@ -551,7 +543,7 @@ function exportHtmlBilingual(project: ProjectWithSegments) {
 </head>
 <body>
   <h1>${escapeXml(project.name)}</h1>
-  <p class="meta">${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()} — Exported from TranslatePro</p>
+  <p class="meta">${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()} — Exported from CATforCAT</p>
   <table>
     <thead>
       <tr>

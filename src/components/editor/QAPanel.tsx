@@ -6,6 +6,7 @@ interface QAPanelProps {
   issues: QAIssue[];
   onNavigateToSegment: (segmentId: string) => void;
   onClose: () => void;
+  translatedCount?: number;
 }
 
 const SEVERITY_CONFIG = {
@@ -18,6 +19,7 @@ export default function QAPanel({
   issues,
   onNavigateToSegment,
   onClose,
+  translatedCount = -1,
 }: QAPanelProps) {
   const grouped = groupIssuesBySeverity(issues);
 
@@ -169,10 +171,12 @@ export default function QAPanel({
               paddingTop: "1rem",
               paddingBottom: "1rem",
               textAlign: "center",
-              color: "var(--green)",
+              color: translatedCount === 0 ? "var(--text-muted)" : "var(--green)",
             }}
           >
-            ✓ No issues found. All segments look good!
+            {translatedCount === 0
+              ? "No translations to check yet. Start translating to enable QA."
+              : "✓ No issues found. All segments look good!"}
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.125rem" }}>

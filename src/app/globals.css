@@ -262,6 +262,16 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
+/* ─── Autofill — preserve theme ─── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-card) inset;
+  -webkit-text-fill-color: var(--text-primary);
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: var(--text-primary);
+}
+
 /* ─── Focus ─── */
 input:focus, select:focus {
   border-color: var(--border-focus) !important;
@@ -291,6 +301,33 @@ textarea:focus:not([data-editor-textarea]) {
 /* ─── Keyframes ─── */
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ─── Responsive: Density by viewport height ─── */
+
+/* 1080p / laptop (600-899px height): compact density */
+@media (max-height: 899px) {
+  .segment-row .segment-source,
+  .segment-row .segment-target {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    line-height: 1.35 !important;
+  }
+  .editor-header {
+    padding: 5px 12px !important;
+    height: 38px !important;
+  }
+}
+
+/* Tablet / small height (<600px) or touch device */
+@media (max-height: 599px), (pointer: coarse) {
+  .segment-row .segment-source,
+  .segment-row .segment-target {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
 }
 
 /* ─── Reduced motion ─── */

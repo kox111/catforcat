@@ -2,36 +2,36 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { FolderOpen, Database, BookOpen, Settings, ArrowLeft, Search, LogOut } from "lucide-react";
+import { FolderOpen, Database, BookOpen, Settings, LogOut, Star } from "lucide-react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
+import { useUserPlan } from "@/components/UserPlanProvider";
 
-const THEME_DOTS: { id: Theme; color: string; border: string }[] = [
-  { id: "dark", color: "#202124", border: "0.5px solid #3C3C3F" },
-  { id: "sakura", color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.3)" },
-  { id: "light", color: "#F7F6F3", border: "0.5px solid #ECEAE5" },
-  { id: "linen", color: "#C4AA90", border: "0.5px solid #B09878" },
+/* ─── Theme gradient ring colors per theme ─── */
+const AVATAR_RING: Record<Theme, { gradient: string; bg: string }> = {
+  dark:   { gradient: "linear-gradient(135deg, #BDB8B2, #8A8580)", bg: "var(--bg-deep)" },
+  sakura: { gradient: "linear-gradient(135deg, #8B5A6B, #B08090)", bg: "var(--bg-deep)" },
+  light:  { gradient: "linear-gradient(135deg, #6B6B6B, #AAAAAA)", bg: "var(--bg-deep)" },
+  linen:  { gradient: "linear-gradient(135deg, #A47864, #C4A898)", bg: "var(--bg-deep)" },
+};
+
+const THEME_DOTS: { id: Theme; color: string; border: string; label: string }[] = [
+  { id: "dark",   color: "#202124", border: "0.5px solid #3C3C3F",                label: "Dark" },
+  { id: "sakura", color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.2)",   label: "Sakura" },
+  { id: "light",  color: "#F7F6F3", border: "0.5px solid #ECEAE5",                label: "Light" },
+  { id: "linen",  color: "#C4AA90", border: "0.5px solid #B09878",                label: "Linen" },
 ];
 
 const navItems = [
-  { href: "/app/projects", label: "Projects", icon: FolderOpen },
-  { href: "/app/tm", label: "Translation Memory", icon: Database },
-  { href: "/app/glossary", label: "Glossary", icon: BookOpen },
+  { href: "/app/projects", label: "Projects" },
+  { href: "/app/tm", label: "Translation Memory" },
+  { href: "/app/glossary", label: "Glossary" },
 ];
-
-function getPageLabel(pathname: string): string {
-  if (pathname.startsWith("/app/projects/")) return "Editor";
-  if (pathname === "/app/projects") return "Projects";
-  if (pathname.startsWith("/app/tm/align")) return "Align TM";
-  if (pathname.startsWith("/app/tm")) return "Translation Memory";
-  if (pathname.startsWith("/app/glossary")) return "Glossary";
-  if (pathname.startsWith("/app/settings")) return "Settings";
-  return "";
-}
 
 export default function TopBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -40,28 +40,16 @@ export default function TopBar() {
   const [isMobile, setIsMobile] = useState(false);
 
   const isEditor = /^\/app\/projects\/[^/]+$/.test(pathname);
-  const pageLabel = getPageLabel(pathname);
-  const isProjectsPage = pathname === "/app/projects";
 
   const { theme, setTheme } = useTheme();
-  const [userPlan, setUserPlan] = useState<string>("free");
+  const { plan: userPlan } = useUserPlan();
 
-  // ALL hooks MUST be above the early return — React requires stable hook order
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-
-  // Fetch user plan from settings API
-  useEffect(() => {
-    if (!session?.user) return;
-    fetch("/api/settings")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.plan) setUserPlan(data.plan); })
-      .catch(() => {});
-  }, [session?.user]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -76,52 +64,117 @@ export default function TopBar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen, avatarOpen]);
 
-  // Editor has its own unified header — hide TopBar entirely
+  // Editor has its own unified header
   if (isEditor) return null;
 
   const userName = session?.user?.name || "";
   const userInitials = userName.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
+  const ring = AVATAR_RING[theme] || AVATAR_RING.dark;
+  const isPro = userPlan === "pro";
 
   return (
-    <header
-      style={{
-        height: 44,
-        padding: "0 20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: "var(--bg-deep)",
-        borderBottom: "0.5px solid var(--border)",
-        position: "relative",
-        zIndex: 30,
-      }}
-    >
-      {/* Left side */}
-      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-        {isEditor ? (
-          /* Editor mode: ← Back + project name */
+    <>
+      <style>{`
+        @keyframes topBarDropdownIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <header
+        style={{
+          height: 44,
+          padding: "0 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "var(--bg-deep)",
+          borderBottom: "0.5px solid var(--border)",
+          position: "relative",
+          zIndex: 30,
+        }}
+      >
+        {/* Left side: Wordmark + separator + nav tabs (desktop) or hamburger (mobile) */}
+        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+          {/* Wordmark */}
           <Link
-            href="/app/projects"
+            href={session ? "/app/projects" : "/"}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
               textDecoration: "none",
-              color: "var(--text-secondary)",
-              fontSize: 12,
-              transition: "color 150ms",
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 17,
+              fontWeight: 400,
+              color: "var(--brand-wordmark)",
+              letterSpacing: "0.03em",
+              cursor: "pointer",
+              transition: "opacity 150ms",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
           >
-            <ArrowLeft size={14} />
-            <span>Back</span>
+            catforcat.
           </Link>
-        ) : (
-          /* Normal pages: Hamburger + wordmark + breadcrumb */
-          <>
-            {/* Hamburger */}
-            <div ref={menuRef} style={{ position: "relative" }}>
+
+          {/* Desktop: separator + persistent horizontal tabs */}
+          {!isMobile && (
+            <>
+              {/* Vertical separator */}
+              <div
+                style={{
+                  width: 1,
+                  height: 18,
+                  background: "var(--border)",
+                  margin: "0 20px",
+                  flexShrink: 0,
+                }}
+              />
+
+              <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href || (item.href !== "/app/projects" && pathname.startsWith(item.href));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "4px 12px",
+                        borderRadius: 6,
+                        fontSize: 13,
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontWeight: isActive ? 500 : 400,
+                        textDecoration: "none",
+                        background: isActive ? "var(--bg-card)" : "transparent",
+                        color: isActive ? "var(--text-primary)" : "var(--text-muted)",
+                        transition: "background 150ms, color 150ms",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = "var(--bg-hover)";
+                          e.currentTarget.style.color = "var(--text-primary)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = "var(--text-muted)";
+                        }
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </>
+          )}
+
+          {/* Mobile: hamburger menu */}
+          {isMobile && (
+            <div ref={menuRef} style={{ position: "relative", marginLeft: 8 }}>
               <button
                 onClick={() => { setMenuOpen(!menuOpen); setAvatarOpen(false); }}
                 style={{
@@ -139,7 +192,6 @@ export default function TopBar() {
                 <span style={{ width: 14, height: 1.5, background: "var(--text-primary)", borderRadius: 1 }} />
               </button>
 
-              {/* Hamburger dropdown */}
               {menuOpen && (
                 <div
                   style={{
@@ -154,11 +206,11 @@ export default function TopBar() {
                     padding: 8,
                     zIndex: 40,
                     boxShadow: "var(--shadow-md)",
+                    animation: "topBarDropdownIn 0.15s ease",
                   }}
                 >
                   {navItems.map((item) => {
                     const isActive = pathname.startsWith(item.href);
-                    const Icon = item.icon;
                     return (
                       <Link
                         key={item.href}
@@ -185,13 +237,11 @@ export default function TopBar() {
                           if (!isActive) e.currentTarget.style.background = "transparent";
                         }}
                       >
-                        <Icon size={14} />
                         <span>{item.label}</span>
                       </Link>
                     );
                   })}
 
-                  {/* Separator */}
                   <div style={{ borderTop: "0.5px solid var(--border)", margin: "4px 0" }} />
 
                   <Link
@@ -205,304 +255,284 @@ export default function TopBar() {
                       borderRadius: "var(--radius-sm)",
                       fontSize: 12,
                       textDecoration: "none",
-                      color: pathname.startsWith("/app/settings") ? "var(--text-primary)" : "var(--text-secondary)",
-                      background: pathname.startsWith("/app/settings") ? "var(--accent-soft)" : "transparent",
-                      fontWeight: pathname.startsWith("/app/settings") ? 500 : 400,
+                      color: "var(--text-secondary)",
+                      background: "transparent",
                       transition: "background 150ms",
                       cursor: "pointer",
                     }}
-                    onMouseEnter={(e) => {
-                      if (!pathname.startsWith("/app/settings")) e.currentTarget.style.background = "var(--bg-hover)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!pathname.startsWith("/app/settings")) e.currentTarget.style.background = "transparent";
-                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <Settings size={14} />
                     <span>Settings</span>
                   </Link>
-
-                  {/* + New Project inside dropdown on mobile */}
-                  {isMobile && (
-                    <>
-                      <div style={{ borderTop: "0.5px solid var(--border)", margin: "4px 0" }} />
-                      <Link
-                        href="/app/projects?new=true"
-                        onClick={() => setMenuOpen(false)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "7px 10px",
-                          borderRadius: "var(--radius-sm)",
-                          fontSize: 12,
-                          textDecoration: "none",
-                          color: "var(--text-primary)",
-                          background: "var(--accent-soft)",
-                          fontWeight: 500,
-                          transition: "background 150ms",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <span style={{ fontSize: 14 }}>+</span>
-                        <span>New Project</span>
-                      </Link>
-                    </>
-                  )}
                 </div>
               )}
             </div>
-
-            {/* Wordmark */}
-            <Link
-              href="/"
-              style={{
-                textDecoration: "none",
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: 17,
-                fontWeight: 400,
-                color: "var(--brand-wordmark)",
-                letterSpacing: "0.03em",
-                marginLeft: 10,
-                cursor: "pointer",
-                transition: "opacity 150ms",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-            >
-              catforcat.
-            </Link>
-
-            {/* Breadcrumb */}
-            {pageLabel && (
-              <>
-                <span
-                  style={{
-                    color: "var(--text-muted)",
-                    fontSize: 11,
-                    margin: "0 8px",
-                    userSelect: "none",
-                  }}
-                >
-                  ›
-                </span>
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: "var(--text-secondary)",
-                  }}
-                >
-                  {pageLabel}
-                </span>
-              </>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Right side */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        {/* Search / Command Palette button */}
-        <button
-          onClick={() => {
-            // Dispatch Ctrl+K to open command palette
-            document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
-          }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: isMobile ? 20 : 24,
-            height: isMobile ? 20 : 24,
-            borderRadius: "50%",
-            background: "var(--bg-hover)",
-            border: "0.5px solid var(--border)",
-            cursor: "pointer",
-            color: "var(--text-secondary)",
-            transition: "border-color 150ms",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
-          aria-label="Search commands"
-        >
-          <Search size={isMobile ? 10 : 12} />
-        </button>
-
-        {/* Theme dots */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {THEME_DOTS.map((t) => (
-            <div
-              key={t.id}
-              onClick={() => setTheme(t.id)}
-              style={{
-                width: 14,
-                height: 14,
-                borderRadius: "50%",
-                background: t.color,
-                border: t.border,
-                cursor: "pointer",
-                boxShadow: theme === t.id
-                  ? "0 0 0 1.5px var(--bg-deep), 0 0 0 3px var(--accent)"
-                  : "none",
-                transition: "box-shadow 150ms",
-              }}
-              title={t.id.charAt(0).toUpperCase() + t.id.slice(1)}
-            />
-          ))}
-        </div>
-
-        {/* + New Project button (only on projects page, not mobile) */}
-        {isProjectsPage && !isMobile && (
-          <Link
-            href="/app/projects?new=true"
-            style={{
-              fontSize: 10,
-              padding: "4px 12px",
-              borderRadius: 16,
-              background: "var(--btn-bg)",
-              color: "var(--text-primary)",
-              border: "1px solid var(--btn-border)",
-              textDecoration: "none",
-              fontWeight: 500,
-              transition: "background 150ms",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--btn-bg-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--btn-bg)";
-            }}
-          >
-            + New Project
-          </Link>
-        )}
-
-        {/* Avatar */}
-        <div ref={avatarRef} style={{ position: "relative" }}>
-          <div
-            onClick={() => { setAvatarOpen(!avatarOpen); setMenuOpen(false); }}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              background: "var(--accent-soft)",
-              border: "1.5px solid var(--accent)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              fontSize: 11,
-              fontWeight: 500,
-              color: "var(--text-primary)",
-              fontFamily: "'Inter', system-ui, sans-serif",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            {userInitials}
-          </div>
-
-          {/* Avatar dropdown */}
-          {avatarOpen && (
-            <div
-              style={{
-                position: "absolute",
-                top: 44,
-                right: 0,
-                width: 180,
-                background: "var(--bg-panel)",
-                border: "0.5px solid var(--border)",
-                backdropFilter: "blur(12px)",
-                borderRadius: 10,
-                padding: 8,
-                zIndex: 40,
-                boxShadow: "var(--shadow-md)",
-              }}
-            >
-              {/* User info header */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", marginBottom: 4 }}>
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    background: "var(--accent-soft)",
-                    border: "1.5px solid var(--accent)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "var(--text-primary)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
-                    letterSpacing: "-0.5px",
-                    flexShrink: 0,
-                  }}
-                >
-                  {userInitials}
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-primary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
-                    {userName || session?.user?.email || "User"}
-                  </div>
-                  <div style={{ fontSize: 9, color: "var(--text-muted)", fontFamily: "'Inter', system-ui, sans-serif" }}>
-                    {userPlan === "pro" ? "Pro plan" : "Free plan"}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ borderTop: "0.5px solid var(--border)", margin: "4px 0" }} />
-
-              <Link
-                href="/app/settings"
-                onClick={() => setAvatarOpen(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "7px 10px",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: 11,
-                  textDecoration: "none",
-                  color: "var(--text-secondary)",
-                  background: "transparent",
-                  transition: "background 150ms",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-              >
-                <Settings size={12} />
-                <span>Settings</span>
-              </Link>
-              <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "7px 10px",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: 11,
-                  width: "100%",
-                  textAlign: "left",
-                  color: "var(--text-secondary)",
-                  background: "transparent",
-                  border: "none",
-                  fontFamily: "inherit",
-                  transition: "background 150ms",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-              >
-                <LogOut size={12} />
-                <span>Sign out</span>
-              </button>
-            </div>
           )}
         </div>
-      </div>
-    </header>
+
+        {/* Right side: [PRO pill] + Avatar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          {/* PRO pill (only for pro users) */}
+          {isPro && (
+            <span
+              style={{
+                padding: "1px 4px",
+                borderRadius: 6,
+                background: ring.gradient,
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: 7,
+                fontWeight: 500,
+                letterSpacing: "0.03em",
+                color: "var(--bg-deep)",
+                lineHeight: 1,
+              }}
+            >
+              PRO
+            </span>
+          )}
+
+          {/* Avatar with gradient ring */}
+          <div ref={avatarRef} style={{ position: "relative" }}>
+            <div
+              onClick={() => { setAvatarOpen(!avatarOpen); setMenuOpen(false); }}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: ring.gradient,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                padding: isPro ? 2.5 : 1.5,
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "50%",
+                  background: ring.bg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "var(--text-primary)",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}
+              >
+                {userInitials}
+              </div>
+            </div>
+
+            {/* Avatar dropdown */}
+            {avatarOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 40,
+                  right: 0,
+                  width: 220,
+                  background: "var(--bg-panel)",
+                  border: "0.5px solid var(--border)",
+                  borderRadius: "var(--radius)",
+                  padding: 0,
+                  zIndex: 40,
+                  boxShadow: "var(--shadow-md)",
+                  animation: "topBarDropdownIn 0.15s ease",
+                  overflow: "hidden",
+                }}
+              >
+                {/* User info header */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
+                  <div
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: "50%",
+                      background: ring.gradient,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: isPro ? 2 : 1.5,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        background: ring.bg,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 10,
+                        fontWeight: 500,
+                        color: "var(--text-primary)",
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                      }}
+                    >
+                      {userInitials}
+                    </div>
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "var(--text-primary)",
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {userName || session?.user?.email || "User"}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                      {isPro ? "Pro plan" : "Free plan"}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: "0.5px solid var(--border)" }} />
+
+                {/* Settings */}
+                <Link
+                  href="/app/settings"
+                  onClick={() => setAvatarOpen(false)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "7px 14px",
+                    fontSize: 13,
+                    textDecoration: "none",
+                    color: "var(--text-primary)",
+                    background: "transparent",
+                    transition: "background 150ms",
+                    cursor: "pointer",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <Settings size={13} style={{ color: "var(--text-secondary)" }} />
+                  <span>Settings</span>
+                </Link>
+
+                {/* Theme picker inline */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "7px 14px",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="5" />
+                      <line x1="12" y1="1" x2="12" y2="3" />
+                      <line x1="12" y1="21" x2="12" y2="23" />
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                      <line x1="1" y1="12" x2="3" y2="12" />
+                      <line x1="21" y1="12" x2="23" y2="12" />
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                    <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Theme</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    {THEME_DOTS.map((t) => (
+                      <div
+                        key={t.id}
+                        onClick={() => setTheme(t.id)}
+                        style={{
+                          width: theme === t.id ? 16 : 14,
+                          height: theme === t.id ? 16 : 14,
+                          borderRadius: "50%",
+                          background: t.color,
+                          border: theme === t.id ? "1.5px solid var(--accent)" : t.border,
+                          cursor: "pointer",
+                          transition: "all 150ms",
+                        }}
+                        title={t.label}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: "0.5px solid var(--border)" }} />
+
+                {/* Upgrade to Pro (only for free users) */}
+                {!isPro && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setAvatarOpen(false);
+                        router.push("/app/settings");
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "7px 14px",
+                        fontSize: 13,
+                        color: "var(--accent)",
+                        background: "transparent",
+                        border: "none",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        transition: "background 150ms",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <Star size={13} style={{ color: "var(--accent)" }} />
+                      <span>Upgrade to Pro</span>
+                    </button>
+                    <div style={{ borderTop: "0.5px solid var(--border)" }} />
+                  </>
+                )}
+
+                {/* Sign out */}
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "7px 14px",
+                    fontSize: 13,
+                    width: "100%",
+                    textAlign: "left",
+                    color: "var(--text-muted)",
+                    background: "transparent",
+                    border: "none",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                    transition: "background 150ms",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                >
+                  <LogOut size={13} style={{ color: "var(--text-muted)" }} />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+    </>
   );
 }

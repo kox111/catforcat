@@ -216,6 +216,7 @@ export default function SegmentRow({
 
   return (
     <div
+      className="segment-row"
       onClick={onActivate}
       onContextMenu={(e) => {
         if (onContextMenu) { e.preventDefault(); onContextMenu(e); }
@@ -312,6 +313,7 @@ export default function SegmentRow({
 
       {/* Source paragraph */}
       <div
+        className="segment-source"
         style={{
           flex: columnRatio,
           padding: "16px 24px 16px 20px",
@@ -328,6 +330,7 @@ export default function SegmentRow({
 
       {/* Target paragraph — editable */}
       <div
+        className="segment-target"
         style={{
           flex: 1 - columnRatio,
           padding: "14px 20px 14px 20px",

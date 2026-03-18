@@ -1,8 +1,8 @@
-// TranslatePro Service Worker
+// CATforCAT Service Worker
 // Caches app shell + static assets for offline use
 // API routes are NOT cached (require server)
 
-const CACHE_NAME = "translatepro-v1";
+const CACHE_NAME = "catforcat-v1";
 
 // App shell files to precache
 const PRECACHE_URLS = [

@@ -1,6 +1,6 @@
 "use client";
 
-export type SaveStatus = "idle" | "saving" | "saved" | "error";
+import { Keyboard } from "lucide-react";
 
 interface StatusBarProps {
   activeSegmentPosition?: number;
@@ -8,8 +8,6 @@ interface StatusBarProps {
   activeSegmentWordCount?: number;
   totalWordCount: number;
   translationProvider?: string;
-  savedIndicator?: boolean;
-  saveStatus?: SaveStatus;
   focusMode?: boolean;
   onGoToClick?: () => void;
   onProviderClick?: () => void;
@@ -22,8 +20,6 @@ export default function StatusBar({
   activeSegmentWordCount = 0,
   totalWordCount,
   translationProvider = "Google",
-  savedIndicator,
-  saveStatus = "idle",
   focusMode = false,
   onGoToClick,
   onProviderClick,
@@ -38,7 +34,7 @@ export default function StatusBar({
     color: "var(--text-muted)",
     fontFamily: "'JetBrains Mono', monospace",
     cursor: "pointer",
-    transition: "color 150ms",
+    transition: "color 150ms, border-color 150ms",
   };
 
   return (
@@ -49,9 +45,9 @@ export default function StatusBar({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 16px",
+        padding: "0 12px",
         background: "var(--status-bar)",
-        borderTop: "1px solid var(--border)",
+        borderTop: "0.5px solid var(--border)",
         fontSize: 10,
         fontFamily: "'JetBrains Mono', monospace",
         color: "var(--text-muted)",
@@ -59,8 +55,42 @@ export default function StatusBar({
         flexShrink: 0,
       }}
     >
-      {/* Left: Seg X/Y · words · total */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      {/* Left: Shortcuts pill · Seg X/Y · words · total */}
+      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+        {/* Shortcuts pill */}
+        <button
+          onClick={onShortcutsClick}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "2px 8px",
+            borderRadius: 10,
+            background: "var(--bg-hover)",
+            border: "0.5px solid var(--border)",
+            cursor: "pointer",
+            fontSize: 10,
+            color: "var(--text-muted)",
+            fontFamily: "'Inter', system-ui, sans-serif",
+            transition: "border-color 150ms, color 150ms",
+            marginRight: 8,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "var(--accent)";
+            e.currentTarget.style.color = "var(--text-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "var(--border)";
+            e.currentTarget.style.color = "var(--text-muted)";
+          }}
+          title="Keyboard shortcuts (Ctrl+/)"
+        >
+          <Keyboard size={11} />
+          <span>Shortcuts</span>
+        </button>
+
+        <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+
         <button
           onClick={onGoToClick}
           style={{
@@ -91,50 +121,10 @@ export default function StatusBar({
             <span style={{ color: "var(--accent)", fontWeight: 500 }}>Focus</span>
           </>
         )}
-
-        {/* Save status */}
-        {(saveStatus !== "idle" || savedIndicator) && (
-          <>
-            <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                color:
-                  saveStatus === "saving"
-                    ? "var(--amber-text)"
-                    : saveStatus === "error"
-                    ? "var(--red-text)"
-                    : "var(--green-text)",
-                animation: saveStatus === "saving" ? "savePulse 1.5s ease-in-out infinite" : "none",
-              }}
-            >
-              <span
-                style={{
-                  width: 5,
-                  height: 5,
-                  borderRadius: "50%",
-                  background:
-                    saveStatus === "saving"
-                      ? "var(--amber)"
-                      : saveStatus === "error"
-                      ? "var(--red)"
-                      : "var(--green)",
-                }}
-              />
-              {saveStatus === "saving"
-                ? "Saving..."
-                : saveStatus === "error"
-                ? "Error"
-                : "Saved"}
-            </span>
-          </>
-        )}
       </div>
 
-      {/* Right: Provider pill + Shortcuts pill */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      {/* Right: Provider pill */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button
           onClick={onProviderClick}
           style={pillStyle}
@@ -145,13 +135,6 @@ export default function StatusBar({
           {translationProvider}
         </button>
       </div>
-
-      <style>{`
-        @keyframes savePulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
     </div>
   );
 }
