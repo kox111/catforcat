@@ -5,29 +5,52 @@ import { useState, useEffect, useRef } from "react";
 /* ─── Types ─── */
 
 interface SaveIndicatorProps {
-  saving: boolean;
-  lastSavedAt?: number | null;
-  saveError?: string | null;
-  hasPendingChanges?: boolean;
+  hasPendingChanges: boolean;
+  lastSavedAt: number | null;
+  saveError: string | null;
 }
 
-type Phase = "saving" | "saved" | "resetting";
+type Phase = "idle" | "saving" | "saved" | "error";
 
 /* ─── Component ─── */
 
 export default function SaveIndicator({
+  hasPendingChanges,
   lastSavedAt,
   saveError,
 }: SaveIndicatorProps) {
-  // Default state is always "saving" (idle monitoring state)
-  const [phase, setPhase] = useState<Phase>("saving");
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [savingChars, setSavingChars] = useState(0);
   const [savedChars, setSavedChars] = useState(0);
   const [checkDrawn, setCheckDrawn] = useState(false);
-  const prevSavedRef = useRef<number | null | undefined>(undefined);
+  const prevSavedRef = useRef<number | null>(null);
 
-  const SAVED = "Saved";
+  const SAVING_TEXT = "Saving..."; // 9 chars * ~1.5s = ~13.5s (fits in 15s cycle)
+  const SAVED_TEXT = "Saved";
 
-  /* ── Detect save completion → "saved" ── */
+  /* ── Error → show 2s then back to idle ── */
+  useEffect(() => {
+    if (!saveError) return;
+    setPhase("error");
+    const t = setTimeout(() => setPhase("idle"), 2000);
+    return () => clearTimeout(t);
+  }, [saveError]);
+
+  /* ── Pending changes appear → start SAVING phase ── */
+  useEffect(() => {
+    if (phase === "saved" || phase === "error") return;
+    if (hasPendingChanges) {
+      if (phase !== "saving") {
+        setPhase("saving");
+        setSavingChars(0);
+      }
+    } else if (phase === "saving") {
+      // No more pending but we haven't saved yet — go idle
+      setPhase("idle");
+    }
+  }, [hasPendingChanges, phase]);
+
+  /* ── Save completed → SAVED phase ── */
   useEffect(() => {
     if (!lastSavedAt || lastSavedAt === prevSavedRef.current) return;
     prevSavedRef.current = lastSavedAt;
@@ -36,14 +59,30 @@ export default function SaveIndicator({
     setCheckDrawn(false);
   }, [lastSavedAt]);
 
-  /* ── Typewriter for "Saved" — 1 char per 90ms, then draw check ── */
+  /* ── Slow typewriter for "Saving..." — 1 char per ~1.5s ── */
+  useEffect(() => {
+    if (phase !== "saving") return;
+    setSavingChars(0);
+    const iv = setInterval(() => {
+      setSavingChars((p) => {
+        if (p >= SAVING_TEXT.length) {
+          clearInterval(iv);
+          return p;
+        }
+        return p + 1;
+      });
+    }, 1500);
+    return () => clearInterval(iv);
+  }, [phase]);
+
+  /* ── Fast typewriter for "Saved" — 90ms per char, then draw check ── */
   useEffect(() => {
     if (phase !== "saved") return;
     setSavedChars(0);
     setCheckDrawn(false);
     const iv = setInterval(() => {
       setSavedChars((p) => {
-        if (p >= SAVED.length) {
+        if (p >= SAVED_TEXT.length) {
           clearInterval(iv);
           setTimeout(() => setCheckDrawn(true), 100);
           return p;
@@ -54,40 +93,40 @@ export default function SaveIndicator({
     return () => clearInterval(iv);
   }, [phase]);
 
-  /* ── After 2.5s in "saved" → "resetting" → back to "saving" ── */
+  /* ── After 1.5s in "saved" → back to idle or saving ── */
   useEffect(() => {
     if (phase !== "saved") return;
-    const t = setTimeout(() => setPhase("resetting"), 2500);
+    const t = setTimeout(() => {
+      // If new changes appeared during "saved" animation, go to saving
+      if (hasPendingChanges) {
+        setPhase("saving");
+        setSavingChars(0);
+      } else {
+        setPhase("idle");
+      }
+    }, 1500);
     return () => clearTimeout(t);
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase !== "resetting") return;
-    const t = setTimeout(() => setPhase("saving"), 500);
-    return () => clearTimeout(t);
-  }, [phase]);
+  }, [phase, hasPendingChanges]);
 
   /* ── Computed styles ── */
-  const isError = !!saveError;
 
-  // Dot color
-  const dotColor = isError
-    ? "var(--red)"
-    : phase === "saved" || phase === "resetting"
-    ? "var(--green)"
-    : "var(--amber)";
+  // Dot color: amber (idle/saving), green (saved), red (error)
+  const dotColor =
+    phase === "error"
+      ? "var(--red)"
+      : phase === "saved"
+      ? "var(--green)"
+      : "var(--amber)";
 
   const dotPulse =
-    !isError && phase === "saving"
+    phase === "saving"
       ? "saveIndicatorPulse 2s ease-in-out infinite"
       : "none";
 
-  // "Saving..." — visible in "saving" phase, slides up when "saved" enters
+  // Slide positions for saving→saved transition
   const savingY = phase === "saving" ? 0 : -14;
   const savingO = phase === "saving" ? 1 : 0;
-
-  // "Saved ✓" — enters from below, exits upward
-  const savedY = phase === "saved" ? 0 : phase === "resetting" ? -14 : 14;
+  const savedY = phase === "saved" ? 0 : 14;
   const savedO = phase === "saved" ? 1 : 0;
 
   return (
@@ -120,8 +159,8 @@ export default function SaveIndicator({
           }}
         />
 
-        {/* Text container — always has content */}
-        {isError ? (
+        {/* Text area — empty in idle, content in saving/saved/error */}
+        {phase === "error" ? (
           <span
             style={{
               fontFamily: "'Inter', system-ui, sans-serif",
@@ -132,7 +171,7 @@ export default function SaveIndicator({
           >
             Error
           </span>
-        ) : (
+        ) : phase === "idle" ? null : (
           <div
             style={{
               position: "relative",
@@ -141,7 +180,7 @@ export default function SaveIndicator({
               width: 62,
             }}
           >
-            {/* "Saving..." — always-on default text */}
+            {/* "Saving..." — slow typewriter (1 char per ~1.5s) */}
             <div
               style={{
                 position: "absolute",
@@ -163,11 +202,22 @@ export default function SaveIndicator({
                   color: "var(--text-muted)",
                 }}
               >
-                Saving...
+                {SAVING_TEXT.split("").map((ch, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      display: "inline-block",
+                      opacity: i < savingChars ? 1 : 0,
+                      transition: "opacity 0.3s ease",
+                    }}
+                  >
+                    {ch}
+                  </span>
+                ))}
               </span>
             </div>
 
-            {/* "Saved ✓" — appears briefly after save */}
+            {/* "Saved" — fast typewriter (90ms) + animated check */}
             <div
               style={{
                 position: "absolute",
@@ -190,7 +240,7 @@ export default function SaveIndicator({
                   color: "var(--green-text)",
                 }}
               >
-                {SAVED.split("").map((ch, i) => (
+                {SAVED_TEXT.split("").map((ch, i) => (
                   <span
                     key={i}
                     style={{
@@ -203,7 +253,12 @@ export default function SaveIndicator({
                   </span>
                 ))}
               </span>
-              <svg width="10" height="10" viewBox="0 0 12 12" style={{ marginLeft: 1, overflow: "visible" }}>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 12 12"
+                style={{ marginLeft: 1, overflow: "visible" }}
+              >
                 <path
                   d="M2 6.5L4.5 9L10 3"
                   fill="none"

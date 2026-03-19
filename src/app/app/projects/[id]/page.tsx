@@ -49,6 +49,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   } = useEditorStore();
 
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const segmentRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const tmMatchesRef = useRef<TMMatch[]>([]);
   const [tmPanelVisible, setTmPanelVisible] = useState(true);
@@ -773,16 +774,24 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     updateSegmentTarget(activeSegmentId, text);
   }, [activeSegmentId, updateSegmentTarget]);
 
-  // Autosave: 15-second interval (only saves if there are pending changes)
-  useEffect(() => {
-    const interval = setInterval(() => {
+  // Reset and start the 15-second autosave interval
+  const resetSaveTimer = useCallback(() => {
+    if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
+    saveIntervalRef.current = setInterval(() => {
       const state = useEditorStore.getState();
       if (state.pendingSaves.size > 0) {
         saveSegments();
       }
     }, 15000);
-    return () => clearInterval(interval);
   }, [saveSegments]);
+
+  // Autosave: 15-second fixed interval (skip silently if no changes)
+  useEffect(() => {
+    resetSaveTimer();
+    return () => {
+      if (saveIntervalRef.current) clearInterval(saveIntervalRef.current);
+    };
+  }, [resetSaveTimer]);
 
   // Scroll to active segment
   useEffect(() => {
@@ -835,10 +844,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         return;
       }
 
-      // Ctrl+S — force save (also global)
+      // Ctrl+S — force save immediately + reset 15s timer
       if (e.ctrlKey && e.key === "s") {
         e.preventDefault();
         saveSegments();
+        resetSaveTimer();
         return;
       }
 
@@ -946,7 +956,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       }
 
     },
-    [activeSegmentId, segments, applyTranslation, getPrevSegmentId, getNextSegmentId, setActiveSegment, copySourceToTarget, saveSegments, glossaryTerms, requestAISuggestion, searchOpen, goToOpen, concordanceOpen, shortcutsOpen, executeConfirm, handleUndo, handleRedo]
+    [activeSegmentId, segments, applyTranslation, getPrevSegmentId, getNextSegmentId, setActiveSegment, copySourceToTarget, saveSegments, resetSaveTimer, glossaryTerms, requestAISuggestion, searchOpen, goToOpen, concordanceOpen, shortcutsOpen, executeConfirm, handleUndo, handleRedo]
   );
 
   useEffect(() => {

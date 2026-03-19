@@ -318,10 +318,9 @@ export default function EditorToolbar({
 
           {/* Save indicator — right next to avatar */}
           <SaveIndicator
-            saving={saving}
-            lastSavedAt={lastSavedAt}
-            saveError={saveError}
             hasPendingChanges={hasPendingChanges}
+            lastSavedAt={lastSavedAt ?? null}
+            saveError={saveError ?? null}
           />
 
           {/* PRO pill */}
