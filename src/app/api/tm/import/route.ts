@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 // POST /api/tm/import — import TMX file
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     const formData = await req.formData();
@@ -28,7 +18,10 @@ export async function POST(req: NextRequest) {
     const entries = parseTMX(text);
 
     if (entries.length === 0) {
-      return NextResponse.json({ error: "No valid entries found in TMX file" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No valid entries found in TMX file" },
+        { status: 400 },
+      );
     }
 
     // Upsert each entry (deduplicate by sourceText + srcLang + tgtLang)
@@ -65,7 +58,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ imported, skipped, total: entries.length });
   } catch (err) {
     console.error("TMX import error:", err);
-    return NextResponse.json({ error: "Failed to parse TMX file" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Failed to parse TMX file" },
+      { status: 400 },
+    );
   }
 }
 

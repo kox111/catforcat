@@ -7,8 +7,8 @@ interface GlossaryMismatch {
 
 interface GlossaryWarningModalProps {
   mismatches: GlossaryMismatch[];
-  onFix: () => void;       // Go back to editing
-  onConfirmAnyway: () => void;  // Confirm despite mismatch
+  onFix: () => void; // Go back to editing
+  onConfirmAnyway: () => void; // Confirm despite mismatch
 }
 
 export default function GlossaryWarningModal({
@@ -52,11 +52,26 @@ export default function GlossaryWarningModal({
             color: "var(--amber-text)",
           }}
         >
-          <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>⚠ Glossary Mismatch</span>
+          <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+            ⚠ Glossary Mismatch
+          </span>
         </div>
 
-        <div style={{ paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "0.75rem", paddingBottom: "0.75rem" }}>
-          <p style={{ fontSize: "0.75rem", marginBottom: "0.75rem", color: "var(--text-secondary)" }}>
+        <div
+          style={{
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingTop: "0.75rem",
+            paddingBottom: "0.75rem",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "0.75rem",
+              marginBottom: "0.75rem",
+              color: "var(--text-secondary)",
+            }}
+          >
             The following glossary terms were not found in your translation:
           </p>
           {mismatches.map((m, i) => (
@@ -78,8 +93,12 @@ export default function GlossaryWarningModal({
               }}
             >
               <span style={{ color: "var(--text-muted)" }}>{m.sourceTerm}</span>
-              <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>→</span>
-              <span style={{ color: "var(--accent)", fontWeight: 500 }}>{m.expectedTarget}</span>
+              <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>
+                →
+              </span>
+              <span style={{ color: "var(--accent)", fontWeight: 500 }}>
+                {m.expectedTarget}
+              </span>
             </div>
           ))}
         </div>

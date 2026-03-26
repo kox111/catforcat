@@ -8,26 +8,176 @@
 // Common stopwords for EN and ES
 const STOPWORDS = new Set([
   // English
-  "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
-  "have", "has", "had", "do", "does", "did", "will", "would", "shall",
-  "should", "may", "might", "must", "can", "could", "to", "of", "in",
-  "for", "on", "with", "at", "by", "from", "as", "into", "through",
-  "during", "before", "after", "above", "below", "between", "out",
-  "off", "over", "under", "again", "further", "then", "once", "and",
-  "but", "or", "nor", "not", "no", "so", "if", "than", "too", "very",
-  "just", "about", "up", "down", "each", "all", "any", "both", "few",
-  "more", "most", "other", "some", "such", "only", "own", "same",
-  "that", "this", "these", "those", "it", "its", "he", "she", "they",
-  "them", "their", "we", "our", "you", "your", "i", "me", "my",
-  "who", "which", "what", "when", "where", "how", "there", "here",
+  "the",
+  "a",
+  "an",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+  "have",
+  "has",
+  "had",
+  "do",
+  "does",
+  "did",
+  "will",
+  "would",
+  "shall",
+  "should",
+  "may",
+  "might",
+  "must",
+  "can",
+  "could",
+  "to",
+  "of",
+  "in",
+  "for",
+  "on",
+  "with",
+  "at",
+  "by",
+  "from",
+  "as",
+  "into",
+  "through",
+  "during",
+  "before",
+  "after",
+  "above",
+  "below",
+  "between",
+  "out",
+  "off",
+  "over",
+  "under",
+  "again",
+  "further",
+  "then",
+  "once",
+  "and",
+  "but",
+  "or",
+  "nor",
+  "not",
+  "no",
+  "so",
+  "if",
+  "than",
+  "too",
+  "very",
+  "just",
+  "about",
+  "up",
+  "down",
+  "each",
+  "all",
+  "any",
+  "both",
+  "few",
+  "more",
+  "most",
+  "other",
+  "some",
+  "such",
+  "only",
+  "own",
+  "same",
+  "that",
+  "this",
+  "these",
+  "those",
+  "it",
+  "its",
+  "he",
+  "she",
+  "they",
+  "them",
+  "their",
+  "we",
+  "our",
+  "you",
+  "your",
+  "i",
+  "me",
+  "my",
+  "who",
+  "which",
+  "what",
+  "when",
+  "where",
+  "how",
+  "there",
+  "here",
   // Spanish
-  "el", "la", "los", "las", "un", "una", "unos", "unas", "de", "del",
-  "en", "con", "por", "para", "al", "es", "son", "está", "están",
-  "ser", "estar", "ha", "han", "fue", "y", "o", "pero", "si", "no",
-  "que", "como", "más", "menos", "se", "su", "sus", "le", "les",
-  "lo", "me", "te", "nos", "yo", "tú", "él", "ella", "ellos", "ellas",
-  "este", "esta", "estos", "estas", "ese", "esa", "esos", "esas",
-  "todo", "toda", "todos", "todas", "otro", "otra", "otros", "otras",
+  "el",
+  "la",
+  "los",
+  "las",
+  "un",
+  "una",
+  "unos",
+  "unas",
+  "de",
+  "del",
+  "en",
+  "con",
+  "por",
+  "para",
+  "al",
+  "es",
+  "son",
+  "está",
+  "están",
+  "ser",
+  "estar",
+  "ha",
+  "han",
+  "fue",
+  "y",
+  "o",
+  "pero",
+  "si",
+  "no",
+  "que",
+  "como",
+  "más",
+  "menos",
+  "se",
+  "su",
+  "sus",
+  "le",
+  "les",
+  "lo",
+  "me",
+  "te",
+  "nos",
+  "yo",
+  "tú",
+  "él",
+  "ella",
+  "ellos",
+  "ellas",
+  "este",
+  "esta",
+  "estos",
+  "estas",
+  "ese",
+  "esa",
+  "esos",
+  "esas",
+  "todo",
+  "toda",
+  "todos",
+  "todas",
+  "otro",
+  "otra",
+  "otros",
+  "otras",
 ]);
 
 export interface GlossarySuggestion {
@@ -41,14 +191,19 @@ export interface GlossarySuggestion {
  * Extract n-grams (2-4 words) from text, filtered by stopwords
  */
 function extractNgrams(text: string): string[] {
-  const words = text.toLowerCase().replace(/[^\w\sáéíóúñüàèìòùâêîôûäëïöü-]/g, "").split(/\s+/).filter(Boolean);
+  const words = text
+    .toLowerCase()
+    .replace(/[^\w\sáéíóúñüàèìòùâêîôûäëïöü-]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
   const ngrams: string[] = [];
 
   for (let n = 2; n <= 4; n++) {
     for (let i = 0; i <= words.length - n; i++) {
       const gram = words.slice(i, i + n);
       // Skip if first or last word is a stopword
-      if (STOPWORDS.has(gram[0]) || STOPWORDS.has(gram[gram.length - 1])) continue;
+      if (STOPWORDS.has(gram[0]) || STOPWORDS.has(gram[gram.length - 1]))
+        continue;
       // Skip if ALL words are stopwords
       if (gram.every((w) => STOPWORDS.has(w))) continue;
       ngrams.push(gram.join(" "));
@@ -82,7 +237,9 @@ export function detectFrequentTerms(
   existingGlossaryTerms: string[],
   minOccurrences = 3,
 ): GlossarySuggestion[] {
-  const existingLower = new Set(existingGlossaryTerms.map((t) => t.toLowerCase()));
+  const existingLower = new Set(
+    existingGlossaryTerms.map((t) => t.toLowerCase()),
+  );
 
   // Count n-gram frequency across all source texts
   const ngramCounts = new Map<string, number>();
@@ -109,12 +266,14 @@ export function detectFrequentTerms(
       (other) =>
         other.term !== c.term &&
         other.term.includes(c.term) &&
-        other.count >= c.count
+        other.count >= c.count,
     );
   });
 
   // For confirmed segments, try to find what translation the user used
-  const confirmedSegs = segments.filter((s) => s.status === "confirmed" && s.targetText.trim());
+  const confirmedSegs = segments.filter(
+    (s) => s.status === "confirmed" && s.targetText.trim(),
+  );
 
   const suggestions: GlossarySuggestion[] = filtered
     .sort((a, b) => b.count - a.count)

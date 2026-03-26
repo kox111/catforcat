@@ -197,8 +197,12 @@ export default function BreakReminder() {
             padding: "4px 8px",
             transition: "color 150ms",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--text-secondary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-muted)")
+          }
         >
           Snooze 5min
         </button>

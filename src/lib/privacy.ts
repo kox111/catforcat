@@ -27,7 +27,8 @@ export const PRIVACY_CONFIGS: Record<PrivacyLevel, PrivacyConfig> = {
     cloudTmEnabled: false,
     label: "Private",
     icon: "Lock",
-    description: "No data sent to public TMs. AI uses your private API key only.",
+    description:
+      "No data sent to public TMs. AI uses your private API key only.",
   },
   confidential: {
     aiEnabled: false,
@@ -36,7 +37,8 @@ export const PRIVACY_CONFIGS: Record<PrivacyLevel, PrivacyConfig> = {
     cloudTmEnabled: false,
     label: "Confidential",
     icon: "Shield",
-    description: "Maximum security. Zero external API calls. 100% local processing.",
+    description:
+      "Maximum security. Zero external API calls. 100% local processing.",
   },
 };
 

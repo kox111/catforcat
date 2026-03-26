@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/glossary — list glossary terms for current user
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const searchParams = req.nextUrl.searchParams;
   const srcLang = searchParams.get("srcLang");
@@ -44,17 +34,8 @@ export async function GET(req: NextRequest) {
 
 // POST /api/glossary — add a glossary term
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     const { sourceTerm, targetTerm, srcLang, tgtLang, note } = await req.json();
@@ -62,7 +43,7 @@ export async function POST(req: NextRequest) {
     if (!sourceTerm || !targetTerm || !srcLang || !tgtLang) {
       return NextResponse.json(
         { error: "sourceTerm, targetTerm, srcLang, and tgtLang are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -88,7 +69,10 @@ export async function POST(req: NextRequest) {
     const { canAddGlossaryTerm } = await import("@/lib/plan-limits");
     const glossaryCheck = await canAddGlossaryTerm(user.id, user.plan);
     if (!glossaryCheck.allowed) {
-      return NextResponse.json({ error: glossaryCheck.message }, { status: 403 });
+      return NextResponse.json(
+        { error: glossaryCheck.message },
+        { status: 403 },
+      );
     }
 
     const term = await prisma.glossaryTerm.create({
@@ -103,28 +87,19 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(term, { status: 201 });
-  } catch (error) {
-    console.error("Glossary creation error:", error);
+  } catch (err) {
+    console.error("Glossary creation error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 // DELETE /api/glossary — delete a glossary term
 export async function DELETE(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     let id = req.nextUrl.searchParams.get("id");
@@ -149,11 +124,11 @@ export async function DELETE(req: NextRequest) {
 
     await prisma.glossaryTerm.delete({ where: { id } });
     return NextResponse.json({ deleted: true });
-  } catch (error) {
-    console.error("Glossary deletion error:", error);
+  } catch (err) {
+    console.error("Glossary deletion error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -17,7 +17,10 @@ interface QARulesManagerProps {
   onClose: () => void;
 }
 
-export default function QARulesManager({ projectId, onClose }: QARulesManagerProps) {
+export default function QARulesManager({
+  projectId,
+  onClose,
+}: QARulesManagerProps) {
   const [rules, setRules] = useState<QARule[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"wordlist" | "regex">("wordlist");
@@ -25,7 +28,9 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
   // New rule form
   const [newWrong, setNewWrong] = useState("");
   const [newCorrect, setNewCorrect] = useState("");
-  const [newSeverity, setNewSeverity] = useState<"warning" | "error">("warning");
+  const [newSeverity, setNewSeverity] = useState<"warning" | "error">(
+    "warning",
+  );
 
   const fetchRules = useCallback(async () => {
     try {
@@ -133,7 +138,13 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
             marginBottom: 16,
           }}
         >
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)" }}>
+          <h2
+            style={{
+              fontSize: 16,
+              fontWeight: 600,
+              color: "var(--text-primary)",
+            }}
+          >
             QA Rules
           </h2>
           <button
@@ -164,8 +175,12 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
                 fontSize: 12,
                 fontWeight: 500,
                 background: tab === t ? "var(--accent-soft)" : "var(--bg-card)",
-                color: tab === t ? "var(--text-primary)" : "var(--text-secondary)",
-                border: tab === t ? "0.5px solid var(--accent)" : "1px solid var(--border)",
+                color:
+                  tab === t ? "var(--text-primary)" : "var(--text-secondary)",
+                border:
+                  tab === t
+                    ? "0.5px solid var(--accent)"
+                    : "1px solid var(--border)",
                 cursor: "pointer",
                 fontFamily: "inherit",
                 transition: "background 150ms",
@@ -188,19 +203,34 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
               border: "1px solid var(--border)",
             }}
           >
-            Use standard JavaScript regex syntax. Pattern is tested against target text.
+            Use standard JavaScript regex syntax. Pattern is tested against
+            target text.
           </div>
         )}
 
         {/* Rules table */}
         {loading ? (
-          <div style={{ color: "var(--text-muted)", fontSize: 12, padding: 16, textAlign: "center" }}>
+          <div
+            style={{
+              color: "var(--text-muted)",
+              fontSize: 12,
+              padding: 16,
+              textAlign: "center",
+            }}
+          >
             Loading rules...
           </div>
         ) : (
           <div style={{ marginBottom: 16 }}>
             {filteredRules.length === 0 ? (
-              <div style={{ color: "var(--text-muted)", fontSize: 12, padding: 16, textAlign: "center" }}>
+              <div
+                style={{
+                  color: "var(--text-muted)",
+                  fontSize: 12,
+                  padding: 16,
+                  textAlign: "center",
+                }}
+              >
                 No {tab === "wordlist" ? "word list" : "regex"} rules yet.
               </div>
             ) : (
@@ -240,7 +270,10 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
                       style={{
                         fontSize: 12,
                         color: "var(--text-primary)",
-                        fontFamily: tab === "regex" ? "'JetBrains Mono', monospace" : "inherit",
+                        fontFamily:
+                          tab === "regex"
+                            ? "'JetBrains Mono', monospace"
+                            : "inherit",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -266,8 +299,14 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
                         padding: "2px 6px",
                         borderRadius: 4,
                         textAlign: "center",
-                        background: rule.severity === "error" ? "var(--red-soft)" : "var(--amber-soft)",
-                        color: rule.severity === "error" ? "var(--red)" : "var(--amber)",
+                        background:
+                          rule.severity === "error"
+                            ? "var(--red-soft)"
+                            : "var(--amber-soft)",
+                        color:
+                          rule.severity === "error"
+                            ? "var(--red)"
+                            : "var(--amber)",
                       }}
                     >
                       {rule.severity}
@@ -286,8 +325,12 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
                         cursor: "pointer",
                         transition: "color 150ms",
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--red)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = "var(--red)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = "var(--text-muted)")
+                      }
                     >
                       <Trash2 size={13} />
                     </button>
@@ -308,34 +351,61 @@ export default function QARulesManager({ projectId, onClose }: QARulesManagerPro
           }}
         >
           <div>
-            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>
+            <label
+              style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
               {tab === "wordlist" ? "Wrong term" : "Regex pattern"}
             </label>
             <input
               value={newWrong}
               onChange={(e) => setNewWrong(e.target.value)}
-              placeholder={tab === "wordlist" ? "e.g., teh" : "e.g., \\d{3}-\\d{4}"}
+              placeholder={
+                tab === "wordlist" ? "e.g., teh" : "e.g., \\d{3}-\\d{4}"
+              }
               style={inputStyle}
             />
           </div>
           <div>
-            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>
+            <label
+              style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
               {tab === "wordlist" ? "Correct term" : "Description"}
             </label>
             <input
               value={newCorrect}
               onChange={(e) => setNewCorrect(e.target.value)}
-              placeholder={tab === "wordlist" ? "e.g., the" : "e.g., Phone number format"}
+              placeholder={
+                tab === "wordlist" ? "e.g., the" : "e.g., Phone number format"
+              }
               style={{ ...inputStyle, fontFamily: "inherit" }}
             />
           </div>
           <div>
-            <label style={{ fontSize: 10, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>
+            <label
+              style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
               Severity
             </label>
             <select
               value={newSeverity}
-              onChange={(e) => setNewSeverity(e.target.value as "warning" | "error")}
+              onChange={(e) =>
+                setNewSeverity(e.target.value as "warning" | "error")
+              }
               style={{ ...inputStyle, width: "100%", fontFamily: "inherit" }}
             >
               <option value="warning">Warning</option>

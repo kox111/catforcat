@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 
 export type Theme = "sakura" | "dark" | "light" | "linen";
 
@@ -13,25 +19,40 @@ export function useTheme() {
   return useContext(ThemeContext);
 }
 
-export default function ThemeProvider({ children }: { children: React.ReactNode }) {
+export default function ThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [theme, setThemeState] = useState<Theme>("dark");
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem("catforcat-theme") as Theme | null;
-      if (saved === "sakura" || saved === "dark" || saved === "light" || saved === "linen") {
+      if (
+        saved === "sakura" ||
+        saved === "dark" ||
+        saved === "light" ||
+        saved === "linen"
+      ) {
         setThemeState(saved);
         document.documentElement.setAttribute("data-theme", saved);
       } else {
         document.documentElement.setAttribute("data-theme", "dark");
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
     document.documentElement.setAttribute("data-theme", next);
-    try { localStorage.setItem("catforcat-theme", next); } catch { /* ignore */ }
+    try {
+      localStorage.setItem("catforcat-theme", next);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   return (

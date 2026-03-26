@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 // POST /api/projects/[id]/segments/merge — merge two consecutive segments
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { id } = await params;
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
 
   const project = await prisma.project.findFirst({
     where: { id, userId: user.id },
@@ -35,22 +25,27 @@ export async function POST(
     if (!segmentId || !nextSegmentId) {
       return NextResponse.json(
         { error: "segmentId and nextSegmentId are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const segA = await prisma.segment.findUnique({ where: { id: segmentId } });
-    const segB = await prisma.segment.findUnique({ where: { id: nextSegmentId } });
+    const segB = await prisma.segment.findUnique({
+      where: { id: nextSegmentId },
+    });
 
     if (!segA || !segB || segA.projectId !== id || segB.projectId !== id) {
-      return NextResponse.json({ error: "Segments not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Segments not found" },
+        { status: 404 },
+      );
     }
 
     // Ensure they are consecutive
     if (segB.position !== segA.position + 1) {
       return NextResponse.json(
         { error: "Segments must be consecutive" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -75,7 +70,7 @@ export async function POST(
       await tx.$executeRawUnsafe(
         `UPDATE segments SET position = position - 1 WHERE project_id = ? AND position > ?`,
         id,
-        segB.position
+        segB.position,
       );
     });
 
@@ -89,7 +84,7 @@ export async function POST(
     console.error("Merge segments error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

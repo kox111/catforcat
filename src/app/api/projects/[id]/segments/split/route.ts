@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 // POST /api/projects/[id]/segments/split — split a segment at cursor position
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { id } = await params;
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
 
   const project = await prisma.project.findFirst({
     where: { id, userId: user.id },
@@ -35,7 +25,7 @@ export async function POST(
     if (!segmentId || typeof splitPosition !== "number") {
       return NextResponse.json(
         { error: "segmentId and splitPosition are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -52,7 +42,7 @@ export async function POST(
     if (!sourceA || !sourceB) {
       return NextResponse.json(
         { error: "Split would create an empty segment" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,7 +52,7 @@ export async function POST(
       await tx.$executeRawUnsafe(
         `UPDATE segments SET position = position + 1 WHERE project_id = ? AND position > ?`,
         id,
-        segment.position
+        segment.position,
       );
 
       // Update original segment (first half)
@@ -100,7 +90,7 @@ export async function POST(
     console.error("Split segment error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

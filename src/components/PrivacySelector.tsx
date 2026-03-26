@@ -149,7 +149,9 @@ export default function PrivacySelector({
                   border: isActive
                     ? "1.5px solid var(--accent)"
                     : "1px solid var(--border)",
-                  background: isActive ? "var(--accent-soft)" : "var(--bg-card)",
+                  background: isActive
+                    ? "var(--accent-soft)"
+                    : "var(--bg-card)",
                   cursor: saving ? "wait" : "pointer",
                   textAlign: "left",
                   fontFamily: "inherit",
@@ -157,10 +159,12 @@ export default function PrivacySelector({
                   opacity: saving ? 0.7 : 1,
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.borderColor = "var(--accent)";
+                  if (!isActive)
+                    e.currentTarget.style.borderColor = "var(--accent)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.borderColor = "var(--border)";
+                  if (!isActive)
+                    e.currentTarget.style.borderColor = "var(--border)";
                 }}
               >
                 {/* Icon + Name */}
@@ -189,9 +193,18 @@ export default function PrivacySelector({
                 </span>
 
                 {/* Feature tags */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 4,
+                    marginTop: 2,
+                  }}
+                >
                   {FEATURE_TAGS.map((tag) => {
-                    const enabled = config[tag.key as keyof PrivacyConfig] as boolean;
+                    const enabled = config[
+                      tag.key as keyof PrivacyConfig
+                    ] as boolean;
                     return (
                       <span
                         key={tag.key}
@@ -200,8 +213,12 @@ export default function PrivacySelector({
                           fontWeight: 500,
                           padding: "2px 6px",
                           borderRadius: 4,
-                          color: enabled ? "var(--green-text)" : "var(--red-text)",
-                          background: enabled ? "var(--green-soft)" : "var(--red-soft)",
+                          color: enabled
+                            ? "var(--green-text)"
+                            : "var(--red-text)",
+                          background: enabled
+                            ? "var(--green-soft)"
+                            : "var(--red-soft)",
                         }}
                       >
                         {enabled ? tag.on : tag.off}
@@ -244,13 +261,13 @@ export function PrivacyBadge({ level, onClick }: PrivacyBadgeProps) {
         background: isConfidential
           ? "var(--amber-soft)"
           : isPrivate
-          ? "var(--bg-hover)"
-          : "transparent",
+            ? "var(--bg-hover)"
+            : "transparent",
         color: isConfidential
           ? "var(--amber-text)"
           : isPrivate
-          ? "var(--text-primary)"
-          : "var(--text-muted)",
+            ? "var(--text-primary)"
+            : "var(--text-muted)",
         fontSize: 10,
         fontWeight: 500,
         fontFamily: "'Inter', system-ui, sans-serif",

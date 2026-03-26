@@ -66,7 +66,9 @@ export default function ThemeOnboarding() {
       if (!onboarded) {
         setShow(true);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   if (!show) return null;
@@ -77,7 +79,11 @@ export default function ThemeOnboarding() {
   };
 
   const handleContinue = () => {
-    try { localStorage.setItem("catforcat-onboarded", "true"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem("catforcat-onboarded", "true");
+    } catch {
+      /* ignore */
+    }
     setShow(false);
   };
 
@@ -103,32 +109,38 @@ export default function ThemeOnboarding() {
           width: "100%",
         }}
       >
-        <h2 style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
-          fontSize: 22,
-          fontWeight: 400,
-          color: "var(--text-primary)",
-          marginBottom: 6,
-        }}>
+        <h2
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 22,
+            fontWeight: 400,
+            color: "var(--text-primary)",
+            marginBottom: 6,
+          }}
+        >
           Welcome to catforcat.
         </h2>
-        <p style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: 13,
-          fontWeight: 400,
-          color: "var(--text-secondary)",
-          lineHeight: 1.6,
-          marginBottom: 20,
-        }}>
+        <p
+          style={{
+            fontFamily: "'Inter', system-ui, sans-serif",
+            fontSize: 13,
+            fontWeight: 400,
+            color: "var(--text-secondary)",
+            lineHeight: 1.6,
+            marginBottom: 20,
+          }}
+        >
           Choose your workspace theme. You can change it anytime.
         </p>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 10,
-          marginBottom: 20,
-        }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 10,
+            marginBottom: 20,
+          }}
+        >
           {THEME_PREVIEWS.map((t) => {
             const isActive = selected === t.id;
             return (
@@ -146,63 +158,79 @@ export default function ThemeOnboarding() {
                 }}
               >
                 {/* Mini editor preview */}
-                <div style={{
-                  height: 72,
-                  background: t.previewBg,
-                  padding: "8px 10px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}>
-                  <div style={{
+                <div
+                  style={{
+                    height: 72,
+                    background: t.previewBg,
+                    padding: "8px 10px",
                     display: "flex",
+                    flexDirection: "column",
                     justifyContent: "space-between",
-                    alignItems: "center",
-                  }}>
-                    <span style={{
-                      fontFamily: "'Playfair Display', Georgia, serif",
-                      fontSize: 7,
-                      color: t.toolbarText,
-                    }}>
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: 7,
+                        color: t.toolbarText,
+                      }}
+                    >
                       catforcat.
                     </span>
-                    <span style={{
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 5,
-                      color: t.lineMuted,
-                    }}>
+                    <span
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 5,
+                        color: t.lineMuted,
+                      }}
+                    >
                       ES→EN
                     </span>
                   </div>
                   <div>
-                    <div style={{
-                      fontSize: 6,
-                      color: t.lineText,
-                      fontFamily: "'Inter', sans-serif",
-                      marginBottom: 2,
-                    }}>
+                    <div
+                      style={{
+                        fontSize: 6,
+                        color: t.lineText,
+                        fontFamily: "'Inter', sans-serif",
+                        marginBottom: 2,
+                      }}
+                    >
                       Source text here...
                     </div>
-                    <div style={{
-                      fontSize: 6,
-                      color: t.lineMuted,
-                      fontFamily: "'Inter', sans-serif",
-                    }}>
+                    <div
+                      style={{
+                        fontSize: 6,
+                        color: t.lineMuted,
+                        fontFamily: "'Inter', sans-serif",
+                      }}
+                    >
                       Target translation...
                     </div>
                   </div>
                 </div>
                 {/* Label */}
-                <div style={{
-                  background: t.labelBg,
-                  padding: "5px 10px",
-                }}>
-                  <span style={{
-                    fontSize: 10,
-                    fontWeight: 500,
-                    fontFamily: "'Inter', system-ui, sans-serif",
-                    color: t.labelText,
-                  }}>
+                <div
+                  style={{
+                    background: t.labelBg,
+                    padding: "5px 10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      fontFamily: "'Inter', system-ui, sans-serif",
+                      color: t.labelText,
+                    }}
+                  >
                     {t.label}
                   </span>
                 </div>

@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  useCallback,
+} from "react";
 import {
   type ScaleMode,
   SCALE_MODES,
@@ -29,7 +35,11 @@ export function useViewScale() {
   return useContext(ViewScaleContext);
 }
 
-export default function ViewScaleProvider({ children }: { children: React.ReactNode }) {
+export default function ViewScaleProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [zoom, setZoom] = useState(1);
   const [mode, setModeState] = useState<ScaleMode>("default");
 
@@ -80,7 +90,11 @@ export default function ViewScaleProvider({ children }: { children: React.ReactN
 }
 
 /** Wrapper that applies the CSS transform scale. Place around content that should zoom. */
-export function ViewScaleContainer({ children }: { children: React.ReactNode }) {
+export function ViewScaleContainer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { zoom } = useViewScale();
   return (
     <div

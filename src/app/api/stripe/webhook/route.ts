@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     console.error("STRIPE_WEBHOOK_SECRET not configured");
-    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook not configured" },
+      { status: 500 },
+    );
   }
 
   let event: Stripe.Event;
@@ -62,7 +65,10 @@ export async function POST(req: NextRequest) {
     }
   } catch (error) {
     console.error(`Error handling webhook event ${event.type}:`, error);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ received: true });
@@ -78,7 +84,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const priceId = (subscription as any).items?.data?.[0]?.price?.id || null;
-  const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000);
+  const currentPeriodEnd = new Date(
+    (subscription as unknown as { current_period_end: number })
+      .current_period_end * 1000,
+  );
 
   await prisma.user.update({
     where: { stripeCustomerId: customerId },
@@ -94,12 +103,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const subscriptionId = ((invoice as any).subscription || (invoice as any).parent?.subscription_details?.subscription) as string;
+  const subscriptionId = ((invoice as any).subscription ||
+    (invoice as any).parent?.subscription_details?.subscription) as string;
 
   if (!customerId || !subscriptionId) return;
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000);
+  const currentPeriodEnd = new Date(
+    (subscription as unknown as { current_period_end: number })
+      .current_period_end * 1000,
+  );
 
   await prisma.user.updateMany({
     where: { stripeCustomerId: customerId },
@@ -112,7 +125,10 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
-  const currentPeriodEnd = new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000);
+  const currentPeriodEnd = new Date(
+    (subscription as unknown as { current_period_end: number })
+      .current_period_end * 1000,
+  );
 
   const status = subscription.status;
   const isActive = status === "active" || status === "trialing";

@@ -59,7 +59,10 @@ export default function GlossaryPanel({
     };
 
     const timer = setTimeout(checkGlossary, 300);
-    return () => { cancelled = true; clearTimeout(timer); };
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [sourceText, srcLang, tgtLang, isActive]);
 
   if (!isActive) {
@@ -174,7 +177,10 @@ export default function GlossaryPanel({
             </span>
 
             {/* Arrow */}
-            <ArrowRight size={10} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+            <ArrowRight
+              size={10}
+              style={{ color: "var(--text-muted)", flexShrink: 0 }}
+            />
 
             {/* Target term */}
             <span style={{ color: "var(--purple)", fontWeight: 600 }}>

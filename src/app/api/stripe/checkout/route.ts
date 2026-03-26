@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 
@@ -9,13 +8,11 @@ import { stripe } from "@/lib/stripe";
  * Creates a Stripe Checkout Session for upgrading to Pro.
  */
 export async function POST() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user: authUser, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: authUser.id },
     select: { id: true, email: true, plan: true, stripeCustomerId: true },
   });
 
@@ -29,10 +26,13 @@ export async function POST() {
 
   const priceId = process.env.STRIPE_PRO_PRICE_ID;
   if (!priceId) {
-    return NextResponse.json({ error: "Stripe is not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 500 },
+    );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://catforcat.app";
 
   try {
     // Get or create Stripe customer
@@ -65,6 +65,9 @@ export async function POST() {
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
     console.error("Stripe checkout error:", error);
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create checkout session" },
+      { status: 500 },
+    );
   }
 }

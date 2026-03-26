@@ -19,26 +19,32 @@ const PRECACHE_URLS = [
 // Install: precache app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS);
-    }).then(() => {
-      return self.skipWaiting();
-    })
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
+        return cache.addAll(PRECACHE_URLS);
+      })
+      .then(() => {
+        return self.skipWaiting();
+      }),
   );
 });
 
 // Activate: clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((keys) => {
+        return Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        );
+      })
+      .then(() => {
+        return self.clients.claim();
+      }),
   );
 });
 
@@ -76,6 +82,6 @@ self.addEventListener("fetch", (event) => {
 
       // Return cached immediately, update cache in background
       return cached || fetchPromise;
-    })
+    }),
   );
 });

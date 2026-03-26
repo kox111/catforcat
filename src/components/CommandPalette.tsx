@@ -73,43 +73,201 @@ export default function CommandPalette({
   // Build commands list
   const commands: Command[] = [
     // Navigation
-    { id: "nav-projects", label: "Go to Projects", icon: FolderOpen, category: "navigation", action: () => router.push("/app/projects") },
-    { id: "nav-tm", label: "Go to Translation Memory", icon: Database, category: "navigation", action: () => router.push("/app/tm") },
-    { id: "nav-glossary", label: "Go to Glossary", icon: BookOpen, category: "navigation", action: () => router.push("/app/glossary") },
-    { id: "nav-settings", label: "Go to Settings", icon: Settings, category: "navigation", action: () => router.push("/app/settings") },
+    {
+      id: "nav-projects",
+      label: "Go to Projects",
+      icon: FolderOpen,
+      category: "navigation",
+      action: () => router.push("/app/projects"),
+    },
+    {
+      id: "nav-tm",
+      label: "Go to Translation Memory",
+      icon: Database,
+      category: "navigation",
+      action: () => router.push("/app/tm"),
+    },
+    {
+      id: "nav-glossary",
+      label: "Go to Glossary",
+      icon: BookOpen,
+      category: "navigation",
+      action: () => router.push("/app/glossary"),
+    },
+    {
+      id: "nav-settings",
+      label: "Go to Settings",
+      icon: Settings,
+      category: "navigation",
+      action: () => router.push("/app/settings"),
+    },
 
     // Editor actions
     ...(isEditor
       ? [
-          { id: "ed-confirm", label: "Confirm segment", icon: Check, shortcut: "Ctrl+Enter", category: "editor" as const, editorOnly: true, action: () => editorActions?.confirmSegment?.() },
-          { id: "ed-qa", label: "Run QA check", icon: AlertTriangle, shortcut: "Ctrl+Shift+Q", category: "editor" as const, editorOnly: true, action: () => editorActions?.runQA?.() },
-          { id: "ed-smart-review", label: "Run Smart Review", icon: Sparkles, category: "editor" as const, editorOnly: true, action: () => editorActions?.runSmartReview?.() },
-          { id: "ed-review", label: "Start Review mode", icon: GitCompare, category: "editor" as const, editorOnly: true, action: () => editorActions?.startReview?.() },
-          { id: "ed-pretranslate", label: "Pre-translate all", icon: Zap, category: "editor" as const, editorOnly: true, action: () => editorActions?.preTranslateAll?.() },
-          { id: "ed-export", label: "Export project", icon: Download, category: "editor" as const, editorOnly: true, action: () => editorActions?.exportProject?.() },
-          { id: "ed-copy-source", label: "Copy source to target", icon: Copy, category: "editor" as const, editorOnly: true, action: () => editorActions?.copySourceToTarget?.() },
-          { id: "ed-focus", label: "Toggle focus mode", icon: Eye, shortcut: "Ctrl+Shift+F", category: "editor" as const, editorOnly: true, action: () => editorActions?.toggleFocusMode?.() },
+          {
+            id: "ed-confirm",
+            label: "Confirm segment",
+            icon: Check,
+            shortcut: "Ctrl+Enter",
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.confirmSegment?.(),
+          },
+          {
+            id: "ed-qa",
+            label: "Run QA check",
+            icon: AlertTriangle,
+            shortcut: "Ctrl+Shift+Q",
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.runQA?.(),
+          },
+          {
+            id: "ed-smart-review",
+            label: "Run Smart Review",
+            icon: Sparkles,
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.runSmartReview?.(),
+          },
+          {
+            id: "ed-review",
+            label: "Start Review mode",
+            icon: GitCompare,
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.startReview?.(),
+          },
+          {
+            id: "ed-pretranslate",
+            label: "Pre-translate all",
+            icon: Zap,
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.preTranslateAll?.(),
+          },
+          {
+            id: "ed-export",
+            label: "Export project",
+            icon: Download,
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.exportProject?.(),
+          },
+          {
+            id: "ed-copy-source",
+            label: "Copy source to target",
+            icon: Copy,
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.copySourceToTarget?.(),
+          },
+          {
+            id: "ed-focus",
+            label: "Toggle focus mode",
+            icon: Eye,
+            shortcut: "Ctrl+Shift+F",
+            category: "editor" as const,
+            editorOnly: true,
+            action: () => editorActions?.toggleFocusMode?.(),
+          },
         ]
       : []),
 
     // Themes
-    { id: "theme-sakura", label: "Switch to Sakura theme", icon: Palette, category: "theme", action: () => { document.documentElement.setAttribute("data-theme", "sakura"); localStorage.setItem("catforcat-theme", "sakura"); } },
-    { id: "theme-dark", label: "Switch to Dark theme", icon: Palette, category: "theme", action: () => { document.documentElement.setAttribute("data-theme", "dark"); localStorage.setItem("catforcat-theme", "dark"); } },
-    { id: "theme-light", label: "Switch to Light theme", icon: Palette, category: "theme", action: () => { document.documentElement.setAttribute("data-theme", "light"); localStorage.setItem("catforcat-theme", "light"); } },
-    { id: "theme-linen", label: "Switch to Linen theme", icon: Palette, category: "theme", action: () => { document.documentElement.setAttribute("data-theme", "linen"); localStorage.setItem("catforcat-theme", "linen"); } },
+    {
+      id: "theme-sakura",
+      label: "Switch to Sakura theme",
+      icon: Palette,
+      category: "theme",
+      action: () => {
+        document.documentElement.setAttribute("data-theme", "sakura");
+        localStorage.setItem("catforcat-theme", "sakura");
+      },
+    },
+    {
+      id: "theme-dark",
+      label: "Switch to Dark theme",
+      icon: Palette,
+      category: "theme",
+      action: () => {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("catforcat-theme", "dark");
+      },
+    },
+    {
+      id: "theme-light",
+      label: "Switch to Light theme",
+      icon: Palette,
+      category: "theme",
+      action: () => {
+        document.documentElement.setAttribute("data-theme", "light");
+        localStorage.setItem("catforcat-theme", "light");
+      },
+    },
+    {
+      id: "theme-linen",
+      label: "Switch to Linen theme",
+      icon: Palette,
+      category: "theme",
+      action: () => {
+        document.documentElement.setAttribute("data-theme", "linen");
+        localStorage.setItem("catforcat-theme", "linen");
+      },
+    },
 
     // View Scale
-    { id: "scale-compact", label: "Set view: Compact", icon: Maximize2, category: "theme", action: () => { setStoredMode("compact"); window.location.reload(); } },
-    { id: "scale-default", label: "Set view: Default", icon: Maximize2, category: "theme", action: () => { setStoredMode("default"); window.location.reload(); } },
-    { id: "scale-large", label: "Set view: Large", icon: Maximize2, category: "theme", action: () => { setStoredMode("large"); window.location.reload(); } },
+    {
+      id: "scale-compact",
+      label: "Set view: Compact",
+      icon: Maximize2,
+      category: "theme",
+      action: () => {
+        setStoredMode("compact");
+        window.location.reload();
+      },
+    },
+    {
+      id: "scale-default",
+      label: "Set view: Default",
+      icon: Maximize2,
+      category: "theme",
+      action: () => {
+        setStoredMode("default");
+        window.location.reload();
+      },
+    },
+    {
+      id: "scale-large",
+      label: "Set view: Large",
+      icon: Maximize2,
+      category: "theme",
+      action: () => {
+        setStoredMode("large");
+        window.location.reload();
+      },
+    },
 
     // Project
     ...(isEditor
       ? [
-          { id: "proj-privacy", label: "Change privacy level", icon: Shield, category: "project" as const, action: () => editorActions?.openPrivacySelector?.() },
+          {
+            id: "proj-privacy",
+            label: "Change privacy level",
+            icon: Shield,
+            category: "project" as const,
+            action: () => editorActions?.openPrivacySelector?.(),
+          },
         ]
       : []),
-    { id: "proj-new", label: "New project", icon: Plus, category: "project", action: () => onNewProject?.() || router.push("/app/projects?new=true") },
+    {
+      id: "proj-new",
+      label: "New project",
+      icon: Plus,
+      category: "project",
+      action: () => onNewProject?.() || router.push("/app/projects?new=true"),
+    },
   ];
 
   // Fuzzy search
@@ -135,7 +293,12 @@ export default function CommandPalette({
     .map((id) => commands.find((c) => c.id === id))
     .filter(Boolean) as Command[];
 
-  const displayCommands = query.trim() ? filteredCommands : [...recentCommands, ...filteredCommands.filter((c) => !recentIds.includes(c.id))];
+  const displayCommands = query.trim()
+    ? filteredCommands
+    : [
+        ...recentCommands,
+        ...filteredCommands.filter((c) => !recentIds.includes(c.id)),
+      ];
 
   // Focus input when opened
   useEffect(() => {
@@ -157,14 +320,17 @@ export default function CommandPalette({
   const executeCommand = useCallback(
     (cmd: Command) => {
       // Save to recent
-      const updated = [cmd.id, ...recentIds.filter((id) => id !== cmd.id)].slice(0, MAX_RECENT);
+      const updated = [
+        cmd.id,
+        ...recentIds.filter((id) => id !== cmd.id),
+      ].slice(0, MAX_RECENT);
       setRecentIds(updated);
       localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
 
       onClose();
       cmd.action();
     },
-    [recentIds, onClose]
+    [recentIds, onClose],
   );
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -216,7 +382,10 @@ export default function CommandPalette({
         {/* Search input */}
         <div style={{ padding: "0 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Search size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+            <Search
+              size={14}
+              style={{ color: "var(--text-muted)", flexShrink: 0 }}
+            />
             <input
               ref={inputRef}
               value={query}
@@ -239,7 +408,10 @@ export default function CommandPalette({
             />
             {query && (
               <button
-                onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+                onClick={() => {
+                  setQuery("");
+                  inputRef.current?.focus();
+                }}
                 style={{
                   background: "transparent",
                   border: "none",
@@ -319,7 +491,9 @@ export default function CommandPalette({
                     gap: 10,
                     width: "100%",
                     padding: "8px 16px",
-                    background: isSelected ? "var(--accent-soft)" : "transparent",
+                    background: isSelected
+                      ? "var(--accent-soft)"
+                      : "transparent",
                     border: "none",
                     cursor: "pointer",
                     textAlign: "left",
@@ -327,7 +501,10 @@ export default function CommandPalette({
                     transition: "background 100ms",
                   }}
                 >
-                  <Icon size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                  <Icon
+                    size={14}
+                    style={{ color: "var(--text-muted)", flexShrink: 0 }}
+                  />
                   <span
                     style={{
                       fontSize: 13,

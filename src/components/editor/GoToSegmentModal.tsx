@@ -29,9 +29,22 @@ export default function GoToSegmentModal({
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "8rem" }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        paddingTop: "8rem",
+      }}
+    >
       {/* Backdrop */}
-      <div style={{ position: "absolute", inset: 0, background: "var(--overlay)" }} onClick={onClose} />
+      <div
+        style={{ position: "absolute", inset: 0, background: "var(--overlay)" }}
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <form
@@ -47,7 +60,15 @@ export default function GoToSegmentModal({
           border: "1px solid var(--border)",
         }}
       >
-        <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 500, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            marginBottom: "0.5rem",
+            color: "var(--text-primary)",
+          }}
+        >
           Go to segment # (1–{totalSegments})
         </label>
         <div style={{ display: "flex", gap: "0.5rem" }}>

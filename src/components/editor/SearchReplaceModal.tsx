@@ -6,9 +6,9 @@ export interface SearchMatch {
   segmentId: string;
   segmentPosition: number;
   field: "source" | "target";
-  text: string;       // full field text
-  matchStart: number;  // char index of match start
-  matchEnd: number;    // char index of match end
+  text: string; // full field text
+  matchStart: number; // char index of match start
+  matchEnd: number; // char index of match end
 }
 
 interface SearchReplaceModalProps {
@@ -113,7 +113,8 @@ export default function SearchReplaceModal({
   const goToMatch = useCallback(
     (idx: number) => {
       if (matches.length === 0) return;
-      const wrapped = ((idx % matches.length) + matches.length) % matches.length;
+      const wrapped =
+        ((idx % matches.length) + matches.length) % matches.length;
       setActiveMatchIdx(wrapped);
       onNavigateToSegment(matches[wrapped].segmentId);
     },
@@ -156,7 +157,15 @@ export default function SearchReplaceModal({
     }
 
     setTimeout(doSearch, 50);
-  }, [matches, query, matchCase, replaceText, segments, onReplaceInTarget, doSearch]);
+  }, [
+    matches,
+    query,
+    matchCase,
+    replaceText,
+    segments,
+    onReplaceInTarget,
+    doSearch,
+  ]);
 
   // Keyboard shortcuts within modal
   const handleKeyDown = useCallback(
@@ -208,7 +217,13 @@ export default function SearchReplaceModal({
           borderBottom: "1px solid var(--border)",
         }}
       >
-        <span style={{ fontSize: "0.75rem", fontWeight: 500, color: "var(--text-primary)" }}>
+        <span
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            color: "var(--text-primary)",
+          }}
+        >
           Find & Replace
         </span>
         <button
@@ -228,7 +243,14 @@ export default function SearchReplaceModal({
       </div>
 
       {/* Search */}
-      <div style={{ padding: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <div
+        style={{
+          padding: "0.75rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+        }}
+      >
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input
             ref={searchInputRef}
@@ -250,14 +272,37 @@ export default function SearchReplaceModal({
               fontFamily: "inherit",
             }}
           />
-          <span style={{ fontSize: "0.75rem", alignSelf: "center", whiteSpace: "nowrap", color: "var(--text-muted)" }}>
-            {matches.length > 0 ? `${activeMatchIdx + 1}/${matches.length}` : "0/0"}
+          <span
+            style={{
+              fontSize: "0.75rem",
+              alignSelf: "center",
+              whiteSpace: "nowrap",
+              color: "var(--text-muted)",
+            }}
+          >
+            {matches.length > 0
+              ? `${activeMatchIdx + 1}/${matches.length}`
+              : "0/0"}
           </span>
         </div>
 
         {/* Options row */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontSize: "0.75rem" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "var(--text-secondary)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            fontSize: "0.75rem",
+          }}
+        >
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+              color: "var(--text-secondary)",
+            }}
+          >
             <span>In:</span>
             <select
               value={scope}
@@ -280,7 +325,15 @@ export default function SearchReplaceModal({
               <option value="target">Target</option>
             </select>
           </label>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", cursor: "pointer", color: "var(--text-secondary)" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+              cursor: "pointer",
+              color: "var(--text-secondary)",
+            }}
+          >
             <input
               type="checkbox"
               checked={matchCase}
@@ -349,7 +402,15 @@ export default function SearchReplaceModal({
 
         {/* Replace section */}
         {showReplace && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.25rem", borderTop: "1px solid var(--border)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+              paddingTop: "0.25rem",
+              borderTop: "1px solid var(--border)",
+            }}
+          >
             <input
               type="text"
               value={replaceText}
@@ -369,7 +430,9 @@ export default function SearchReplaceModal({
                 fontFamily: "inherit",
               }}
             />
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
               <button
                 onClick={replaceCurrent}
                 disabled={targetMatchCount === 0}
@@ -408,7 +471,17 @@ export default function SearchReplaceModal({
               >
                 Replace All ({targetMatchCount})
               </button>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", cursor: "pointer", fontSize: "0.75rem", marginLeft: "auto", color: "var(--text-muted)" }}>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.25rem",
+                  cursor: "pointer",
+                  fontSize: "0.75rem",
+                  marginLeft: "auto",
+                  color: "var(--text-muted)",
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={previewReplace}
@@ -440,12 +513,25 @@ export default function SearchReplaceModal({
                     const after = m.text.slice(m.matchEnd);
                     return (
                       <div key={i} style={{ color: "var(--text-secondary)" }}>
-                        <span style={{ color: "var(--text-muted)" }}>#{m.segmentPosition}: </span>
+                        <span style={{ color: "var(--text-muted)" }}>
+                          #{m.segmentPosition}:{" "}
+                        </span>
                         {before}
-                        <span style={{ background: "var(--mark-delete-bg)", color: "var(--text-primary)", textDecoration: "line-through" }}>
+                        <span
+                          style={{
+                            background: "var(--mark-delete-bg)",
+                            color: "var(--text-primary)",
+                            textDecoration: "line-through",
+                          }}
+                        >
                           {matched}
                         </span>
-                        <span style={{ background: "var(--mark-insert-bg)", color: "var(--text-primary)" }}>
+                        <span
+                          style={{
+                            background: "var(--mark-insert-bg)",
+                            color: "var(--text-primary)",
+                          }}
+                        >
                           {replaceText}
                         </span>
                         {after}

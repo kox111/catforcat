@@ -115,13 +115,11 @@ export default function SaveIndicator({
     phase === "error"
       ? "var(--red)"
       : phase === "saved"
-      ? "var(--green)"
-      : "var(--amber)";
+        ? "var(--green)"
+        : "var(--amber)";
 
   const dotPulse =
-    phase === "saving"
-      ? "saveIndicatorPulse 2s ease-in-out infinite"
-      : "none";
+    phase === "saving" ? "saveIndicatorPulse 2s ease-in-out infinite" : "none";
 
   // Slide positions for saving→saved transition
   const savingY = phase === "saving" ? 0 : -14;

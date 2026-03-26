@@ -21,7 +21,10 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
     title: "Translation",
     shortcuts: [
       { keys: "Ctrl + Enter", description: "Confirm segment" },
-      { keys: "Ctrl + Shift + Enter", description: "AI translation suggestion" },
+      {
+        keys: "Ctrl + Shift + Enter",
+        description: "AI translation suggestion",
+      },
       { keys: "Ctrl + I", description: "Copy source to target" },
       { keys: "Ctrl + 1/2/3", description: "Apply TM match #1/2/3" },
     ],
@@ -77,7 +80,9 @@ export default function ShortcutsModal({ onClose }: ShortcutsModalProps) {
         justifyContent: "center",
         background: "var(--overlay)",
       }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         style={{
@@ -91,28 +96,84 @@ export default function ShortcutsModal({ onClose }: ShortcutsModalProps) {
           border: "1px solid var(--border)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingLeft: "1.25rem", paddingRight: "1.25rem", paddingTop: "0.75rem", paddingBottom: "0.75rem", borderBottom: "1px solid var(--border)" }}>
-          <h2 style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text-primary)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingLeft: "1.25rem",
+            paddingRight: "1.25rem",
+            paddingTop: "0.75rem",
+            paddingBottom: "0.75rem",
+            borderBottom: "1px solid var(--border)",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+            }}
+          >
             Keyboard Shortcuts
           </h2>
           <button
             onClick={onClose}
-            style={{ fontSize: "0.875rem", paddingLeft: "0.5rem", paddingRight: "0.5rem", color: "var(--text-muted)" }}
+            style={{
+              fontSize: "0.875rem",
+              paddingLeft: "0.5rem",
+              paddingRight: "0.5rem",
+              color: "var(--text-muted)",
+            }}
           >
             Esc
           </button>
         </div>
 
-        <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div
+          style={{
+            padding: "1.25rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
           {SHORTCUT_GROUPS.map((group) => (
             <div key={group.title}>
-              <h3 style={{ fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--accent)" }}>
+              <h3
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  marginBottom: "0.5rem",
+                  color: "var(--accent)",
+                }}
+              >
                 {group.title}
               </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.25rem",
+                }}
+              >
                 {group.shortcuts.map((s) => (
-                  <div key={s.keys} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}>
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+                  <div
+                    key={s.keys}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      paddingTop: "0.25rem",
+                      paddingBottom: "0.25rem",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
                       {s.description}
                     </span>
                     <kbd

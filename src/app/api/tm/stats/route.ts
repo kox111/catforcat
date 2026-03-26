@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -8,17 +7,8 @@ import { prisma } from "@/lib/prisma";
  * Returns: total, byLangPair, mostUsed, mostRecent, byMonth
  */
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     // Total entries
@@ -55,15 +45,27 @@ export async function GET() {
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 5)
       .map((e) => ({
-        sourceText: e.sourceText.length > 80 ? e.sourceText.slice(0, 80) + "…" : e.sourceText,
-        targetText: e.targetText.length > 80 ? e.targetText.slice(0, 80) + "…" : e.targetText,
+        sourceText:
+          e.sourceText.length > 80
+            ? e.sourceText.slice(0, 80) + "…"
+            : e.sourceText,
+        targetText:
+          e.targetText.length > 80
+            ? e.targetText.slice(0, 80) + "…"
+            : e.targetText,
         usageCount: e.usageCount,
       }));
 
     // Most recent (top 5)
     const mostRecent = allEntries.slice(0, 5).map((e) => ({
-      sourceText: e.sourceText.length > 80 ? e.sourceText.slice(0, 80) + "…" : e.sourceText,
-      targetText: e.targetText.length > 80 ? e.targetText.slice(0, 80) + "…" : e.targetText,
+      sourceText:
+        e.sourceText.length > 80
+          ? e.sourceText.slice(0, 80) + "…"
+          : e.sourceText,
+      targetText:
+        e.targetText.length > 80
+          ? e.targetText.slice(0, 80) + "…"
+          : e.targetText,
       createdAt: e.createdAt.toISOString(),
     }));
 
@@ -90,7 +92,7 @@ export async function GET() {
     console.error("TM stats error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

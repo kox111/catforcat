@@ -41,7 +41,10 @@ export default function TranslationProviderPopover({
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node)
+      ) {
         onClose();
       }
     }
@@ -153,8 +156,12 @@ export default function TranslationProviderPopover({
             borderRadius: "var(--radius-sm)",
             transition: "color 150ms",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--text-primary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-muted)")
+          }
         >
           <X size={14} />
         </button>
@@ -244,10 +251,13 @@ export default function TranslationProviderPopover({
                 fontFamily: "inherit",
               }}
               onMouseEnter={(e) => {
-                if (!isLocked && !isSelected) e.currentTarget.style.background = "var(--bg-hover)";
+                if (!isLocked && !isSelected)
+                  e.currentTarget.style.background = "var(--bg-hover)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = isSelected ? "var(--accent-soft)" : "transparent";
+                e.currentTarget.style.background = isSelected
+                  ? "var(--accent-soft)"
+                  : "transparent";
               }}
             >
               {/* Icon */}
@@ -266,7 +276,9 @@ export default function TranslationProviderPopover({
                 {isLocked ? (
                   <Lock size={16} style={{ color: "var(--text-muted)" }} />
                 ) : (
-                  <span style={{ filter: isSelected ? "brightness(10)" : "none" }}>
+                  <span
+                    style={{ filter: isSelected ? "brightness(10)" : "none" }}
+                  >
                     {provider.icon}
                   </span>
                 )}
@@ -279,7 +291,9 @@ export default function TranslationProviderPopover({
                     style={{
                       fontSize: 13,
                       fontWeight: 600,
-                      color: isSelected ? "var(--accent)" : "var(--text-primary)",
+                      color: isSelected
+                        ? "var(--accent)"
+                        : "var(--text-primary)",
                     }}
                   >
                     {provider.name}
@@ -339,7 +353,10 @@ export default function TranslationProviderPopover({
                   }}
                 />
               ) : isLocked && provider.badge === "PRO" ? (
-                <ChevronRight size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                <ChevronRight
+                  size={14}
+                  style={{ color: "var(--text-muted)", flexShrink: 0 }}
+                />
               ) : null}
             </button>
           );

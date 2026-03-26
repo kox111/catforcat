@@ -10,10 +10,25 @@
 
 export type ScaleMode = "compact" | "default" | "large";
 
-export const SCALE_MODES: Record<ScaleMode, { label: string; factor: number | null; description: string }> = {
-  compact: { label: "Compact", factor: 0.8,  description: "More content, smaller text" },
-  default: { label: "Default", factor: null,  description: "Auto-fit to your screen" },
-  large:   { label: "Large",   factor: 1.25, description: "Larger text, easier on the eyes" },
+export const SCALE_MODES: Record<
+  ScaleMode,
+  { label: string; factor: number | null; description: string }
+> = {
+  compact: {
+    label: "Compact",
+    factor: 0.8,
+    description: "More content, smaller text",
+  },
+  default: {
+    label: "Default",
+    factor: null,
+    description: "Auto-fit to your screen",
+  },
+  large: {
+    label: "Large",
+    factor: 1.25,
+    description: "Larger text, easier on the eyes",
+  },
 };
 
 /** Cycle order: Default → Compact → Large → Default */

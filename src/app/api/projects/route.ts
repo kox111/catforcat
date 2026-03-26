@@ -1,23 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { segmentText } from "@/lib/segmenter";
 import { canCreateProject } from "@/lib/plan-limits";
+import { createProjectSchema } from "@/lib/validators";
 
 // GET /api/projects — list all projects for current user
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const projects = await prisma.project.findMany({
     where: { userId: user.id },
@@ -55,49 +46,54 @@ export async function GET() {
 
 // POST /api/projects — create a new project with text segmentation
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     // Plan limit: active projects
     const projectCheck = await canCreateProject(user.id, user.plan);
     if (!projectCheck.allowed) {
-      return NextResponse.json({ error: projectCheck.message }, { status: 403 });
+      return NextResponse.json(
+        { error: projectCheck.message },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
-    const { name, srcLang, tgtLang } = body;
 
-    if (!name || !srcLang || !tgtLang) {
+    const parsed = createProjectSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Name, source language, and target language are required" },
-        { status: 400 }
+        { error: parsed.error.flatten() },
+        { status: 400 },
       );
     }
+
+    const { name, srcLang, tgtLang } = parsed.data;
 
     // Two modes:
     // 1. text: raw text → segment it
     // 2. parsedSegments: pre-parsed from file upload (array of { text, targetText?, metadata })
-    let segmentData: { sourceText: string; targetText: string; status: string; metadata: string }[];
+    let segmentData: {
+      sourceText: string;
+      targetText: string;
+      status: string;
+      metadata: string;
+    }[];
 
     if (body.parsedSegments && Array.isArray(body.parsedSegments)) {
       // Pre-parsed segments from file upload
       segmentData = body.parsedSegments.map(
-        (s: { text: string; targetText?: string; metadata?: Record<string, unknown> }) => ({
+        (s: {
+          text: string;
+          targetText?: string;
+          metadata?: Record<string, unknown>;
+        }) => ({
           sourceText: s.text,
           targetText: s.targetText || "",
           status: s.targetText ? "draft" : "empty",
           metadata: JSON.stringify(s.metadata || {}),
-        })
+        }),
       );
     } else if (body.text) {
       // Raw text mode
@@ -111,24 +107,29 @@ export async function POST(req: NextRequest) {
     } else {
       return NextResponse.json(
         { error: "Either text or parsedSegments is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (segmentData.length === 0) {
       return NextResponse.json(
         { error: "No segments could be extracted" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Plan limit: segments per project
     const { getPlanLimits } = await import("@/lib/stripe");
     const limits = getPlanLimits(user.plan);
-    if (limits.segmentsPerProject !== Infinity && segmentData.length > limits.segmentsPerProject) {
+    if (
+      limits.segmentsPerProject !== Infinity &&
+      segmentData.length > limits.segmentsPerProject
+    ) {
       return NextResponse.json(
-        { error: `Free plan allows ${limits.segmentsPerProject} segments per project. This text has ${segmentData.length}. Upgrade to Pro for unlimited.` },
-        { status: 403 }
+        {
+          error: `Free plan allows ${limits.segmentsPerProject} segments per project. This text has ${segmentData.length}. Upgrade to Pro for unlimited.`,
+        },
+        { status: 403 },
       );
     }
 
@@ -166,13 +167,13 @@ export async function POST(req: NextRequest) {
         tgtLang: project.tgtLang,
         totalSegments: project.segments.length,
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error) {
-    console.error("Project creation error:", error);
+  } catch (err) {
+    console.error("Project creation error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

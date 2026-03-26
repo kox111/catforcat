@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import {
   segmentText,
   segmentJSON,
@@ -18,10 +17,8 @@ import {
  * All formats are available for both Free and Pro plans.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     const formData = await req.formData();
@@ -112,11 +109,14 @@ export async function POST(req: NextRequest) {
       fileFormat = "json";
 
       const rawSegments: RawSegment[] = segmentJSON(jsonText);
-      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
-        rawSegments.map((seg) => ({
-          text: seg.text,
-          metadata: seg.metadata,
-        }));
+      const segments: {
+        text: string;
+        targetText?: string;
+        metadata: Record<string, unknown>;
+      }[] = rawSegments.map((seg) => ({
+        text: seg.text,
+        metadata: seg.metadata,
+      }));
 
       return NextResponse.json({
         segments,
@@ -133,11 +133,14 @@ export async function POST(req: NextRequest) {
       fileFormat = "srt";
 
       const rawSegments: RawSegment[] = segmentSRT(srtText);
-      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
-        rawSegments.map((seg) => ({
-          text: seg.text,
-          metadata: seg.metadata,
-        }));
+      const segments: {
+        text: string;
+        targetText?: string;
+        metadata: Record<string, unknown>;
+      }[] = rawSegments.map((seg) => ({
+        text: seg.text,
+        metadata: seg.metadata,
+      }));
 
       return NextResponse.json({
         segments,
@@ -154,12 +157,16 @@ export async function POST(req: NextRequest) {
       fileFormat = "po";
 
       const rawSegments: RawSegment[] = segmentPO(poText);
-      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
-        rawSegments.map((seg) => ({
-          text: seg.text,
-          targetText: (seg.metadata.targetText as string | undefined) || undefined,
-          metadata: seg.metadata,
-        }));
+      const segments: {
+        text: string;
+        targetText?: string;
+        metadata: Record<string, unknown>;
+      }[] = rawSegments.map((seg) => ({
+        text: seg.text,
+        targetText:
+          (seg.metadata.targetText as string | undefined) || undefined,
+        metadata: seg.metadata,
+      }));
 
       return NextResponse.json({
         segments,
@@ -176,11 +183,14 @@ export async function POST(req: NextRequest) {
       fileFormat = "markdown";
 
       const rawSegments: RawSegment[] = segmentMarkdown(mdText);
-      const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] =
-        rawSegments.map((seg) => ({
-          text: seg.text,
-          metadata: seg.metadata,
-        }));
+      const segments: {
+        text: string;
+        targetText?: string;
+        metadata: Record<string, unknown>;
+      }[] = rawSegments.map((seg) => ({
+        text: seg.text,
+        metadata: seg.metadata,
+      }));
 
       return NextResponse.json({
         segments,
@@ -214,7 +224,7 @@ export async function POST(req: NextRequest) {
         {
           error: `Unsupported file format: .${ext}. Supported: .txt, .docx, .pdf, .xlf, .xliff, .json, .srt, .po, .md`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -242,11 +252,11 @@ export async function POST(req: NextRequest) {
       totalParagraphs: paragraphs.length,
       totalSegments: segments.length,
     });
-  } catch (error) {
-    console.error("File parse error:", error);
+  } catch (err) {
+    console.error("File parse error:", err);
     return NextResponse.json(
       { error: "Failed to parse file. Please check the file format." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -256,7 +266,7 @@ export async function POST(req: NextRequest) {
  * mammoth produces <p>, <h1>-<h6>, <li> etc.
  */
 function extractParagraphsFromHtml(
-  html: string
+  html: string,
 ): { text: string; style: string; index: number }[] {
   const results: { text: string; style: string; index: number }[] = [];
 
@@ -273,7 +283,8 @@ function extractParagraphsFromHtml(
     if (text.length === 0) continue;
 
     let style = "normal";
-    if (tag.startsWith("h")) style = tag; // h1, h2, etc.
+    if (tag.startsWith("h"))
+      style = tag; // h1, h2, etc.
     else if (tag === "li") style = "list-item";
     else if (tag === "blockquote") style = "blockquote";
 
@@ -297,17 +308,27 @@ function extractParagraphsFromHtml(
  * Returns segments with source and optional target text.
  */
 function parseXLIFF(xml: string): {
-  segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[];
+  segments: {
+    text: string;
+    targetText?: string;
+    metadata: Record<string, unknown>;
+  }[];
   srcLang: string;
   tgtLang: string;
 } {
-  const segments: { text: string; targetText?: string; metadata: Record<string, unknown> }[] = [];
+  const segments: {
+    text: string;
+    targetText?: string;
+    metadata: Record<string, unknown>;
+  }[] = [];
 
   // Try to extract source/target language from <file> element (XLIFF 1.2)
   let srcLang = "";
   let tgtLang = "";
 
-  const fileMatch = xml.match(/<file[^>]*source-language="([^"]+)"[^>]*(?:target-language="([^"]+)")?/i);
+  const fileMatch = xml.match(
+    /<file[^>]*source-language="([^"]+)"[^>]*(?:target-language="([^"]+)")?/i,
+  );
   if (fileMatch) {
     srcLang = normalizeLangCode(fileMatch[1]);
     tgtLang = fileMatch[2] ? normalizeLangCode(fileMatch[2]) : "";
@@ -315,7 +336,9 @@ function parseXLIFF(xml: string): {
 
   // Try XLIFF 2.0 format
   if (!srcLang) {
-    const xliffMatch = xml.match(/<xliff[^>]*srcLang="([^"]+)"[^>]*(?:trgLang="([^"]+)")?/i);
+    const xliffMatch = xml.match(
+      /<xliff[^>]*srcLang="([^"]+)"[^>]*(?:trgLang="([^"]+)")?/i,
+    );
     if (xliffMatch) {
       srcLang = normalizeLangCode(xliffMatch[1]);
       tgtLang = xliffMatch[2] ? normalizeLangCode(xliffMatch[2]) : "";
@@ -323,7 +346,8 @@ function parseXLIFF(xml: string): {
   }
 
   // Extract <trans-unit> elements (XLIFF 1.2)
-  const tuRegex = /<trans-unit[^>]*id="([^"]*)"[^>]*>([\s\S]*?)<\/trans-unit>/gi;
+  const tuRegex =
+    /<trans-unit[^>]*id="([^"]*)"[^>]*>([\s\S]*?)<\/trans-unit>/gi;
   let match;
   let index = 0;
 
@@ -336,7 +360,9 @@ function parseXLIFF(xml: string): {
 
     if (sourceMatch) {
       const sourceText = stripInlineTags(sourceMatch[1]).trim();
-      const targetText = targetMatch ? stripInlineTags(targetMatch[1]).trim() : undefined;
+      const targetText = targetMatch
+        ? stripInlineTags(targetMatch[1]).trim()
+        : undefined;
 
       if (sourceText) {
         segments.push({
@@ -366,7 +392,9 @@ function parseXLIFF(xml: string): {
 
       if (sourceMatch) {
         const sourceText = stripInlineTags(sourceMatch[1]).trim();
-        const targetText = targetMatch ? stripInlineTags(targetMatch[1]).trim() : undefined;
+        const targetText = targetMatch
+          ? stripInlineTags(targetMatch[1]).trim()
+          : undefined;
 
         if (sourceText) {
           segments.push({

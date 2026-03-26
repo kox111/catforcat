@@ -17,10 +17,5 @@ export default function CommandPaletteProvider() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  return (
-    <CommandPalette
-      isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
-    />
-  );
+  return <CommandPalette isOpen={isOpen} onClose={() => setIsOpen(false)} />;
 }

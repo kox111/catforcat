@@ -1,6 +1,10 @@
 "use client";
 
-import { type QAIssue, groupIssuesBySeverity, exportQAReportCSV } from "@/lib/qa-checks";
+import {
+  type QAIssue,
+  groupIssuesBySeverity,
+  exportQAReportCSV,
+} from "@/lib/qa-checks";
 
 interface QAPanelProps {
   issues: QAIssue[];
@@ -75,7 +79,8 @@ export default function QAPanel({
                 color: "var(--bg-deep)",
               }}
             >
-              {grouped.errors.length} error{grouped.errors.length > 1 ? "s" : ""}
+              {grouped.errors.length} error
+              {grouped.errors.length > 1 ? "s" : ""}
             </span>
           )}
           {grouped.warnings.length > 0 && (
@@ -92,7 +97,8 @@ export default function QAPanel({
                 color: "var(--text-primary)",
               }}
             >
-              {grouped.warnings.length} warning{grouped.warnings.length > 1 ? "s" : ""}
+              {grouped.warnings.length} warning
+              {grouped.warnings.length > 1 ? "s" : ""}
             </span>
           )}
           {grouped.infos.length > 0 && (
@@ -118,7 +124,9 @@ export default function QAPanel({
             <button
               onClick={() => {
                 const csv = exportQAReportCSV(issues);
-                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const blob = new Blob([csv], {
+                  type: "text/csv;charset=utf-8;",
+                });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
@@ -163,7 +171,16 @@ export default function QAPanel({
       </div>
 
       {/* Issues List */}
-      <div style={{ overflowY: "auto", flex: 1, paddingLeft: "0.5rem", paddingRight: "0.5rem", paddingTop: "0.25rem", paddingBottom: "0.25rem" }}>
+      <div
+        style={{
+          overflowY: "auto",
+          flex: 1,
+          paddingLeft: "0.5rem",
+          paddingRight: "0.5rem",
+          paddingTop: "0.25rem",
+          paddingBottom: "0.25rem",
+        }}
+      >
         {issues.length === 0 ? (
           <div
             style={{
@@ -171,7 +188,8 @@ export default function QAPanel({
               paddingTop: "1rem",
               paddingBottom: "1rem",
               textAlign: "center",
-              color: translatedCount === 0 ? "var(--text-muted)" : "var(--green)",
+              color:
+                translatedCount === 0 ? "var(--text-muted)" : "var(--green)",
             }}
           >
             {translatedCount === 0
@@ -179,7 +197,13 @@ export default function QAPanel({
               : "✓ No issues found. All segments look good!"}
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.125rem" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.125rem",
+            }}
+          >
             {/* Render errors first, then warnings, then info */}
             {[...grouped.errors, ...grouped.warnings, ...grouped.infos].map(
               (issue, idx) => {
@@ -236,7 +260,7 @@ export default function QAPanel({
                     </span>
                   </button>
                 );
-              }
+              },
             )}
           </div>
         )}

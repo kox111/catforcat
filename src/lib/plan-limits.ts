@@ -4,7 +4,10 @@ import { getPlanLimits } from "@/lib/stripe";
 /**
  * Check if user can create a new project (active project limit).
  */
-export async function canCreateProject(userId: string, plan: string): Promise<{ allowed: boolean; message?: string }> {
+export async function canCreateProject(
+  userId: string,
+  plan: string,
+): Promise<{ allowed: boolean; message?: string }> {
   const limits = getPlanLimits(plan);
   if (limits.projects === Infinity) return { allowed: true };
 
@@ -28,7 +31,7 @@ export async function canCreateProject(userId: string, plan: string): Promise<{ 
 export async function canAddSegments(
   projectId: string,
   plan: string,
-  newSegmentCount: number
+  newSegmentCount: number,
 ): Promise<{ allowed: boolean; message?: string }> {
   const limits = getPlanLimits(plan);
   if (limits.segmentsPerProject === Infinity) return { allowed: true };
@@ -48,7 +51,10 @@ export async function canAddSegments(
 /**
  * Check if user can add more TM entries.
  */
-export async function canAddTMEntry(userId: string, plan: string): Promise<{ allowed: boolean; message?: string }> {
+export async function canAddTMEntry(
+  userId: string,
+  plan: string,
+): Promise<{ allowed: boolean; message?: string }> {
   const limits = getPlanLimits(plan);
   if (limits.tmEntries === Infinity) return { allowed: true };
 
@@ -67,7 +73,10 @@ export async function canAddTMEntry(userId: string, plan: string): Promise<{ all
 /**
  * Check if user can add more glossary terms.
  */
-export async function canAddGlossaryTerm(userId: string, plan: string): Promise<{ allowed: boolean; message?: string }> {
+export async function canAddGlossaryTerm(
+  userId: string,
+  plan: string,
+): Promise<{ allowed: boolean; message?: string }> {
   const limits = getPlanLimits(plan);
   if (limits.glossaryTerms === Infinity) return { allowed: true };
 
@@ -86,43 +95,21 @@ export async function canAddGlossaryTerm(userId: string, plan: string): Promise<
 /**
  * Check if file format is allowed for the user's plan.
  */
-export function canImportFormat(plan: string, extension: string): { allowed: boolean; message?: string } {
-  const limits = getPlanLimits(plan);
-  const ext = extension.toLowerCase().replace(".", "");
-
-  if ((limits.importFormats as readonly string[]).includes(ext) || (limits.xliffImport && (ext === "xlf" || ext === "xliff"))) {
-    return { allowed: true };
-  }
-
-  return {
-    allowed: false,
-    message: `${extension.toUpperCase()} import requires Pro plan. Free plan supports: ${limits.importFormats.join(", ")}.`,
-  };
+export function canImportFormat(
+  _plan: string,
+  _extension: string,
+): { allowed: boolean; message?: string } {
+  // All formats available on all plans — upsell is by volume and pro features, not formats
+  return { allowed: true };
 }
 
 /**
  * Check if export format is allowed for the user's plan.
  */
-export function canExportFormat(plan: string, format: string): { allowed: boolean; message?: string } {
-  const limits = getPlanLimits(plan);
-
-  // Normalize format names
-  const formatMap: Record<string, string> = {
-    "txt-bilingual": "txt",
-    "txt-target": "txt",
-    "docx": "docx",
-    "tmx": "tmx",
-    "xliff": "xliff",
-  };
-
-  const normalized = formatMap[format] || format;
-
-  if ((limits.exportFormats as readonly string[]).includes(normalized)) {
-    return { allowed: true };
-  }
-
-  return {
-    allowed: false,
-    message: `${format.toUpperCase()} export requires Pro plan. Free plan supports: ${limits.exportFormats.join(", ")}.`,
-  };
+export function canExportFormat(
+  _plan: string,
+  _format: string,
+): { allowed: boolean; message?: string } {
+  // All formats available on all plans — upsell is by volume and pro features, not formats
+  return { allowed: true };
 }

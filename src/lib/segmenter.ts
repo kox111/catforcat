@@ -7,16 +7,77 @@
 // Abbreviations by language that should NOT trigger sentence breaks
 const ABBREVIATIONS: Record<string, string[]> = {
   en: [
-    "Mr", "Mrs", "Ms", "Dr", "Prof", "Sr", "Jr", "Inc", "Ltd", "Corp",
-    "etc", "vs", "approx", "dept", "est", "govt", "e.g", "i.e",
-    "Fig", "No", "Vol", "pp", "ed", "Rev", "St", "Ave", "Blvd",
-    "Gen", "Gov", "Sgt", "Cpl", "Pvt", "Capt", "Lt", "Col", "Maj",
-    "Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Mr",
+    "Mrs",
+    "Ms",
+    "Dr",
+    "Prof",
+    "Sr",
+    "Jr",
+    "Inc",
+    "Ltd",
+    "Corp",
+    "etc",
+    "vs",
+    "approx",
+    "dept",
+    "est",
+    "govt",
+    "e.g",
+    "i.e",
+    "Fig",
+    "No",
+    "Vol",
+    "pp",
+    "ed",
+    "Rev",
+    "St",
+    "Ave",
+    "Blvd",
+    "Gen",
+    "Gov",
+    "Sgt",
+    "Cpl",
+    "Pvt",
+    "Capt",
+    "Lt",
+    "Col",
+    "Maj",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ],
   es: [
-    "Sr", "Sra", "Srta", "Dr", "Dra", "Prof", "Lic", "Ing", "Arq",
-    "Ud", "Uds", "pág", "núm", "etc", "aprox", "tel", "dept",
-    "vol", "ed", "fig", "art", "cap",
+    "Sr",
+    "Sra",
+    "Srta",
+    "Dr",
+    "Dra",
+    "Prof",
+    "Lic",
+    "Ing",
+    "Arq",
+    "Ud",
+    "Uds",
+    "pág",
+    "núm",
+    "etc",
+    "aprox",
+    "tel",
+    "dept",
+    "vol",
+    "ed",
+    "fig",
+    "art",
+    "cap",
   ],
 };
 
@@ -61,7 +122,7 @@ function protectUrls(text: string): string {
   // Don't capture trailing punctuation (.!?) that's likely sentence-ending
   return text.replace(
     /(https?:\/\/[^\s]+?|www\.[^\s]+?)(?=[.!?]\s|[.!?]$|\s|$)/g,
-    (match) => match.replace(/\./g, PLACEHOLDER)
+    (match) => match.replace(/\./g, PLACEHOLDER),
   );
 }
 
@@ -71,7 +132,7 @@ function protectUrls(text: string): string {
 function protectEmails(text: string): string {
   return text.replace(
     /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
-    (match) => match.replace(/\./g, PLACEHOLDER)
+    (match) => match.replace(/\./g, PLACEHOLDER),
   );
 }
 
@@ -89,7 +150,10 @@ function protectNumberedLists(text: string): string {
 function protectEllipsis(text: string): string {
   // Protect ellipsis NOT followed by space+uppercase (those are NOT break points)
   // Ellipsis followed by space+uppercase IS a break point, so don't protect those
-  return text.replace(/\.\.\.(?!\s+[A-ZÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛÑÇ])/g, `${PLACEHOLDER}${PLACEHOLDER}${PLACEHOLDER}`);
+  return text.replace(
+    /\.\.\.(?!\s+[A-ZÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛÑÇ])/g,
+    `${PLACEHOLDER}${PLACEHOLDER}${PLACEHOLDER}`,
+  );
 }
 
 /**
@@ -130,7 +194,7 @@ export function segmentText(text: string, lang: string = "en"): string[] {
     // Pattern: sentence-ending punctuation (.!?) followed by whitespace and then
     // an uppercase letter (or end of string for the last segment)
     const sentenceParts = paragraph.split(
-      /(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛÑÇА-ЯÀ-Ÿ\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af])/
+      /(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛÑÇА-ЯÀ-Ÿ\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af])/,
     );
 
     for (const part of sentenceParts) {
@@ -174,7 +238,7 @@ export function segmentJSON(content: string): RawSegment[] {
     // Recursively extract all leaf values
     function extractKeyValues(
       obj: unknown,
-      keyPath: string = ""
+      keyPath: string = "",
     ): Array<{ key: string; value: string }> {
       const results: Array<{ key: string; value: string }> = [];
 
@@ -182,7 +246,11 @@ export function segmentJSON(content: string): RawSegment[] {
         results.push({ key: keyPath, value: obj });
       } else if (typeof obj === "number" || typeof obj === "boolean") {
         results.push({ key: keyPath, value: String(obj) });
-      } else if (typeof obj === "object" && obj !== null && !Array.isArray(obj)) {
+      } else if (
+        typeof obj === "object" &&
+        obj !== null &&
+        !Array.isArray(obj)
+      ) {
         const objRecord = obj as Record<string, unknown>;
         for (const [k, v] of Object.entries(objRecord)) {
           const newPath = keyPath ? `${keyPath}.${k}` : k;
@@ -374,8 +442,12 @@ export function segmentMarkdown(content: string): RawSegment[] {
  * Reconstructs the JSON structure using dot notation keys.
  */
 export function exportToJSON(
-  segments: { sourceText: string; targetText: string; metadata: Record<string, unknown> }[],
-  originalContent: string
+  segments: {
+    sourceText: string;
+    targetText: string;
+    metadata: Record<string, unknown>;
+  }[],
+  originalContent: string,
 ): string {
   // Try to parse original to preserve structure
   try {
@@ -428,7 +500,11 @@ export function exportToJSON(
  * Export segments back to SRT format.
  */
 export function exportToSRT(
-  segments: { sourceText: string; targetText: string; metadata: Record<string, unknown> }[]
+  segments: {
+    sourceText: string;
+    targetText: string;
+    metadata: Record<string, unknown>;
+  }[],
 ): string {
   const lines: string[] = [];
 
@@ -436,7 +512,8 @@ export function exportToSRT(
     const seg = segments[i];
     const metadata = seg.metadata as Record<string, unknown>;
     const seqNum = (metadata.sequenceNumber as number) || i + 1;
-    const timestamps = (metadata.timestamps as string) || "00:00:00,000 --> 00:00:02,000";
+    const timestamps =
+      (metadata.timestamps as string) || "00:00:00,000 --> 00:00:02,000";
 
     lines.push(String(seqNum));
     lines.push(timestamps);
@@ -451,7 +528,11 @@ export function exportToSRT(
  * Export segments back to PO format.
  */
 export function exportToPO(
-  segments: { sourceText: string; targetText: string; metadata: Record<string, unknown> }[]
+  segments: {
+    sourceText: string;
+    targetText: string;
+    metadata: Record<string, unknown>;
+  }[],
 ): string {
   const lines: string[] = [];
 
@@ -482,7 +563,11 @@ export function exportToPO(
  * Export segments back to Markdown format.
  */
 export function exportToMarkdown(
-  segments: { sourceText: string; targetText: string; metadata: Record<string, unknown> }[]
+  segments: {
+    sourceText: string;
+    targetText: string;
+    metadata: Record<string, unknown>;
+  }[],
 ): string {
   const lines: string[] = [];
 

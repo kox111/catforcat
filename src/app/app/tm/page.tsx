@@ -41,10 +41,15 @@ export default function TMPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/tm/import", { method: "POST", body: formData });
+      const res = await fetch("/api/tm/import", {
+        method: "POST",
+        body: formData,
+      });
       const data = await res.json();
       if (res.ok) {
-        setImportResult(`Imported ${data.imported} entries (${data.skipped} duplicates skipped)`);
+        setImportResult(
+          `Imported ${data.imported} entries (${data.skipped} duplicates skipped)`,
+        );
         fetchEntries(); // refresh list
       } else {
         setImportResult(`Error: ${data.error}`);
@@ -65,10 +70,15 @@ export default function TMPage() {
       formData.append("file", file);
       formData.append("srcLang", "en");
       formData.append("tgtLang", "es");
-      const res = await fetch("/api/tm/import-aligned", { method: "POST", body: formData });
+      const res = await fetch("/api/tm/import-aligned", {
+        method: "POST",
+        body: formData,
+      });
       const data = await res.json();
       if (res.ok) {
-        setImportResult(`Imported ${data.imported} aligned pairs (${data.skipped} skipped)`);
+        setImportResult(
+          `Imported ${data.imported} aligned pairs (${data.skipped} skipped)`,
+        );
         fetchEntries();
       } else {
         setImportResult(`Error: ${data.error}`);
@@ -144,12 +154,22 @@ export default function TMPage() {
   }, [showStats, stats, fetchStats]);
 
   const LANG_LABELS: Record<string, string> = {
-    en: "EN", es: "ES", fr: "FR", de: "DE", pt: "PT",
-    it: "IT", zh: "ZH", ja: "JA", ko: "KO",
+    en: "EN",
+    es: "ES",
+    fr: "FR",
+    de: "DE",
+    pt: "PT",
+    it: "IT",
+    zh: "ZH",
+    ja: "JA",
+    ko: "KO",
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto" style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+    <div
+      className="p-6 max-w-5xl mx-auto"
+      style={{ flex: 1, minHeight: 0, overflowY: "auto" }}
+    >
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1
@@ -182,7 +202,9 @@ export default function TMPage() {
             className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
             style={{
               background: showStats ? "var(--accent-soft)" : "var(--bg-card)",
-              color: showStats ? "var(--text-primary)" : "var(--text-secondary)",
+              color: showStats
+                ? "var(--text-primary)"
+                : "var(--text-secondary)",
               border: "0.5px solid var(--border)",
             }}
           >
@@ -241,38 +263,38 @@ export default function TMPage() {
 
           {/* Export TMX */}
           {entries.length > 0 && (
-          <button
-            onClick={async () => {
-              setExportingTmx(true);
-              try {
-                const res = await fetch("/api/tm/export");
-                if (res.ok) {
-                  const blob = await res.blob();
-                  const a = document.createElement("a");
-                  a.href = URL.createObjectURL(blob);
-                  a.download = "translation_memory.tmx";
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(a.href);
+            <button
+              onClick={async () => {
+                setExportingTmx(true);
+                try {
+                  const res = await fetch("/api/tm/export");
+                  if (res.ok) {
+                    const blob = await res.blob();
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = "translation_memory.tmx";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(a.href);
+                  }
+                } catch {
+                  // silent
+                } finally {
+                  setExportingTmx(false);
                 }
-              } catch {
-                // silent
-              } finally {
-                setExportingTmx(false);
-              }
-            }}
-            disabled={exportingTmx}
-            className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
-            style={{
-              background: "var(--accent-soft)",
-              color: "var(--text-primary)",
-              border: "0.5px solid var(--border)",
-              opacity: exportingTmx ? 0.6 : 1,
-            }}
-          >
-            {exportingTmx ? "Exporting..." : "Export TMX"}
-          </button>
+              }}
+              disabled={exportingTmx}
+              className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
+              style={{
+                background: "var(--accent-soft)",
+                color: "var(--text-primary)",
+                border: "0.5px solid var(--border)",
+                opacity: exportingTmx ? 0.6 : 1,
+              }}
+            >
+              {exportingTmx ? "Exporting..." : "Export TMX"}
+            </button>
           )}
         </div>
       </div>
@@ -288,8 +310,12 @@ export default function TMPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: importResult.startsWith("Error") ? "var(--red-soft)" : "var(--accent-soft)",
-            color: importResult.startsWith("Error") ? "var(--red-text)" : "var(--text-primary)",
+            background: importResult.startsWith("Error")
+              ? "var(--red-soft)"
+              : "var(--accent-soft)",
+            color: importResult.startsWith("Error")
+              ? "var(--red-text)"
+              : "var(--text-primary)",
           }}
         >
           {importResult}
@@ -307,34 +333,90 @@ export default function TMPage() {
             border: "1px solid var(--border)",
           }}
         >
-          <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>
+          <h2
+            className="text-sm font-semibold mb-3"
+            style={{ color: "var(--text-primary)" }}
+          >
             TM Statistics
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div className="rounded p-3" style={{ background: "var(--bg-deep)", border: "1px solid var(--border)" }}>
-              <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>{stats.total}</div>
-              <div className="text-xs" style={{ color: "var(--text-muted)" }}>Total entries</div>
+            <div
+              className="rounded p-3"
+              style={{
+                background: "var(--bg-deep)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--accent)" }}
+              >
+                {stats.total}
+              </div>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Total entries
+              </div>
             </div>
-            <div className="rounded p-3" style={{ background: "var(--bg-deep)", border: "1px solid var(--border)" }}>
-              <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>{stats.byLangPair.length}</div>
-              <div className="text-xs" style={{ color: "var(--text-muted)" }}>Language pairs</div>
+            <div
+              className="rounded p-3"
+              style={{
+                background: "var(--bg-deep)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--accent)" }}
+              >
+                {stats.byLangPair.length}
+              </div>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Language pairs
+              </div>
             </div>
-            <div className="rounded p-3" style={{ background: "var(--bg-deep)", border: "1px solid var(--border)" }}>
-              <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>
+            <div
+              className="rounded p-3"
+              style={{
+                background: "var(--bg-deep)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--accent)" }}
+              >
                 {stats.mostUsed.length > 0 ? stats.mostUsed[0].usageCount : 0}
               </div>
-              <div className="text-xs" style={{ color: "var(--text-muted)" }}>Top usage count</div>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Top usage count
+              </div>
             </div>
-            <div className="rounded p-3" style={{ background: "var(--bg-deep)", border: "1px solid var(--border)" }}>
-              <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>{stats.byMonth.length}</div>
-              <div className="text-xs" style={{ color: "var(--text-muted)" }}>Active months</div>
+            <div
+              className="rounded p-3"
+              style={{
+                background: "var(--bg-deep)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--accent)" }}
+              >
+                {stats.byMonth.length}
+              </div>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Active months
+              </div>
             </div>
           </div>
 
           {/* Language pair distribution */}
           {stats.byLangPair.length > 0 && (
             <div className="mb-3">
-              <h3 className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+              <h3
+                className="text-xs font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 By Language Pair
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -342,7 +424,11 @@ export default function TMPage() {
                   <span
                     key={lp.pair}
                     className="text-xs px-2 py-1 rounded"
-                    style={{ background: "var(--bg-deep)", color: "var(--text-primary)", border: "1px solid var(--border)" }}
+                    style={{
+                      background: "var(--bg-deep)",
+                      color: "var(--text-primary)",
+                      border: "1px solid var(--border)",
+                    }}
                   >
                     {lp.pair}: <strong>{lp.count}</strong>
                   </span>
@@ -354,16 +440,35 @@ export default function TMPage() {
           {/* Most used entries */}
           {stats.mostUsed.length > 0 && (
             <div className="mb-3">
-              <h3 className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+              <h3
+                className="text-xs font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Most Used Entries
               </h3>
               <div className="flex flex-col gap-1">
                 {stats.mostUsed.map((e, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-primary)" }}>
-                    <span className="shrink-0 px-1.5 py-0.5 rounded" style={{ background: "var(--accent-soft)", color: "var(--text-primary)", border: "0.5px solid var(--border)" }}>
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-xs"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    <span
+                      className="shrink-0 px-1.5 py-0.5 rounded"
+                      style={{
+                        background: "var(--accent-soft)",
+                        color: "var(--text-primary)",
+                        border: "0.5px solid var(--border)",
+                      }}
+                    >
                       {e.usageCount}x
                     </span>
-                    <span className="truncate" style={{ color: "var(--text-muted)" }}>{e.sourceText}</span>
+                    <span
+                      className="truncate"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {e.sourceText}
+                    </span>
                     <span style={{ color: "var(--text-muted)" }}>→</span>
                     <span className="truncate">{e.targetText}</span>
                   </div>
@@ -375,14 +480,23 @@ export default function TMPage() {
           {/* Growth by month */}
           {stats.byMonth.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+              <h3
+                className="text-xs font-medium mb-2"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 Growth by Month
               </h3>
               <div className="flex items-end gap-1" style={{ height: "60px" }}>
                 {(() => {
-                  const maxCount = Math.max(...stats.byMonth.map((m) => m.count));
+                  const maxCount = Math.max(
+                    ...stats.byMonth.map((m) => m.count),
+                  );
                   return stats.byMonth.map((m) => (
-                    <div key={m.month} className="flex flex-col items-center flex-1" style={{ height: "100%" }}>
+                    <div
+                      key={m.month}
+                      className="flex flex-col items-center flex-1"
+                      style={{ height: "100%" }}
+                    >
                       <div className="flex-1 flex items-end w-full">
                         <div
                           className="w-full rounded-t"
@@ -394,7 +508,10 @@ export default function TMPage() {
                           title={`${m.month}: ${m.count} entries`}
                         />
                       </div>
-                      <span className="text-xs mt-1" style={{ color: "var(--text-muted)", fontSize: "9px" }}>
+                      <span
+                        className="text-xs mt-1"
+                        style={{ color: "var(--text-muted)", fontSize: "9px" }}
+                      >
                         {m.month}
                       </span>
                     </div>
@@ -419,18 +536,26 @@ export default function TMPage() {
             color: "var(--text-primary)",
             border: "1px solid var(--border)",
           }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
+          onFocus={(e) =>
+            (e.currentTarget.style.borderColor = "var(--border-focus)")
+          }
           onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
         />
       </div>
 
       {/* Entries list */}
       {loading ? (
-        <div className="text-sm py-8 text-center" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="text-sm py-8 text-center"
+          style={{ color: "var(--text-muted)" }}
+        >
           Loading...
         </div>
       ) : entries.length === 0 ? (
-        <div className="text-sm py-8 text-center" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="text-sm py-8 text-center"
+          style={{ color: "var(--text-muted)" }}
+        >
           {searchQuery
             ? "No matching entries found"
             : "Your translation memory is empty. Start translating to build your TM."}
@@ -458,7 +583,8 @@ export default function TMPage() {
                         border: "1px solid var(--border)",
                       }}
                     >
-                      {LANG_LABELS[entry.srcLang] || entry.srcLang} → {LANG_LABELS[entry.tgtLang] || entry.tgtLang}
+                      {LANG_LABELS[entry.srcLang] || entry.srcLang} →{" "}
+                      {LANG_LABELS[entry.tgtLang] || entry.tgtLang}
                     </span>
                     <span
                       className="text-xs"

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -10,17 +9,8 @@ import { prisma } from "@/lib/prisma";
  * Returns: { imported: number, skipped: number, terms: { source: string, target: string }[] }
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const body = await req.json();
   const { projectId } = body;
@@ -43,28 +33,115 @@ export async function POST(req: NextRequest) {
   }
 
   if (project.segments.length === 0) {
-    return NextResponse.json({ error: "No confirmed segments in project" }, { status: 400 });
+    return NextResponse.json(
+      { error: "No confirmed segments in project" },
+      { status: 400 },
+    );
   }
 
   // Extract frequent n-gram pairs from confirmed segments
   // Simple approach: find words/phrases that appear 2+ times in source, and their translations
   const STOPWORDS = new Set([
-    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will", "would", "could",
-    "should", "may", "might", "shall", "can", "to", "of", "in", "for",
-    "on", "with", "at", "by", "from", "as", "into", "about", "between",
-    "through", "after", "before", "and", "but", "or", "not", "no", "if",
-    "than", "that", "this", "it", "its", "they", "them", "their", "we",
-    "our", "you", "your", "he", "she", "his", "her", "my", "me",
-    "de", "el", "la", "los", "las", "un", "una", "del", "al", "en",
-    "es", "por", "con", "para", "que", "se", "no", "lo", "le", "les",
-    "y", "o", "pero", "como", "más", "su", "sus",
+    "the",
+    "a",
+    "an",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
+    "will",
+    "would",
+    "could",
+    "should",
+    "may",
+    "might",
+    "shall",
+    "can",
+    "to",
+    "of",
+    "in",
+    "for",
+    "on",
+    "with",
+    "at",
+    "by",
+    "from",
+    "as",
+    "into",
+    "about",
+    "between",
+    "through",
+    "after",
+    "before",
+    "and",
+    "but",
+    "or",
+    "not",
+    "no",
+    "if",
+    "than",
+    "that",
+    "this",
+    "it",
+    "its",
+    "they",
+    "them",
+    "their",
+    "we",
+    "our",
+    "you",
+    "your",
+    "he",
+    "she",
+    "his",
+    "her",
+    "my",
+    "me",
+    "de",
+    "el",
+    "la",
+    "los",
+    "las",
+    "un",
+    "una",
+    "del",
+    "al",
+    "en",
+    "es",
+    "por",
+    "con",
+    "para",
+    "que",
+    "se",
+    "no",
+    "lo",
+    "le",
+    "les",
+    "y",
+    "o",
+    "pero",
+    "como",
+    "más",
+    "su",
+    "sus",
   ]);
 
   // Build word frequency from source texts
   const wordFreq = new Map<string, number>();
   for (const seg of project.segments) {
-    const words = seg.sourceText.toLowerCase().split(/\s+/).filter((w) => w.length > 2 && !STOPWORDS.has(w));
+    const words = seg.sourceText
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !STOPWORDS.has(w));
     const seen = new Set<string>();
     for (const w of words) {
       if (!seen.has(w)) {
@@ -88,7 +165,10 @@ export async function POST(req: NextRequest) {
     for (const seg of project.segments) {
       if (seg.sourceText.toLowerCase().includes(word)) {
         // Extract matching target words (simple heuristic: position-based)
-        const targetWords = seg.targetText.toLowerCase().split(/\s+/).filter((w) => w.length > 2 && !STOPWORDS.has(w));
+        const targetWords = seg.targetText
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((w) => w.length > 2 && !STOPWORDS.has(w));
         for (const tw of targetWords) {
           translations.set(tw, (translations.get(tw) || 0) + 1);
         }

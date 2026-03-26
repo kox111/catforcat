@@ -4,23 +4,67 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { FolderOpen, Database, BookOpen, Settings, LogOut, Star } from "lucide-react";
+import {
+  FolderOpen,
+  Database,
+  BookOpen,
+  Settings,
+  LogOut,
+  Star,
+} from "lucide-react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
 
 /* ─── Theme gradient ring colors per theme ─── */
 const AVATAR_RING: Record<Theme, { gradient: string; bg: string }> = {
-  dark:   { gradient: "linear-gradient(135deg, #BDB8B2, #8A8580)", bg: "var(--bg-deep)" },
-  sakura: { gradient: "linear-gradient(135deg, #8B5A6B, #B08090)", bg: "var(--bg-deep)" },
-  light:  { gradient: "linear-gradient(135deg, #6B6B6B, #AAAAAA)", bg: "var(--bg-deep)" },
-  linen:  { gradient: "linear-gradient(135deg, #A47864, #C4A898)", bg: "var(--bg-deep)" },
+  dark: {
+    gradient: "linear-gradient(135deg, #BDB8B2, #8A8580)",
+    bg: "var(--bg-deep)",
+  },
+  sakura: {
+    gradient: "linear-gradient(135deg, #8B5A6B, #B08090)",
+    bg: "var(--bg-deep)",
+  },
+  light: {
+    gradient: "linear-gradient(135deg, #6B6B6B, #AAAAAA)",
+    bg: "var(--bg-deep)",
+  },
+  linen: {
+    gradient: "linear-gradient(135deg, #A47864, #C4A898)",
+    bg: "var(--bg-deep)",
+  },
 };
 
-const THEME_DOTS: { id: Theme; color: string; border: string; label: string }[] = [
-  { id: "dark",   color: "#202124", border: "0.5px solid #3C3C3F",                label: "Dark" },
-  { id: "sakura", color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.2)",   label: "Sakura" },
-  { id: "light",  color: "#F7F6F3", border: "0.5px solid #ECEAE5",                label: "Light" },
-  { id: "linen",  color: "#C4AA90", border: "0.5px solid #B09878",                label: "Linen" },
+const THEME_DOTS: {
+  id: Theme;
+  color: string;
+  border: string;
+  label: string;
+}[] = [
+  {
+    id: "dark",
+    color: "#202124",
+    border: "0.5px solid #3C3C3F",
+    label: "Dark",
+  },
+  {
+    id: "sakura",
+    color: "#EFC4CC",
+    border: "0.5px solid #ffffff33",
+    label: "Sakura",
+  },
+  {
+    id: "light",
+    color: "#F7F6F3",
+    border: "0.5px solid #ECEAE5",
+    label: "Light",
+  },
+  {
+    id: "linen",
+    color: "#C4AA90",
+    border: "0.5px solid #B09878",
+    label: "Linen",
+  },
 ];
 
 const navItems = [
@@ -53,10 +97,18 @@ export default function TopBar() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (menuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (
+        menuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
         setMenuOpen(false);
       }
-      if (avatarOpen && avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+      if (
+        avatarOpen &&
+        avatarRef.current &&
+        !avatarRef.current.contains(e.target as Node)
+      ) {
         setAvatarOpen(false);
       }
     }
@@ -68,7 +120,14 @@ export default function TopBar() {
   if (isEditor) return null;
 
   const userName = session?.user?.name || "";
-  const userInitials = userName.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
+  const userInitials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
   const ring = AVATAR_RING[theme] || AVATAR_RING.dark;
   const isPro = userPlan === "pro";
 
@@ -131,7 +190,10 @@ export default function TopBar() {
 
               <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 {navItems.map((item) => {
-                  const isActive = pathname === item.href || (item.href !== "/app/projects" && pathname.startsWith(item.href));
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/app/projects" &&
+                      pathname.startsWith(item.href));
                   return (
                     <Link
                       key={item.href}
@@ -146,7 +208,9 @@ export default function TopBar() {
                         fontWeight: isActive ? 500 : 400,
                         textDecoration: "none",
                         background: isActive ? "var(--bg-card)" : "transparent",
-                        color: isActive ? "var(--text-primary)" : "var(--text-muted)",
+                        color: isActive
+                          ? "var(--text-primary)"
+                          : "var(--text-muted)",
                         transition: "background 150ms, color 150ms",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
@@ -176,7 +240,10 @@ export default function TopBar() {
           {isMobile && (
             <div ref={menuRef} style={{ position: "relative", marginLeft: 8 }}>
               <button
-                onClick={() => { setMenuOpen(!menuOpen); setAvatarOpen(false); }}
+                onClick={() => {
+                  setMenuOpen(!menuOpen);
+                  setAvatarOpen(false);
+                }}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -188,8 +255,22 @@ export default function TopBar() {
                 }}
                 aria-label="Menu"
               >
-                <span style={{ width: 14, height: 1.5, background: "var(--text-primary)", borderRadius: 1 }} />
-                <span style={{ width: 14, height: 1.5, background: "var(--text-primary)", borderRadius: 1 }} />
+                <span
+                  style={{
+                    width: 14,
+                    height: 1.5,
+                    background: "var(--text-primary)",
+                    borderRadius: 1,
+                  }}
+                />
+                <span
+                  style={{
+                    width: 14,
+                    height: 1.5,
+                    background: "var(--text-primary)",
+                    borderRadius: 1,
+                  }}
+                />
               </button>
 
               {menuOpen && (
@@ -225,16 +306,23 @@ export default function TopBar() {
                           fontSize: 12,
                           fontWeight: isActive ? 500 : 400,
                           textDecoration: "none",
-                          background: isActive ? "var(--accent-soft)" : "transparent",
-                          color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                          background: isActive
+                            ? "var(--accent-soft)"
+                            : "transparent",
+                          color: isActive
+                            ? "var(--text-primary)"
+                            : "var(--text-secondary)",
                           transition: "background 150ms",
                           cursor: "pointer",
                         }}
                         onMouseEnter={(e) => {
-                          if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
+                          if (!isActive)
+                            e.currentTarget.style.background =
+                              "var(--bg-hover)";
                         }}
                         onMouseLeave={(e) => {
-                          if (!isActive) e.currentTarget.style.background = "transparent";
+                          if (!isActive)
+                            e.currentTarget.style.background = "transparent";
                         }}
                       >
                         <span>{item.label}</span>
@@ -242,7 +330,12 @@ export default function TopBar() {
                     );
                   })}
 
-                  <div style={{ borderTop: "0.5px solid var(--border)", margin: "4px 0" }} />
+                  <div
+                    style={{
+                      borderTop: "0.5px solid var(--border)",
+                      margin: "4px 0",
+                    }}
+                  />
 
                   <Link
                     href="/app/settings"
@@ -260,8 +353,12 @@ export default function TopBar() {
                       transition: "background 150ms",
                       cursor: "pointer",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = "var(--bg-hover)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "transparent")
+                    }
                   >
                     <Settings size={14} />
                     <span>Settings</span>
@@ -296,7 +393,10 @@ export default function TopBar() {
           {/* Avatar with gradient ring */}
           <div ref={avatarRef} style={{ position: "relative" }}>
             <div
-              onClick={() => { setAvatarOpen(!avatarOpen); setMenuOpen(false); }}
+              onClick={() => {
+                setAvatarOpen(!avatarOpen);
+                setMenuOpen(false);
+              }}
               style={{
                 width: 32,
                 height: 32,
@@ -347,7 +447,14 @@ export default function TopBar() {
                 }}
               >
                 {/* User info header */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 14px",
+                  }}
+                >
                   <div
                     style={{
                       width: 26,
@@ -393,7 +500,13 @@ export default function TopBar() {
                     >
                       {userName || session?.user?.email || "User"}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-secondary)",
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                      }}
+                    >
                       {isPro ? "Pro plan" : "Free plan"}
                     </div>
                   </div>
@@ -418,10 +531,17 @@ export default function TopBar() {
                     cursor: "pointer",
                     fontFamily: "'Inter', system-ui, sans-serif",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--bg-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
-                  <Settings size={13} style={{ color: "var(--text-secondary)" }} />
+                  <Settings
+                    size={13}
+                    style={{ color: "var(--text-secondary)" }}
+                  />
                   <span>Settings</span>
                 </Link>
 
@@ -435,8 +555,19 @@ export default function TopBar() {
                     fontFamily: "'Inter', system-ui, sans-serif",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--text-secondary)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <circle cx="12" cy="12" r="5" />
                       <line x1="12" y1="1" x2="12" y2="3" />
                       <line x1="12" y1="21" x2="12" y2="23" />
@@ -447,9 +578,15 @@ export default function TopBar() {
                       <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
                       <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                     </svg>
-                    <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Theme</span>
+                    <span
+                      style={{ fontSize: 13, color: "var(--text-primary)" }}
+                    >
+                      Theme
+                    </span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 5 }}
+                  >
                     {THEME_DOTS.map((t) => (
                       <div
                         key={t.id}
@@ -459,7 +596,10 @@ export default function TopBar() {
                           height: theme === t.id ? 16 : 14,
                           borderRadius: "50%",
                           background: t.color,
-                          border: theme === t.id ? "1.5px solid var(--accent)" : t.border,
+                          border:
+                            theme === t.id
+                              ? "1.5px solid var(--accent)"
+                              : t.border,
                           cursor: "pointer",
                           transition: "all 150ms",
                         }}
@@ -494,8 +634,12 @@ export default function TopBar() {
                         fontFamily: "'Inter', system-ui, sans-serif",
                         transition: "background 150ms",
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "var(--bg-hover)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
                     >
                       <Star size={13} style={{ color: "var(--accent)" }} />
                       <span>Upgrade to Pro</span>
@@ -522,8 +666,12 @@ export default function TopBar() {
                     transition: "background 150ms",
                     cursor: "pointer",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--bg-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
                   <LogOut size={13} style={{ color: "var(--text-muted)" }} />
                   <span>Sign out</span>

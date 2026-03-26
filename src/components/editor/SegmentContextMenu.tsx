@@ -123,7 +123,10 @@ export default function SegmentContextMenu({
       // Keyboard navigation
       const actionItems = items
         .map((item, i) => ({ item, i }))
-        .filter(({ item }) => !isSeparator(item) && !(item as ContextMenuItem).disabled);
+        .filter(
+          ({ item }) =>
+            !isSeparator(item) && !(item as ContextMenuItem).disabled,
+        );
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -133,7 +136,10 @@ export default function SegmentContextMenu({
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         const currentIdx = actionItems.findIndex(({ i }) => i === focusedIndex);
-        const prev = actionItems[(currentIdx - 1 + actionItems.length) % actionItems.length];
+        const prev =
+          actionItems[
+            (currentIdx - 1 + actionItems.length) % actionItems.length
+          ];
         if (prev) setFocusedIndex(prev.i);
       } else if (e.key === "Enter" && focusedIndex >= 0) {
         e.preventDefault();
@@ -200,7 +206,9 @@ export default function SegmentContextMenu({
             }}
             disabled={item.disabled}
             onMouseEnter={() => setFocusedIndex(i)}
-            onMouseLeave={() => { if (focusedIndex === i) setFocusedIndex(-1); }}
+            onMouseLeave={() => {
+              if (focusedIndex === i) setFocusedIndex(-1);
+            }}
             style={{
               width: "100%",
               textAlign: "left",

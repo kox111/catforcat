@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import {
   Document,
@@ -23,17 +22,8 @@ import {
  * All formats are available for both Free and Pro plans.
  */
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const projectId = req.nextUrl.searchParams.get("projectId");
   const format = req.nextUrl.searchParams.get("format");
@@ -41,7 +31,7 @@ export async function GET(req: NextRequest) {
   if (!projectId || !format) {
     return NextResponse.json(
       { error: "projectId and format are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -84,14 +74,14 @@ export async function GET(req: NextRequest) {
       default:
         return NextResponse.json(
           { error: `Unsupported format: ${format}` },
-          { status: 400 }
+          { status: 400 },
         );
     }
-  } catch (error) {
-    console.error("Export error:", error);
+  } catch (err) {
+    console.error("Export error:", err);
     return NextResponse.json(
       { error: "Failed to export file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -115,7 +105,9 @@ interface ProjectWithSegments {
 function exportTxtBilingual(project: ProjectWithSegments) {
   const lines: string[] = [];
   lines.push(`# ${project.name}`);
-  lines.push(`# ${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()}`);
+  lines.push(
+    `# ${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()}`,
+  );
   lines.push(`# Exported from CATforCAT`);
   lines.push("");
 
@@ -207,7 +199,7 @@ async function exportDocx(project: ProjectWithSegments) {
       heading: HeadingLevel.TITLE,
       alignment: AlignmentType.CENTER,
       spacing: { after: 200 },
-    })
+    }),
   );
 
   // Subtitle with language pair
@@ -223,7 +215,7 @@ async function exportDocx(project: ProjectWithSegments) {
       ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 400 },
-    })
+    }),
   );
 
   // Group segments by paragraphIndex and apply styles
@@ -254,7 +246,7 @@ async function exportDocx(project: ProjectWithSegments) {
         ],
         heading,
         spacing: { after: 120 },
-      })
+      }),
     );
 
     currentTexts = [];
@@ -312,7 +304,7 @@ function exportTmx(project: ProjectWithSegments) {
   lines.push('<?xml version="1.0" encoding="UTF-8"?>');
   lines.push('<tmx version="1.4">');
   lines.push(
-    `  <header creationtool="CATforCAT" creationtoolversion="1.0" srclang="${project.srcLang}" datatype="plaintext" segtype="sentence" adminlang="en"/>`
+    `  <header creationtool="CATforCAT" creationtoolversion="1.0" srclang="${project.srcLang}" datatype="plaintext" segtype="sentence" adminlang="en"/>`,
   );
   lines.push("  <body>");
 
@@ -321,10 +313,10 @@ function exportTmx(project: ProjectWithSegments) {
 
     lines.push("    <tu>");
     lines.push(
-      `      <tuv xml:lang="${project.srcLang}"><seg>${escapeXml(seg.sourceText)}</seg></tuv>`
+      `      <tuv xml:lang="${project.srcLang}"><seg>${escapeXml(seg.sourceText)}</seg></tuv>`,
     );
     lines.push(
-      `      <tuv xml:lang="${project.tgtLang}"><seg>${escapeXml(seg.targetText)}</seg></tuv>`
+      `      <tuv xml:lang="${project.tgtLang}"><seg>${escapeXml(seg.targetText)}</seg></tuv>`,
     );
     lines.push("    </tu>");
   }
@@ -349,22 +341,27 @@ function exportTmx(project: ProjectWithSegments) {
 function exportXliff(project: ProjectWithSegments) {
   const lines: string[] = [];
   lines.push('<?xml version="1.0" encoding="UTF-8"?>');
-  lines.push('<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">');
   lines.push(
-    `  <file source-language="${project.srcLang}" target-language="${project.tgtLang}" datatype="plaintext" original="${escapeXml(project.name)}">`
+    '<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">',
+  );
+  lines.push(
+    `  <file source-language="${project.srcLang}" target-language="${project.tgtLang}" datatype="plaintext" original="${escapeXml(project.name)}">`,
   );
   lines.push("    <body>");
 
   for (const seg of project.segments) {
-    const state = seg.status === "confirmed"
-      ? ' state="final"'
-      : seg.targetText
-      ? ' state="needs-review-translation"'
-      : ' state="new"';
+    const state =
+      seg.status === "confirmed"
+        ? ' state="final"'
+        : seg.targetText
+          ? ' state="needs-review-translation"'
+          : ' state="new"';
 
     lines.push(`      <trans-unit id="${seg.position}">`);
     lines.push(`        <source>${escapeXml(seg.sourceText)}</source>`);
-    lines.push(`        <target${state}>${escapeXml(seg.targetText || "")}</target>`);
+    lines.push(
+      `        <target${state}>${escapeXml(seg.targetText || "")}</target>`,
+    );
     lines.push("      </trans-unit>");
   }
 
@@ -415,7 +412,8 @@ function exportJsonFormat(project: ProjectWithSegments) {
   // Build a simple flat JSON structure with translations
   const result: Record<string, string> = {};
   for (let i = 0; i < segments.length; i++) {
-    result[`segment_${i + 1}`] = segments[i].targetText || segments[i].sourceText;
+    result[`segment_${i + 1}`] =
+      segments[i].targetText || segments[i].sourceText;
   }
 
   const content = JSON.stringify(result, null, 2);
@@ -436,7 +434,10 @@ function exportSrtFormat(project: ProjectWithSegments) {
   const segments = project.segments.map((seg) => ({
     sourceText: seg.sourceText,
     targetText: seg.targetText || "",
-    metadata: { sequenceNumber: seg.position, timestamps: "00:00:00,000 --> 00:00:02,000" },
+    metadata: {
+      sequenceNumber: seg.position,
+      timestamps: "00:00:00,000 --> 00:00:02,000",
+    },
   }));
 
   const content = exportToSRT(segments);
@@ -479,7 +480,9 @@ function exportMarkdownFormat(project: ProjectWithSegments) {
 
   // Add title and metadata
   lines.push(`# ${project.name}`);
-  lines.push(`Translation: ${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()}`);
+  lines.push(
+    `Translation: ${project.srcLang.toUpperCase()} → ${project.tgtLang.toUpperCase()}`,
+  );
   lines.push("");
   lines.push("---");
   lines.push("");
@@ -489,11 +492,7 @@ function exportMarkdownFormat(project: ProjectWithSegments) {
     const seg = project.segments[i];
     const text = seg.targetText || seg.sourceText;
     const statusBadge =
-      seg.status === "confirmed"
-        ? "✓"
-        : seg.status === "draft"
-          ? "~"
-          : "○";
+      seg.status === "confirmed" ? "✓" : seg.status === "draft" ? "~" : "○";
 
     lines.push(`## Segment ${i + 1} [${statusBadge}]`);
     lines.push(text);
@@ -515,18 +514,24 @@ function exportMarkdownFormat(project: ProjectWithSegments) {
 // G2: HTML Bilingual: side-by-side table
 // ─────────────────────────────────────────────
 function exportHtmlBilingual(project: ProjectWithSegments) {
-  const rows = project.segments.map((seg) => {
-    const statusColor =
-      seg.status === "confirmed" ? "#10b981" : seg.status === "draft" ? "#f59e0b" : "#9ca3af";
-    const statusLabel =
-      seg.status === "confirmed" ? "✓" : seg.status === "draft" ? "~" : "○";
-    return `<tr>
+  const rows = project.segments
+    .map((seg) => {
+      const statusColor =
+        seg.status === "confirmed"
+          ? "#10b981"
+          : seg.status === "draft"
+            ? "#f59e0b"
+            : "#9ca3af";
+      const statusLabel =
+        seg.status === "confirmed" ? "✓" : seg.status === "draft" ? "~" : "○";
+      return `<tr>
       <td style="text-align:center;color:${statusColor};width:30px;padding:6px 4px;border:1px solid #ddd;">${seg.position}</td>
       <td style="padding:8px 12px;border:1px solid #ddd;background:#f9fafb;">${escapeXml(seg.sourceText)}</td>
       <td style="padding:8px 12px;border:1px solid #ddd;">${escapeXml(seg.targetText || "(empty)")}</td>
       <td style="text-align:center;width:30px;padding:6px 4px;border:1px solid #ddd;color:${statusColor};">${statusLabel}</td>
     </tr>`;
-  }).join("\n");
+    })
+    .join("\n");
 
   const html = `<!DOCTYPE html>
 <html lang="en">

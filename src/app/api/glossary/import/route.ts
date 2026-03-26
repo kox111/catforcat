@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 // POST /api/glossary/import — import CSV glossary file
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   try {
     const formData = await req.formData();
@@ -34,7 +24,10 @@ export async function POST(req: NextRequest) {
 
     if (entries.length === 0) {
       return NextResponse.json(
-        { error: "No valid entries found. CSV must have columns: source_term, target_term, source_lang, target_lang (optional: note)" },
+        {
+          error:
+            "No valid entries found. CSV must have columns: source_term, target_term, source_lang, target_lang (optional: note)",
+        },
         { status: 400 },
       );
     }
@@ -73,7 +66,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ imported, skipped, total: entries.length });
   } catch (err) {
     console.error("CSV import error:", err);
-    return NextResponse.json({ error: "Failed to parse CSV file" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Failed to parse CSV file" },
+      { status: 400 },
+    );
   }
 }
 
@@ -94,19 +90,37 @@ function parseCSV(text: string): GlossaryEntry[] {
   // Parse header to find column indices
   const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase().trim());
 
-  const srcTermIdx = header.findIndex((h) =>
-    h === "source_term" || h === "sourceterm" || h === "source" || h === "term",
+  const srcTermIdx = header.findIndex(
+    (h) =>
+      h === "source_term" ||
+      h === "sourceterm" ||
+      h === "source" ||
+      h === "term",
   );
-  const tgtTermIdx = header.findIndex((h) =>
-    h === "target_term" || h === "targetterm" || h === "target" || h === "translation",
+  const tgtTermIdx = header.findIndex(
+    (h) =>
+      h === "target_term" ||
+      h === "targetterm" ||
+      h === "target" ||
+      h === "translation",
   );
-  const srcLangIdx = header.findIndex((h) =>
-    h === "source_lang" || h === "sourcelang" || h === "srclang" || h === "src_lang",
+  const srcLangIdx = header.findIndex(
+    (h) =>
+      h === "source_lang" ||
+      h === "sourcelang" ||
+      h === "srclang" ||
+      h === "src_lang",
   );
-  const tgtLangIdx = header.findIndex((h) =>
-    h === "target_lang" || h === "targetlang" || h === "tgtlang" || h === "tgt_lang",
+  const tgtLangIdx = header.findIndex(
+    (h) =>
+      h === "target_lang" ||
+      h === "targetlang" ||
+      h === "tgtlang" ||
+      h === "tgt_lang",
   );
-  const noteIdx = header.findIndex((h) => h === "note" || h === "notes" || h === "comment");
+  const noteIdx = header.findIndex(
+    (h) => h === "note" || h === "notes" || h === "comment",
+  );
 
   if (srcTermIdx === -1 || tgtTermIdx === -1) {
     // Try positional: assume col0=source, col1=target, col2=srcLang, col3=tgtLang
@@ -122,8 +136,10 @@ function parseCSV(text: string): GlossaryEntry[] {
     const cols = parseCSVLine(lines[i]);
     const sourceTerm = cols[srcTermIdx]?.trim();
     const targetTerm = cols[tgtTermIdx]?.trim();
-    const srcLang = srcLangIdx >= 0 ? cols[srcLangIdx]?.trim().toLowerCase() : "";
-    const tgtLang = tgtLangIdx >= 0 ? cols[tgtLangIdx]?.trim().toLowerCase() : "";
+    const srcLang =
+      srcLangIdx >= 0 ? cols[srcLangIdx]?.trim().toLowerCase() : "";
+    const tgtLang =
+      tgtLangIdx >= 0 ? cols[tgtLangIdx]?.trim().toLowerCase() : "";
     const note = noteIdx >= 0 ? cols[noteIdx]?.trim() : undefined;
 
     if (sourceTerm && targetTerm && srcLang && tgtLang) {

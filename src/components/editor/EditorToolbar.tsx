@@ -9,7 +9,12 @@ import { useTheme, type Theme } from "@/components/ThemeProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
 import SaveIndicator from "@/components/editor/SaveIndicator";
 
-export type SegmentFilter = "all" | "empty" | "draft" | "confirmed" | "low-score";
+export type SegmentFilter =
+  | "all"
+  | "empty"
+  | "draft"
+  | "confirmed"
+  | "low-score";
 
 export interface PreTranslateProgress {
   running: boolean;
@@ -42,17 +47,54 @@ interface EditorToolbarProps {
 
 /* ─── Theme gradient ring colors per theme ─── */
 const AVATAR_RING: Record<Theme, { gradient: string; bg: string }> = {
-  dark:   { gradient: "linear-gradient(135deg, #BDB8B2, #8A8580)", bg: "var(--bg-deep)" },
-  sakura: { gradient: "linear-gradient(135deg, #8B5A6B, #B08090)", bg: "var(--bg-deep)" },
-  light:  { gradient: "linear-gradient(135deg, #6B6B6B, #AAAAAA)", bg: "var(--bg-deep)" },
-  linen:  { gradient: "linear-gradient(135deg, #A47864, #C4A898)", bg: "var(--bg-deep)" },
+  dark: {
+    gradient: "linear-gradient(135deg, #BDB8B2, #8A8580)",
+    bg: "var(--bg-deep)",
+  },
+  sakura: {
+    gradient: "linear-gradient(135deg, #8B5A6B, #B08090)",
+    bg: "var(--bg-deep)",
+  },
+  light: {
+    gradient: "linear-gradient(135deg, #6B6B6B, #AAAAAA)",
+    bg: "var(--bg-deep)",
+  },
+  linen: {
+    gradient: "linear-gradient(135deg, #A47864, #C4A898)",
+    bg: "var(--bg-deep)",
+  },
 };
 
-const THEME_DOTS: { id: Theme; color: string; border: string; label: string }[] = [
-  { id: "dark",   color: "#202124", border: "0.5px solid #3C3C3F",                label: "Dark" },
-  { id: "sakura", color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.2)",   label: "Sakura" },
-  { id: "light",  color: "#F7F6F3", border: "0.5px solid #ECEAE5",                label: "Light" },
-  { id: "linen",  color: "#C4AA90", border: "0.5px solid #B09878",                label: "Linen" },
+const THEME_DOTS: {
+  id: Theme;
+  color: string;
+  border: string;
+  label: string;
+}[] = [
+  {
+    id: "dark",
+    color: "#202124",
+    border: "0.5px solid #3C3C3F",
+    label: "Dark",
+  },
+  {
+    id: "sakura",
+    color: "#EFC4CC",
+    border: "0.5px solid #ffffff33",
+    label: "Sakura",
+  },
+  {
+    id: "light",
+    color: "#F7F6F3",
+    border: "0.5px solid #ECEAE5",
+    label: "Light",
+  },
+  {
+    id: "linen",
+    color: "#C4AA90",
+    border: "0.5px solid #B09878",
+    label: "Linen",
+  },
 ];
 
 const EXPORT_FORMATS = [
@@ -95,7 +137,8 @@ export default function EditorToolbar({
   const avatarRef = useRef<HTMLDivElement>(null);
 
   const [exportOpenLocal, setExportOpenLocal] = useState(false);
-  const exportOpen = exportOpenProp !== undefined ? exportOpenProp : exportOpenLocal;
+  const exportOpen =
+    exportOpenProp !== undefined ? exportOpenProp : exportOpenLocal;
   const setExportOpen = (v: boolean) => {
     setExportOpenLocal(v);
     onExportOpenChange?.(v);
@@ -114,10 +157,18 @@ export default function EditorToolbar({
   useEffect(() => {
     if (!exportOpen && !avatarOpen) return;
     const handler = (e: MouseEvent) => {
-      if (exportOpen && dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        exportOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setExportOpen(false);
       }
-      if (avatarOpen && avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+      if (
+        avatarOpen &&
+        avatarRef.current &&
+        !avatarRef.current.contains(e.target as Node)
+      ) {
         setAvatarOpen(false);
       }
     };
@@ -139,7 +190,9 @@ export default function EditorToolbar({
       const blob = await res.blob();
       const disposition = res.headers.get("Content-Disposition") || "";
       const fileNameMatch = disposition.match(/filename="(.+?)"/);
-      const fileName = fileNameMatch?.[1] || `export.${format === "tmx" ? "tmx" : format === "docx" ? "docx" : "txt"}`;
+      const fileName =
+        fileNameMatch?.[1] ||
+        `export.${format === "tmx" ? "tmx" : format === "docx" ? "docx" : "txt"}`;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = fileName;
@@ -155,7 +208,14 @@ export default function EditorToolbar({
   };
 
   const userName = session?.user?.name || "";
-  const userInitials = userName.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
+  const userInitials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
   const ring = AVATAR_RING[theme] || AVATAR_RING.dark;
   const isPro = userPlan === "pro";
 
@@ -183,14 +243,16 @@ export default function EditorToolbar({
         }}
       >
         {/* ── Left: catforcat. › project-name [EN → ES] ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 0, minWidth: 0 }}>
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 0, minWidth: 0 }}
+        >
           {/* Wordmark */}
           <Link
             href="/app/projects"
             style={{
               textDecoration: "none",
               fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: 400,
               color: "var(--brand-wordmark)",
               letterSpacing: "0.03em",
@@ -208,8 +270,8 @@ export default function EditorToolbar({
           <span
             style={{
               color: "var(--text-muted)",
-              fontSize: 11,
-              margin: "0 7px",
+              fontSize: 13,
+              margin: "0 8px",
               userSelect: "none",
               flexShrink: 0,
             }}
@@ -241,7 +303,7 @@ export default function EditorToolbar({
               background: "var(--bg-card)",
               padding: "2px 8px",
               borderRadius: 4,
-              marginLeft: 10,
+              marginLeft: 12,
               flexShrink: 0,
             }}
           >
@@ -250,7 +312,14 @@ export default function EditorToolbar({
         </div>
 
         {/* ── Right: progress + save + [PRO] + Avatar ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            flexShrink: 0,
+          }}
+        >
           {/* Progress counter + bar */}
           {!isCompact && (
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -313,7 +382,9 @@ export default function EditorToolbar({
             </span>
           )}
           {exporting && (
-            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>Exporting...</span>
+            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+              Exporting...
+            </span>
           )}
 
           {/* Save indicator — right next to avatar */}
@@ -395,7 +466,14 @@ export default function EditorToolbar({
                 }}
               >
                 {/* User info */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 14px",
+                  }}
+                >
                   <div
                     style={{
                       width: 26,
@@ -428,10 +506,26 @@ export default function EditorToolbar({
                     </div>
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", fontFamily: "'Inter', system-ui, sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "var(--text-primary)",
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {userName || session?.user?.email || "User"}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-secondary)",
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                      }}
+                    >
                       {isPro ? "Pro plan" : "Free plan"}
                     </div>
                   </div>
@@ -456,10 +550,17 @@ export default function EditorToolbar({
                     cursor: "pointer",
                     fontFamily: "'Inter', system-ui, sans-serif",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--bg-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
-                  <Settings size={13} style={{ color: "var(--text-secondary)" }} />
+                  <Settings
+                    size={13}
+                    style={{ color: "var(--text-secondary)" }}
+                  />
                   <span>Settings</span>
                 </Link>
 
@@ -473,8 +574,19 @@ export default function EditorToolbar({
                     fontFamily: "'Inter', system-ui, sans-serif",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--text-secondary)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <circle cx="12" cy="12" r="5" />
                       <line x1="12" y1="1" x2="12" y2="3" />
                       <line x1="12" y1="21" x2="12" y2="23" />
@@ -485,9 +597,15 @@ export default function EditorToolbar({
                       <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
                       <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                     </svg>
-                    <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Theme</span>
+                    <span
+                      style={{ fontSize: 13, color: "var(--text-primary)" }}
+                    >
+                      Theme
+                    </span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 5 }}
+                  >
                     {THEME_DOTS.map((t) => (
                       <div
                         key={t.id}
@@ -497,7 +615,10 @@ export default function EditorToolbar({
                           height: theme === t.id ? 16 : 14,
                           borderRadius: "50%",
                           background: t.color,
-                          border: theme === t.id ? "1.5px solid var(--accent)" : t.border,
+                          border:
+                            theme === t.id
+                              ? "1.5px solid var(--accent)"
+                              : t.border,
                           cursor: "pointer",
                           transition: "all 150ms",
                         }}
@@ -513,7 +634,10 @@ export default function EditorToolbar({
                 {!isPro && (
                   <>
                     <button
-                      onClick={() => { setAvatarOpen(false); router.push("/app/settings"); }}
+                      onClick={() => {
+                        setAvatarOpen(false);
+                        router.push("/app/settings");
+                      }}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -529,8 +653,12 @@ export default function EditorToolbar({
                         fontFamily: "'Inter', system-ui, sans-serif",
                         transition: "background 150ms",
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "var(--bg-hover)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
                     >
                       <Star size={13} style={{ color: "var(--accent)" }} />
                       <span>Upgrade to Pro</span>
@@ -557,8 +685,12 @@ export default function EditorToolbar({
                     transition: "background 150ms",
                     cursor: "pointer",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--bg-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
                   <LogOut size={13} style={{ color: "var(--text-muted)" }} />
                   <span>Sign out</span>

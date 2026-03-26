@@ -24,26 +24,67 @@ interface ProjectSummary {
 }
 
 const LANG_LABELS: Record<string, string> = {
-  en: "English", "en-US": "English (US)", "en-GB": "English (UK)", "en-AU": "English (AU)", "en-CA": "English (CA)",
-  es: "Español", "es-ES": "Español (ES)", "es-419": "Español (LATAM)", "es-MX": "Español (MX)", "es-PE": "Español (PE)",
-  "es-AR": "Español (AR)", "es-CO": "Español (CO)", "es-CL": "Español (CL)",
-  fr: "Français", "fr-FR": "Français (FR)", "fr-CA": "Français (CA)", "fr-BE": "Français (BE)",
-  de: "Deutsch", "de-DE": "Deutsch (DE)", "de-AT": "Deutsch (AT)", "de-CH": "Deutsch (CH)",
-  pt: "Português", "pt-BR": "Português (BR)", "pt-PT": "Português (PT)",
-  it: "Italiano", "it-IT": "Italiano (IT)", "it-CH": "Italiano (CH)",
-  zh: "中文", "zh-CN": "中文 (简体)", "zh-TW": "中文 (繁體)",
-  ja: "日本語", "ja-JP": "日本語",
-  ko: "한국어", "ko-KR": "한국어",
-  "ar-EG": "العربية (EG)", "ar-SA": "العربية (SA)",
+  en: "English",
+  "en-US": "English (US)",
+  "en-GB": "English (UK)",
+  "en-AU": "English (AU)",
+  "en-CA": "English (CA)",
+  es: "Español",
+  "es-ES": "Español (ES)",
+  "es-419": "Español (LATAM)",
+  "es-MX": "Español (MX)",
+  "es-PE": "Español (PE)",
+  "es-AR": "Español (AR)",
+  "es-CO": "Español (CO)",
+  "es-CL": "Español (CL)",
+  fr: "Français",
+  "fr-FR": "Français (FR)",
+  "fr-CA": "Français (CA)",
+  "fr-BE": "Français (BE)",
+  de: "Deutsch",
+  "de-DE": "Deutsch (DE)",
+  "de-AT": "Deutsch (AT)",
+  "de-CH": "Deutsch (CH)",
+  pt: "Português",
+  "pt-BR": "Português (BR)",
+  "pt-PT": "Português (PT)",
+  it: "Italiano",
+  "it-IT": "Italiano (IT)",
+  "it-CH": "Italiano (CH)",
+  zh: "中文",
+  "zh-CN": "中文 (简体)",
+  "zh-TW": "中文 (繁體)",
+  ja: "日本語",
+  "ja-JP": "日本語",
+  ko: "한국어",
+  "ko-KR": "한국어",
+  "ar-EG": "العربية (EG)",
+  "ar-SA": "العربية (SA)",
   "ru-RU": "Русский",
-  "nl-NL": "Nederlands (NL)", "nl-BE": "Nederlands (BE)",
+  "nl-NL": "Nederlands (NL)",
+  "nl-BE": "Nederlands (BE)",
   "pl-PL": "Polski",
   "tr-TR": "Türkçe",
 };
 
 export default function ProjectsPage() {
   return (
-    <Suspense fallback={<div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 13 }}>Loading projects...</div>}>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--text-muted)",
+            fontSize: 13,
+          }}
+        >
+          Loading projects...
+        </div>
+      }
+    >
       <ProjectsContent />
     </Suspense>
   );
@@ -56,7 +97,10 @@ function ProjectsContent() {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewProject, setShowNewProject] = useState(false);
-  const [privacyTarget, setPrivacyTarget] = useState<{ id: string; level: PrivacyLevel } | null>(null);
+  const [privacyTarget, setPrivacyTarget] = useState<{
+    id: string;
+    level: PrivacyLevel;
+  } | null>(null);
 
   // Open new project modal from TopBar ?new=true link
   useEffect(() => {
@@ -188,8 +232,12 @@ function ProjectsContent() {
                   textDecoration: "none",
                   transition: "border-color 150ms",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.borderColor = "var(--accent)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.borderColor = "var(--border)")
+                }
               >
                 <div
                   style={{
@@ -210,7 +258,9 @@ function ProjectsContent() {
                     color: "var(--text-muted)",
                   }}
                 >
-                  {p.progress}% — {LANG_LABELS[p.srcLang]?.slice(0, 2) || p.srcLang}→{LANG_LABELS[p.tgtLang]?.slice(0, 2) || p.tgtLang}
+                  {p.progress}% —{" "}
+                  {LANG_LABELS[p.srcLang]?.slice(0, 2) || p.srcLang}→
+                  {LANG_LABELS[p.tgtLang]?.slice(0, 2) || p.tgtLang}
                 </div>
                 <div
                   style={{
@@ -226,7 +276,8 @@ function ProjectsContent() {
                       height: 4,
                       borderRadius: 2,
                       width: `${p.progress}%`,
-                      background: p.progress === 100 ? "var(--green)" : "var(--accent)",
+                      background:
+                        p.progress === 100 ? "var(--green)" : "var(--accent)",
                     }}
                   />
                 </div>
@@ -238,7 +289,8 @@ function ProjectsContent() {
 
       {projects.length === 0 ? (
         <div style={{ color: "var(--text-secondary)", fontSize: 14 }}>
-          Welcome, {session?.user?.name || session?.user?.email}. No projects yet. Create your first project to start translating.
+          Welcome, {session?.user?.name || session?.user?.email}. No projects
+          yet. Create your first project to start translating.
         </div>
       ) : (
         <div
@@ -262,8 +314,12 @@ function ProjectsContent() {
                 textDecoration: "none",
                 transition: "border-color 150ms, box-shadow 150ms",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border-focus)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border)")
+              }
             >
               <h3
                 style={{
@@ -293,7 +349,8 @@ function ProjectsContent() {
                     margin: 0,
                   }}
                 >
-                  {LANG_LABELS[project.srcLang] || project.srcLang} → {LANG_LABELS[project.tgtLang] || project.tgtLang}
+                  {LANG_LABELS[project.srcLang] || project.srcLang} →{" "}
+                  {LANG_LABELS[project.tgtLang] || project.tgtLang}
                 </p>
                 <PrivacyBadge
                   level={(project.privacyLevel || "standard") as PrivacyLevel}
@@ -302,7 +359,8 @@ function ProjectsContent() {
                     e.stopPropagation();
                     setPrivacyTarget({
                       id: project.id,
-                      level: (project.privacyLevel || "standard") as PrivacyLevel,
+                      level: (project.privacyLevel ||
+                        "standard") as PrivacyLevel,
                     });
                   }}
                 />
@@ -323,7 +381,10 @@ function ProjectsContent() {
                       height: 6,
                       borderRadius: 3,
                       width: `${project.progress}%`,
-                      background: project.progress === 100 ? "var(--green)" : "var(--accent)",
+                      background:
+                        project.progress === 100
+                          ? "var(--green)"
+                          : "var(--accent)",
                       transition: "width 300ms",
                     }}
                   />
@@ -340,7 +401,13 @@ function ProjectsContent() {
                 <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                   {project.confirmedSegments}/{project.totalSegments} segments
                 </span>
-                <span style={{ fontSize: 11, fontWeight: 500, color: "var(--text-secondary)" }}>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: "var(--text-secondary)",
+                  }}
+                >
                   {project.progress}%
                 </span>
               </div>
@@ -357,8 +424,10 @@ function ProjectsContent() {
           onChanged={(newLevel) => {
             setProjects((prev) =>
               prev.map((p) =>
-                p.id === privacyTarget.id ? { ...p, privacyLevel: newLevel } : p
-              )
+                p.id === privacyTarget.id
+                  ? { ...p, privacyLevel: newLevel }
+                  : p,
+              ),
             );
           }}
         />

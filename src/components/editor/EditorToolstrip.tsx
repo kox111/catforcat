@@ -117,7 +117,12 @@ function IconBtn({
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   return (
     <div style={{ position: "relative" }}>
@@ -133,15 +138,15 @@ function IconBtn({
           background: active
             ? "var(--accent-soft)"
             : hovered
-            ? "var(--bg-hover)"
-            : "transparent",
+              ? "var(--bg-hover)"
+              : "transparent",
           color: active
             ? "var(--text-primary)"
             : disabled
-            ? "var(--text-muted)"
-            : hovered
-            ? "var(--text-primary)"
-            : "var(--text-secondary)",
+              ? "var(--text-muted)"
+              : hovered
+                ? "var(--text-primary)"
+                : "var(--text-secondary)",
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.4 : 1,
           display: "flex",
@@ -196,12 +201,18 @@ export default function EditorToolstrip({
   const preTipTimer = useRef<NodeJS.Timeout | null>(null);
   const exportTipTimer = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => () => {
-    if (preTipTimer.current) clearTimeout(preTipTimer.current);
-    if (exportTipTimer.current) clearTimeout(exportTipTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (preTipTimer.current) clearTimeout(preTipTimer.current);
+      if (exportTipTimer.current) clearTimeout(exportTipTimer.current);
+    },
+    [],
+  );
 
-  const fontBtnStyle = (disabled: boolean, hovered: boolean): React.CSSProperties => ({
+  const fontBtnStyle = (
+    disabled: boolean,
+    hovered: boolean,
+  ): React.CSSProperties => ({
     padding: "2px 6px",
     borderRadius: 4,
     border: "0.5px solid var(--border)",
@@ -211,8 +222,8 @@ export default function EditorToolstrip({
     color: disabled
       ? "var(--text-muted)"
       : hovered
-      ? "var(--text-primary)"
-      : "var(--text-secondary)",
+        ? "var(--text-primary)"
+        : "var(--text-secondary)",
     cursor: disabled ? "default" : "pointer",
     opacity: disabled ? 0.4 : 1,
     transition: "border-color 150ms, color 150ms",
@@ -243,7 +254,10 @@ export default function EditorToolstrip({
           disabled={preTranslating}
           onMouseEnter={() => {
             setPreHover(true);
-            preTipTimer.current = setTimeout(() => setPreTransTipShow(true), 400);
+            preTipTimer.current = setTimeout(
+              () => setPreTransTipShow(true),
+              400,
+            );
           }}
           onMouseLeave={() => {
             setPreHover(false);
@@ -257,7 +271,8 @@ export default function EditorToolstrip({
             padding: "4px 10px",
             borderRadius: 6,
             border: "none",
-            background: preHover && !preTranslating ? "var(--bg-hover)" : "transparent",
+            background:
+              preHover && !preTranslating ? "var(--bg-hover)" : "transparent",
             color: preTranslating ? "var(--text-muted)" : "var(--amber-text)",
             cursor: preTranslating ? "not-allowed" : "pointer",
             opacity: preTranslating ? 0.4 : 1,
@@ -368,7 +383,10 @@ export default function EditorToolstrip({
           onClick={onExportOpen}
           onMouseEnter={() => {
             setExportHover(true);
-            exportTipTimer.current = setTimeout(() => setExportTipShow(true), 400);
+            exportTipTimer.current = setTimeout(
+              () => setExportTipShow(true),
+              400,
+            );
           }}
           onMouseLeave={() => {
             setExportHover(false);
@@ -383,7 +401,9 @@ export default function EditorToolstrip({
             borderRadius: 6,
             border: "0.5px solid var(--border)",
             background: "transparent",
-            color: exportHover ? "var(--text-primary)" : "var(--text-secondary)",
+            color: exportHover
+              ? "var(--text-primary)"
+              : "var(--text-secondary)",
             cursor: "pointer",
             fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: 11,

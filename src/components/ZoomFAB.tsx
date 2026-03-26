@@ -27,7 +27,9 @@ function loadPos(): { x: number; y: number } | null {
         return clampPos(parsed.x, parsed.y);
       }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return null;
 }
 
@@ -52,7 +54,12 @@ export default function ZoomFAB() {
       setPos(saved);
     } else {
       // Default position: bottom-right
-      setPos(clampPos(window.innerWidth - FAB_SIZE - 32, window.innerHeight - FAB_SIZE - 56));
+      setPos(
+        clampPos(
+          window.innerWidth - FAB_SIZE - 32,
+          window.innerHeight - FAB_SIZE - 56,
+        ),
+      );
     }
   }, []);
 
@@ -73,8 +80,10 @@ export default function ZoomFAB() {
     if (!open) return;
     function handleClick(e: MouseEvent) {
       if (
-        popupRef.current && !popupRef.current.contains(e.target as Node) &&
-        fabRef.current && !fabRef.current.contains(e.target as Node)
+        popupRef.current &&
+        !popupRef.current.contains(e.target as Node) &&
+        fabRef.current &&
+        !fabRef.current.contains(e.target as Node)
       ) {
         setOpen(false);
       }
@@ -84,12 +93,23 @@ export default function ZoomFAB() {
   }, [open]);
 
   // Drag handlers
-  const onDragStart = useCallback((clientX: number, clientY: number) => {
-    draggingRef.current = true;
-    didDragRef.current = false;
-    const currentPos = pos ?? { x: window.innerWidth - FAB_SIZE - 32, y: window.innerHeight - FAB_SIZE - 56 };
-    dragStartRef.current = { mx: clientX, my: clientY, fx: currentPos.x, fy: currentPos.y };
-  }, [pos]);
+  const onDragStart = useCallback(
+    (clientX: number, clientY: number) => {
+      draggingRef.current = true;
+      didDragRef.current = false;
+      const currentPos = pos ?? {
+        x: window.innerWidth - FAB_SIZE - 32,
+        y: window.innerHeight - FAB_SIZE - 56,
+      };
+      dragStartRef.current = {
+        mx: clientX,
+        my: clientY,
+        fx: currentPos.x,
+        fy: currentPos.y,
+      };
+    },
+    [pos],
+  );
 
   const onDragMove = useCallback((clientX: number, clientY: number) => {
     if (!draggingRef.current) return;
@@ -98,7 +118,10 @@ export default function ZoomFAB() {
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
       didDragRef.current = true;
     }
-    const newPos = clampPos(dragStartRef.current.fx + dx, dragStartRef.current.fy + dy);
+    const newPos = clampPos(
+      dragStartRef.current.fx + dx,
+      dragStartRef.current.fy + dy,
+    );
     setPos(newPos);
   }, []);
 
@@ -108,48 +131,59 @@ export default function ZoomFAB() {
     // Save position
     setPos((current) => {
       if (current) {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(current)); } catch { /* ignore */ }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        } catch {
+          /* ignore */
+        }
       }
       return current;
     });
   }, []);
 
   // Mouse drag
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Only left click
-    if (e.button !== 0) return;
-    e.preventDefault();
-    onDragStart(e.clientX, e.clientY);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      // Only left click
+      if (e.button !== 0) return;
+      e.preventDefault();
+      onDragStart(e.clientX, e.clientY);
 
-    const onMouseMove = (ev: MouseEvent) => onDragMove(ev.clientX, ev.clientY);
-    const onMouseUp = () => {
-      onDragEnd();
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  }, [onDragStart, onDragMove, onDragEnd]);
+      const onMouseMove = (ev: MouseEvent) =>
+        onDragMove(ev.clientX, ev.clientY);
+      const onMouseUp = () => {
+        onDragEnd();
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      };
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+    },
+    [onDragStart, onDragMove, onDragEnd],
+  );
 
   // Touch drag
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length !== 1) return;
-    const touch = e.touches[0];
-    onDragStart(touch.clientX, touch.clientY);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      onDragStart(touch.clientX, touch.clientY);
 
-    const onTouchMove = (ev: TouchEvent) => {
-      if (ev.touches.length !== 1) return;
-      ev.preventDefault();
-      onDragMove(ev.touches[0].clientX, ev.touches[0].clientY);
-    };
-    const onTouchEnd = () => {
-      onDragEnd();
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
-    };
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", onTouchEnd);
-  }, [onDragStart, onDragMove, onDragEnd]);
+      const onTouchMove = (ev: TouchEvent) => {
+        if (ev.touches.length !== 1) return;
+        ev.preventDefault();
+        onDragMove(ev.touches[0].clientX, ev.touches[0].clientY);
+      };
+      const onTouchEnd = () => {
+        onDragEnd();
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+      };
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("touchend", onTouchEnd);
+    },
+    [onDragStart, onDragMove, onDragEnd],
+  );
 
   const handleFabClick = useCallback(() => {
     // If we dragged, don't toggle the menu
@@ -161,9 +195,10 @@ export default function ZoomFAB() {
   }, []);
 
   // Compute popup position: prefer above the FAB, fallback below
-  const popupStyle: React.CSSProperties = pos && pos.y > 200
-    ? { position: "absolute", bottom: FAB_SIZE + 8, right: 0 }
-    : { position: "absolute", top: FAB_SIZE + 8, right: 0 };
+  const popupStyle: React.CSSProperties =
+    pos && pos.y > 200
+      ? { position: "absolute", bottom: FAB_SIZE + 8, right: 0 }
+      : { position: "absolute", top: FAB_SIZE + 8, right: 0 };
 
   if (!pos) return null; // SSR / before hydration
 
@@ -196,7 +231,10 @@ export default function ZoomFAB() {
             return (
               <button
                 key={key}
-                onClick={() => { setMode(key); setOpen(false); }}
+                onClick={() => {
+                  setMode(key);
+                  setOpen(false);
+                }}
                 style={{
                   display: "block",
                   width: "100%",
@@ -205,7 +243,9 @@ export default function ZoomFAB() {
                   fontSize: 11,
                   fontFamily: "'Inter', system-ui, sans-serif",
                   fontWeight: isActive ? 500 : 400,
-                  color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                  color: isActive
+                    ? "var(--text-primary)"
+                    : "var(--text-secondary)",
                   background: isActive ? "var(--bg-hover)" : "transparent",
                   border: "none",
                   cursor: "pointer",
@@ -214,10 +254,12 @@ export default function ZoomFAB() {
                   transition: "background 100ms",
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
+                  if (!isActive)
+                    e.currentTarget.style.background = "var(--bg-hover)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.background = "transparent";
+                  if (!isActive)
+                    e.currentTarget.style.background = "transparent";
                 }}
               >
                 {SCALE_MODES[key].label}
@@ -244,18 +286,37 @@ export default function ZoomFAB() {
           background: open ? "var(--accent-soft)" : "var(--bg-hover)",
           border: `0.5px solid ${fabHover ? "var(--accent)" : "var(--border)"}`,
           cursor: draggingRef.current ? "grabbing" : "grab",
-          transition: draggingRef.current ? "none" : "background 150ms, border-color 150ms",
+          transition: draggingRef.current
+            ? "none"
+            : "background 150ms, border-color 150ms",
           userSelect: "none",
           WebkitUserSelect: "none",
         }}
       >
         {open ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-primary)"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-secondary)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
             <line x1="11" y1="8" x2="11" y2="14" />

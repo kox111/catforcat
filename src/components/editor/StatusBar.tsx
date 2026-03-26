@@ -103,8 +103,12 @@ export default function StatusBar({
             fontSize: "inherit",
             transition: "color 200ms",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--text-primary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-muted)")
+          }
           title="Go to segment"
         >
           Seg {activeSegmentPosition}/{totalSegments}
@@ -118,7 +122,9 @@ export default function StatusBar({
         {focusMode && (
           <>
             <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
-            <span style={{ color: "var(--accent)", fontWeight: 500 }}>Focus</span>
+            <span style={{ color: "var(--accent)", fontWeight: 500 }}>
+              Focus
+            </span>
           </>
         )}
       </div>
@@ -128,8 +134,12 @@ export default function StatusBar({
         <button
           onClick={onProviderClick}
           style={pillStyle}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--text-primary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-muted)")
+          }
           title="Change translation provider"
         >
           {translationProvider}

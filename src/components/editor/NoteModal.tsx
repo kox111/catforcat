@@ -46,13 +46,31 @@ export default function NoteModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-          <h3 style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--text-primary)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <h3
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+            }}
+          >
             Note — Segment #{segmentPosition}
           </h3>
           <button
             onClick={onClose}
-            style={{ fontSize: "0.875rem", paddingLeft: "0.25rem", paddingRight: "0.25rem", color: "var(--text-muted)" }}
+            style={{
+              fontSize: "0.875rem",
+              paddingLeft: "0.25rem",
+              paddingRight: "0.25rem",
+              color: "var(--text-muted)",
+            }}
           >
             ×
           </button>
@@ -89,7 +107,14 @@ export default function NoteModal({
           }}
         />
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.75rem" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: "0.75rem",
+          }}
+        >
           <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
             Ctrl+Enter to save
           </span>

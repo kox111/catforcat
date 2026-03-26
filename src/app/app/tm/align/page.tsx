@@ -86,53 +86,82 @@ export default function TMAlignPage() {
         >
           ← Back to TM
         </Link>
-        <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
+        <h1
+          className="text-xl font-semibold"
+          style={{ color: "var(--text-primary)" }}
+        >
           TM Alignment Tool
         </h1>
       </div>
 
       <p className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-        Paste or upload matching source and target texts (one sentence per line). Sentences are aligned by line number (1:1 mapping) and added to your Translation Memory.
+        Paste or upload matching source and target texts (one sentence per
+        line). Sentences are aligned by line number (1:1 mapping) and added to
+        your Translation Memory.
       </p>
 
       {/* Language pair + domain */}
       <div className="flex items-center gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <label className="text-xs" style={{ color: "var(--text-secondary)" }}>Source:</label>
+          <label className="text-xs" style={{ color: "var(--text-secondary)" }}>
+            Source:
+          </label>
           <select
             value={srcLang}
             onChange={(e) => setSrcLang(e.target.value)}
             className="text-xs px-2 py-1.5 rounded"
-            style={{ background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--bg-card)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border)",
+            }}
           >
             {LANGS.map((l) => (
-              <option key={l.value} value={l.value}>{l.label}</option>
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
             ))}
           </select>
         </div>
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>→</span>
+        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+          →
+        </span>
         <div className="flex items-center gap-2">
-          <label className="text-xs" style={{ color: "var(--text-secondary)" }}>Target:</label>
+          <label className="text-xs" style={{ color: "var(--text-secondary)" }}>
+            Target:
+          </label>
           <select
             value={tgtLang}
             onChange={(e) => setTgtLang(e.target.value)}
             className="text-xs px-2 py-1.5 rounded"
-            style={{ background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--bg-card)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border)",
+            }}
           >
             {LANGS.map((l) => (
-              <option key={l.value} value={l.value}>{l.label}</option>
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
             ))}
           </select>
         </div>
         <div className="flex items-center gap-2 ml-4">
-          <label className="text-xs" style={{ color: "var(--text-secondary)" }}>Domain:</label>
+          <label className="text-xs" style={{ color: "var(--text-secondary)" }}>
+            Domain:
+          </label>
           <input
             type="text"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             placeholder="Optional (e.g. legal, medical)"
             className="text-xs px-2 py-1.5 rounded w-48"
-            style={{ background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border)" }}
+            style={{
+              background: "var(--bg-card)",
+              color: "var(--text-primary)",
+              border: "1px solid var(--border)",
+            }}
           />
         </div>
       </div>
@@ -141,18 +170,30 @@ export default function TMAlignPage() {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+            <label
+              className="text-xs font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Source text ({sourceLines} lines)
             </label>
             <div>
-              <input ref={srcFileRef} type="file" accept=".txt,.csv" className="hidden" onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) loadFile(f, setSourceText);
-              }} />
+              <input
+                ref={srcFileRef}
+                type="file"
+                accept=".txt,.csv"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) loadFile(f, setSourceText);
+                }}
+              />
               <button
                 onClick={() => srcFileRef.current?.click()}
                 className="text-xs px-2 py-0.5 rounded"
-                style={{ color: "var(--accent)", border: "1px solid var(--border)" }}
+                style={{
+                  color: "var(--accent)",
+                  border: "1px solid var(--border)",
+                }}
               >
                 Upload .txt
               </button>
@@ -174,18 +215,30 @@ export default function TMAlignPage() {
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+            <label
+              className="text-xs font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Target text ({targetLines} lines)
             </label>
             <div>
-              <input ref={tgtFileRef} type="file" accept=".txt,.csv" className="hidden" onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) loadFile(f, setTargetText);
-              }} />
+              <input
+                ref={tgtFileRef}
+                type="file"
+                accept=".txt,.csv"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) loadFile(f, setTargetText);
+                }}
+              />
               <button
                 onClick={() => tgtFileRef.current?.click()}
                 className="text-xs px-2 py-0.5 rounded"
-                style={{ color: "var(--accent)", border: "1px solid var(--border)" }}
+                style={{
+                  color: "var(--accent)",
+                  border: "1px solid var(--border)",
+                }}
               >
                 Upload .txt
               </button>
@@ -222,7 +275,9 @@ export default function TMAlignPage() {
             color: "var(--amber-text)",
           }}
         >
-          Line count mismatch: source has {sourceLines} lines, target has {targetLines}. Only the first {Math.min(sourceLines, targetLines)} pairs will be aligned.
+          Line count mismatch: source has {sourceLines} lines, target has{" "}
+          {targetLines}. Only the first {Math.min(sourceLines, targetLines)}{" "}
+          pairs will be aligned.
         </div>
       )}
 
@@ -237,8 +292,12 @@ export default function TMAlignPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: result.startsWith("Error") ? "var(--red-soft)" : "var(--green-soft)",
-            color: result.startsWith("Error") ? "var(--red-text)" : "var(--green-text)",
+            background: result.startsWith("Error")
+              ? "var(--red-soft)"
+              : "var(--green-soft)",
+            color: result.startsWith("Error")
+              ? "var(--red-text)"
+              : "var(--green-text)",
           }}
         >
           {result}
@@ -254,11 +313,13 @@ export default function TMAlignPage() {
           background: loading ? "var(--text-muted)" : "var(--accent-soft)",
           color: "var(--text-primary)",
           border: "0.5px solid var(--border)",
-          opacity: (sourceLines === 0 || targetLines === 0) ? 0.5 : 1,
+          opacity: sourceLines === 0 || targetLines === 0 ? 0.5 : 1,
           cursor: loading ? "not-allowed" : "pointer",
         }}
       >
-        {loading ? "Aligning..." : `Align & Import ${Math.min(sourceLines, targetLines)} pairs to TM`}
+        {loading
+          ? "Aligning..."
+          : `Align & Import ${Math.min(sourceLines, targetLines)} pairs to TM`}
       </button>
     </div>
   );

@@ -5,7 +5,12 @@ import { Paintbrush, X } from "lucide-react";
 import { useTheme, type Theme } from "./ThemeProvider";
 
 const THEMES: { id: Theme; label: string; color: string; border: string }[] = [
-  { id: "sakura", label: "Sakura", color: "#EFC4CC", border: "rgba(255,255,255,0.2)" },
+  {
+    id: "sakura",
+    label: "Sakura",
+    color: "#EFC4CC",
+    border: "#ffffff33",
+  },
   { id: "dark", label: "Dark", color: "#202124", border: "#3C3C3F" },
   { id: "light", label: "Light", color: "#F7F6F3", border: "#ECEAE5" },
   { id: "linen", label: "Linen", color: "#C4AA90", border: "#B09878" },
@@ -22,8 +27,10 @@ export default function ThemeFAB() {
     if (!open) return;
     function handleClick(e: MouseEvent) {
       if (
-        popupRef.current && !popupRef.current.contains(e.target as Node) &&
-        fabRef.current && !fabRef.current.contains(e.target as Node)
+        popupRef.current &&
+        !popupRef.current.contains(e.target as Node) &&
+        fabRef.current &&
+        !fabRef.current.contains(e.target as Node)
       ) {
         setOpen(false);
       }
@@ -50,13 +57,15 @@ export default function ThemeFAB() {
             boxShadow: "var(--shadow-md)",
           }}
         >
-          <div style={{
-            fontSize: 10,
-            fontWeight: 500,
-            fontFamily: "'Inter', system-ui, sans-serif",
-            color: "var(--text-primary)",
-            marginBottom: 8,
-          }}>
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 500,
+              fontFamily: "'Inter', system-ui, sans-serif",
+              color: "var(--text-primary)",
+              marginBottom: 8,
+            }}
+          >
             Theme
           </div>
           {THEMES.map((t) => {
@@ -64,7 +73,10 @@ export default function ThemeFAB() {
             return (
               <button
                 key={t.id}
-                onClick={() => { setTheme(t.id); setOpen(false); }}
+                onClick={() => {
+                  setTheme(t.id);
+                  setOpen(false);
+                }}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -77,20 +89,28 @@ export default function ThemeFAB() {
                   fontFamily: "'Inter', system-ui, sans-serif",
                 }}
               >
-                <div style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: "50%",
-                  background: t.color,
-                  border: `0.5px solid ${t.border}`,
-                  boxShadow: isActive ? "0 0 0 2px var(--bg-deep), 0 0 0 4px var(--accent)" : "none",
-                  flexShrink: 0,
-                }} />
-                <span style={{
-                  fontSize: 11,
-                  fontWeight: isActive ? 500 : 400,
-                  color: isActive ? "var(--text-primary)" : "var(--text-muted)",
-                }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: t.color,
+                    border: `0.5px solid ${t.border}`,
+                    boxShadow: isActive
+                      ? "0 0 0 2px var(--bg-deep), 0 0 0 4px var(--accent)"
+                      : "none",
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: isActive ? 500 : 400,
+                    color: isActive
+                      ? "var(--text-primary)"
+                      : "var(--text-muted)",
+                  }}
+                >
                   {t.label}
                 </span>
               </button>

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -13,21 +12,12 @@ import { prisma } from "@/lib/prisma";
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { id } = await params;
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
 
   // Verify project ownership
   const project = await prisma.project.findFirst({
@@ -49,7 +39,7 @@ export async function POST(
     if (!reviewerId) {
       return NextResponse.json(
         { error: "reviewerId is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,7 +53,7 @@ export async function POST(
 
     // For all segments with non-empty targetText, copy targetText → previousTargetText
     const segmentsToUpdate = project.segments.filter(
-      (seg) => seg.targetText && seg.targetText.trim() !== ""
+      (seg) => seg.targetText && seg.targetText.trim() !== "",
     );
 
     if (segmentsToUpdate.length > 0) {
@@ -74,8 +64,8 @@ export async function POST(
             data: {
               previousTargetText: seg.targetText,
             },
-          })
-        )
+          }),
+        ),
       );
     }
 
@@ -94,7 +84,7 @@ export async function POST(
     console.error("Start review error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

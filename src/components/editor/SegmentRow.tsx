@@ -36,7 +36,15 @@ interface SegmentRowProps {
 /**
  * Render source text with glossary terms highlighted.
  */
-function HighlightedSource({ text, terms, subtle = false }: { text: string; terms: string[]; subtle?: boolean }) {
+function HighlightedSource({
+  text,
+  terms,
+  subtle = false,
+}: {
+  text: string;
+  terms: string[];
+  subtle?: boolean;
+}) {
   if (terms.length === 0) return <>{text}</>;
 
   const escaped = terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
@@ -46,22 +54,28 @@ function HighlightedSource({ text, terms, subtle = false }: { text: string; term
   return (
     <>
       {parts.map((part, i) => {
-        const isMatch = terms.some((t) => t.toLowerCase() === part.toLowerCase());
+        const isMatch = terms.some(
+          (t) => t.toLowerCase() === part.toLowerCase(),
+        );
         if (isMatch) {
           return (
             <span
               key={i}
-              style={subtle ? {
-                borderBottom: "1px dotted var(--purple)",
-                color: "var(--text-secondary)",
-                paddingBottom: 1,
-              } : {
-                background: "var(--purple-soft)",
-                color: "var(--purple)",
-                borderRadius: 3,
-                padding: "1px 4px",
-                fontWeight: 500,
-              }}
+              style={
+                subtle
+                  ? {
+                      borderBottom: "1px dotted var(--purple)",
+                      color: "var(--text-secondary)",
+                      paddingBottom: 1,
+                    }
+                  : {
+                      background: "var(--purple-soft)",
+                      color: "var(--purple)",
+                      borderRadius: 3,
+                      padding: "1px 4px",
+                      fontWeight: 500,
+                    }
+              }
               title={subtle ? "Glossary term" : undefined}
             >
               {part}
@@ -77,7 +91,13 @@ function HighlightedSource({ text, terms, subtle = false }: { text: string; term
 /**
  * B.1 — Simple diff view: show old text (strikethrough red) and new text (green).
  */
-function ReviewDiff({ oldText, newText }: { oldText: string; newText: string }) {
+function ReviewDiff({
+  oldText,
+  newText,
+}: {
+  oldText: string;
+  newText: string;
+}) {
   if (oldText === newText || !oldText) return null;
   return (
     <div style={{ marginBottom: 4, fontSize: 12, lineHeight: 1.6 }}>
@@ -108,14 +128,22 @@ function ReviewDiff({ oldText, newText }: { oldText: string; newText: string }) 
 /**
  * B.4 — AI Score badge (18px circle, color-coded).
  */
-function AIScoreBadge({ score, reason }: { score: number; reason?: string | null }) {
+function AIScoreBadge({
+  score,
+  reason,
+}: {
+  score: number;
+  reason?: string | null;
+}) {
   const [showTooltip, setShowTooltip] = useState(false);
-  const color = score >= 90 ? "var(--green)" : score >= 70 ? "var(--amber)" : "var(--red)";
-  const bg = score >= 90
-    ? "var(--green-soft)"
-    : score >= 70
-    ? "var(--amber-soft)"
-    : "var(--red-soft)";
+  const color =
+    score >= 90 ? "var(--green)" : score >= 70 ? "var(--amber)" : "var(--red)";
+  const bg =
+    score >= 90
+      ? "var(--green-soft)"
+      : score >= 70
+        ? "var(--amber-soft)"
+        : "var(--red-soft)";
 
   return (
     <div style={{ position: "relative", display: "inline-flex" }}>
@@ -198,7 +226,9 @@ export default function SegmentRow({
     }
   }, []);
 
-  useEffect(() => { autoResize(); }, [segment.targetText, autoResize]);
+  useEffect(() => {
+    autoResize();
+  }, [segment.targetText, autoResize]);
   useEffect(() => {
     if (isActive && textareaRef.current) textareaRef.current.focus();
   }, [isActive]);
@@ -208,7 +238,7 @@ export default function SegmentRow({
       textareaRef.current = el;
       registerRef(el);
     },
-    [registerRef]
+    [registerRef],
   );
 
   const isConfirmed = segment.status === "confirmed";
@@ -219,16 +249,19 @@ export default function SegmentRow({
       className="segment-row"
       onClick={onActivate}
       onContextMenu={(e) => {
-        if (onContextMenu) { e.preventDefault(); onContextMenu(e); }
+        if (onContextMenu) {
+          e.preventDefault();
+          onContextMenu(e);
+        }
       }}
       style={{
         display: "flex",
         alignItems: "stretch",
         position: "relative",
         cursor: "pointer",
-        transition: "background 120ms, opacity 0.3s ease",
+        transition: "background 150ms ease, opacity 0.3s ease",
         background: isActive ? "var(--bg-active)" : "transparent",
-        borderBottom: "1px solid var(--segment-divider)",
+        borderRadius: 6,
         opacity: dimmed ? 0.25 : 1,
       }}
       onMouseEnter={(e) => {
@@ -238,25 +271,42 @@ export default function SegmentRow({
         if (!isActive) e.currentTarget.style.background = "transparent";
       }}
     >
+      {/* Active segment left border indicator */}
+      {isActive && (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 8,
+            bottom: 8,
+            width: 3,
+            borderRadius: 2,
+            background: "var(--accent)",
+            transition: "opacity 150ms ease",
+          }}
+        />
+      )}
+
       {/* Segment number gutter */}
       <div
         style={{
-          width: 44,
-          minWidth: 44,
+          width: 36,
+          minWidth: 36,
           paddingTop: 18,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 6,
-          borderRight: "1px solid var(--segment-divider)",
+          userSelect: "none",
         }}
       >
         <span
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 10,
-            color: isActive ? "var(--text-secondary)" : "var(--text-muted)",
-            fontWeight: isActive ? 500 : 400,
+            color: "var(--text-muted)",
+            opacity: isActive ? 1 : 0.6,
+            fontWeight: 400,
           }}
         >
           {segment.position}
@@ -268,30 +318,42 @@ export default function SegmentRow({
             width: 6,
             height: 6,
             borderRadius: "50%",
-            background: segment.reviewStatus === "accepted"
-              ? "var(--purple)"
-              : segment.reviewStatus === "rejected"
-              ? "var(--red)"
-              : isConfirmed
-              ? "var(--green)"
-              : isDraft
-              ? "var(--amber)"
-              : isActive
-              ? "var(--accent)"
-              : "transparent",
+            background:
+              segment.reviewStatus === "accepted"
+                ? "var(--purple)"
+                : segment.reviewStatus === "rejected"
+                  ? "var(--red)"
+                  : isConfirmed
+                    ? "var(--green)"
+                    : isDraft
+                      ? "var(--amber)"
+                      : "var(--text-muted)",
+            opacity:
+              segment.reviewStatus === "accepted" ||
+              segment.reviewStatus === "rejected" ||
+              isConfirmed ||
+              isDraft
+                ? 1
+                : 0.3,
             transition: "background 200ms",
           }}
         />
 
         {/* B.4 — AI Score badge */}
         {segment.aiScore != null && (
-          <AIScoreBadge score={segment.aiScore} reason={segment.aiScoreReason} />
+          <AIScoreBadge
+            score={segment.aiScore}
+            reason={segment.aiScoreReason}
+          />
         )}
 
         {/* Note icon */}
         {onNoteClick && (
           <button
-            onClick={(e) => { e.stopPropagation(); onNoteClick(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onNoteClick();
+            }}
             style={{
               background: "none",
               border: "none",
@@ -304,7 +366,9 @@ export default function SegmentRow({
             }}
             title={comment || "Add note"}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = comment ? "0.8" : "0")}
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.opacity = comment ? "0.8" : "0")
+            }
           >
             <MessageSquare size={11} />
           </button>
@@ -316,31 +380,51 @@ export default function SegmentRow({
         className="segment-source"
         style={{
           flex: columnRatio,
-          padding: "16px 24px 16px 20px",
+          padding: "16px 24px 16px 16px",
           color: "var(--text-primary)",
           fontSize: `${fontSize}px`,
           lineHeight: "1.7",
           letterSpacing: "0.01em",
           userSelect: "text",
-          borderRight: "1px solid var(--segment-divider)",
         }}
       >
-        <HighlightedSource text={segment.sourceText} terms={highlightTerms} subtle={!isActive} />
+        <HighlightedSource
+          text={segment.sourceText}
+          terms={highlightTerms}
+          subtle={!isActive}
+        />
       </div>
+
+      {/* Subtle vertical divider between source and target */}
+      <div
+        style={{
+          width: 1,
+          background: "var(--segment-divider)",
+          margin: "12px 0",
+          alignSelf: "stretch",
+          opacity: 0.5,
+          flexShrink: 0,
+        }}
+      />
 
       {/* Target paragraph — editable */}
       <div
         className="segment-target"
         style={{
           flex: 1 - columnRatio,
-          padding: "14px 20px 14px 20px",
+          padding: "12px 20px 12px 16px",
           position: "relative",
         }}
       >
         {/* B.1 — Review diff */}
-        {reviewMode && segment.previousTargetText && segment.previousTargetText !== segment.targetText && (
-          <ReviewDiff oldText={segment.previousTargetText} newText={segment.targetText} />
-        )}
+        {reviewMode &&
+          segment.previousTargetText &&
+          segment.previousTargetText !== segment.targetText && (
+            <ReviewDiff
+              oldText={segment.previousTargetText}
+              newText={segment.targetText}
+            />
+          )}
 
         {/* B.3 — Terminology-aware badge */}
         {segment.terminologyUsed && (
@@ -373,11 +457,13 @@ export default function SegmentRow({
           onFocus={onActivate}
           style={{
             width: "100%",
-            padding: "4px 2px",
+            padding: "4px 8px",
             borderRadius: 4,
-            background: "transparent",
+            background: isActive ? "var(--bg-card)" : "transparent",
             color: aiLoading ? "var(--text-muted)" : "var(--text-primary)",
-            border: isActive ? "none" : "none",
+            border: isActive
+              ? "1px solid var(--border)"
+              : "1px solid transparent",
             minHeight: 36,
             fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: `${fontSize}px`,
@@ -385,10 +471,17 @@ export default function SegmentRow({
             letterSpacing: "0.01em",
             resize: "none",
             outline: "none",
-            transition: "color 200ms",
+            transition:
+              "color 200ms, border-color 150ms ease, background 150ms ease",
             boxShadow: "none",
           }}
-          placeholder={isActive ? (aiLoading ? "AI is thinking..." : "Type translation...") : ""}
+          placeholder={
+            isActive
+              ? aiLoading
+                ? "AI is thinking..."
+                : "Type translation..."
+              : ""
+          }
           rows={1}
           disabled={aiLoading}
           spellCheck={true}
@@ -398,7 +491,10 @@ export default function SegmentRow({
         {/* AI Button — floating pill */}
         {isActive && onRequestAI && (
           <button
-            onClick={(e) => { e.stopPropagation(); onRequestAI(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestAI();
+            }}
             disabled={aiLoading}
             style={{
               position: "absolute",
@@ -419,7 +515,11 @@ export default function SegmentRow({
               transition: "opacity 200ms, background 200ms",
               fontFamily: "inherit",
             }}
-            title={aiLoading ? "AI is generating..." : "AI Suggest (Ctrl+Shift+Enter)"}
+            title={
+              aiLoading
+                ? "AI is generating..."
+                : "AI Suggest (Ctrl+Shift+Enter)"
+            }
           >
             <Sparkles size={11} />
             {aiLoading ? "..." : "AI"}
@@ -427,48 +527,57 @@ export default function SegmentRow({
         )}
 
         {/* B.1 — Accept / Reject buttons in review mode */}
-        {reviewMode && isActive && segment.previousTargetText && segment.previousTargetText !== segment.targetText && (
-          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); onAcceptSegment?.(); }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                padding: "3px 10px",
-                borderRadius: 14,
-                background: "var(--green-soft)",
-                color: "var(--green)",
-                border: "0.5px solid var(--border)",
-                fontSize: 10,
-                fontWeight: 500,
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              <Check size={10} /> Accept
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onRejectSegment?.(); }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                padding: "3px 10px",
-                borderRadius: 14,
-                background: "var(--red-soft)",
-                color: "var(--red)",
-                border: "0.5px solid var(--border)",
-                fontSize: 10,
-                fontWeight: 500,
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              ✕ Reject
-            </button>
-          </div>
-        )}
+        {reviewMode &&
+          isActive &&
+          segment.previousTargetText &&
+          segment.previousTargetText !== segment.targetText && (
+            <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAcceptSegment?.();
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  padding: "3px 10px",
+                  borderRadius: 14,
+                  background: "var(--green-soft)",
+                  color: "var(--green)",
+                  border: "0.5px solid var(--border)",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <Check size={10} /> Accept
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRejectSegment?.();
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  padding: "3px 10px",
+                  borderRadius: 14,
+                  background: "var(--red-soft)",
+                  color: "var(--red)",
+                  border: "0.5px solid var(--border)",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                ✕ Reject
+              </button>
+            </div>
+          )}
 
         {/* Confirmed checkmark */}
         {isConfirmed && !isActive && !reviewMode && (

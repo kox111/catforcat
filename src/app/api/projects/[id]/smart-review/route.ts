@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
 
@@ -71,15 +70,13 @@ interface SmartReviewResponse {
 // ─────────────────────────────────────────────
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user: authUser, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: authUser.id },
     select: {
       id: true,
       plan: true,
@@ -96,7 +93,7 @@ export async function POST(
   if (!checkRateLimit(user.id)) {
     return NextResponse.json(
       { error: "Rate limit exceeded. Maximum 30 requests per minute." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -140,7 +137,7 @@ export async function POST(
   if (!privacy.smartReviewEnabled) {
     return NextResponse.json(
       { error: "Smart Review disabled for this privacy level" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -176,7 +173,7 @@ export async function POST(
             : "Limit resets next month."
         }`,
       },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -189,7 +186,7 @@ export async function POST(
         segment.sourceText,
         segment.targetText,
         project.srcLang,
-        project.tgtLang
+        project.tgtLang,
       );
 
       // Update segment with AI score
@@ -238,7 +235,7 @@ async function scoreSegment(
   sourceText: string,
   targetText: string,
   srcLang: string,
-  tgtLang: string
+  tgtLang: string,
 ): Promise<LLMScore> {
   const prompt = `You are a professional translation quality evaluator.
 
@@ -264,14 +261,17 @@ Respond in JSON format ONLY:
   }
 
   throw new Error(
-    "Smart Review not configured. Set OPENAI_API_KEY or LLM_ENDPOINT in environment."
+    "Smart Review not configured. Set OPENAI_API_KEY or LLM_ENDPOINT in environment.",
   );
 }
 
 // ─────────────────────────────────────────────
 // Score using OpenAI API
 // ─────────────────────────────────────────────
-async function scoreWithOpenAI(prompt: string, apiKey: string): Promise<LLMScore> {
+async function scoreWithOpenAI(
+  prompt: string,
+  apiKey: string,
+): Promise<LLMScore> {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -318,7 +318,7 @@ async function scoreWithOpenAI(prompt: string, apiKey: string): Promise<LLMScore
 // ─────────────────────────────────────────────
 async function scoreWithLLMEndpoint(
   prompt: string,
-  endpoint: string
+  endpoint: string,
 ): Promise<LLMScore> {
   const response = await fetch(endpoint, {
     method: "POST",
@@ -375,7 +375,7 @@ function parseScoreResponse(content: string): LLMScore {
   } catch (error) {
     console.error("Failed to parse score response:", content, error);
     throw new Error(
-      `Failed to parse LLM response: ${error instanceof Error ? error.message : "Unknown error"}`
+      `Failed to parse LLM response: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
   }
 }

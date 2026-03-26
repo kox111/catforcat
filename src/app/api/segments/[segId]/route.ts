@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -9,21 +8,12 @@ import { prisma } from "@/lib/prisma";
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ segId: string }> }
+  { params }: { params: Promise<{ segId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { segId } = await params;
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
 
   // Verify ownership through project
   const segment = await prisma.segment.findUnique({
@@ -39,7 +29,10 @@ export async function PATCH(
   const { targetText, isDraft } = body;
 
   if (typeof targetText !== "string") {
-    return NextResponse.json({ error: "targetText is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "targetText is required" },
+      { status: 400 },
+    );
   }
 
   const updateData: Record<string, unknown> = { targetText };

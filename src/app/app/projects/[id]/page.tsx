@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEditorStore } from "@/lib/store";
 import EditorToolbar from "@/components/editor/EditorToolbar";
 import EditorToolstrip from "@/components/editor/EditorToolstrip";
+import EditorSidebar from "@/components/editor/EditorSidebar";
 import StatusBar from "@/components/editor/StatusBar";
 import SegmentRow from "@/components/editor/SegmentRow";
 import TMPanel from "@/components/editor/TMPanel";
@@ -16,16 +17,34 @@ import GoToSegmentModal from "@/components/editor/GoToSegmentModal";
 import ConcordanceModal from "@/components/editor/ConcordanceModal";
 import AnalysisModal from "@/components/editor/AnalysisModal";
 import GlossaryWarningModal from "@/components/editor/GlossaryWarningModal";
-import SegmentContextMenu, { type ContextMenuItem, type ContextMenuEntry } from "@/components/editor/SegmentContextMenu";
+import SegmentContextMenu, {
+  type ContextMenuItem,
+  type ContextMenuEntry,
+} from "@/components/editor/SegmentContextMenu";
 import NoteModal from "@/components/editor/NoteModal";
 import ShortcutsModal from "@/components/editor/ShortcutsModal";
-import { detectFrequentTerms, type GlossarySuggestion } from "@/lib/auto-glossary";
+import {
+  detectFrequentTerms,
+  type GlossarySuggestion,
+} from "@/lib/auto-glossary";
 import type { TMMatch } from "@/lib/fuzzy-match";
-import { runQABatch, runQAChecksForSegment, type QAIssue } from "@/lib/qa-checks";
+import {
+  runQABatch,
+  runQAChecksForSegment,
+  type QAIssue,
+} from "@/lib/qa-checks";
 import { useOnlineStatus } from "@/lib/useOnlineStatus";
-import { mirrorProject, mirrorSegments, enqueueSync, isOnline as checkOnline } from "@/lib/sync";
+import {
+  mirrorProject,
+  mirrorSegments,
+  enqueueSync,
+  isOnline as checkOnline,
+} from "@/lib/sync";
 import { findPropagations } from "@/lib/auto-propagate";
-import type { SegmentFilter, PreTranslateProgress } from "@/components/editor/EditorToolbar";
+import type {
+  SegmentFilter,
+  PreTranslateProgress,
+} from "@/components/editor/EditorToolbar";
 
 /* Maps lang codes to short display labels. Handles both old ("en") and new regional ("en-US") codes. */
 function getLangLabel(code: string): string {
@@ -35,17 +54,32 @@ function getLangLabel(code: string): string {
   return code.toUpperCase();
 }
 
-export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditorPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
   const { status: authStatus } = useSession();
   const router = useRouter();
   const {
-    project, segments, activeSegmentId,
-    setProject, setSegments, setActiveSegment,
-    updateSegmentTarget, confirmSegment, copySourceToTarget,
+    project,
+    segments,
+    activeSegmentId,
+    setProject,
+    setSegments,
+    setActiveSegment,
+    updateSegmentTarget,
+    confirmSegment,
+    copySourceToTarget,
     applyTranslation,
-    getNextUnconfirmedId, getPrevSegmentId, getNextSegmentId,
-    pendingSaves, markSaved, setSaving, saving,
+    getNextUnconfirmedId,
+    getPrevSegmentId,
+    getNextSegmentId,
+    pendingSaves,
+    markSaved,
+    setSaving,
+    saving,
   } = useEditorStore();
 
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,7 +87,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const segmentRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const tmMatchesRef = useRef<TMMatch[]>([]);
   const [tmPanelVisible, setTmPanelVisible] = useState(true);
-  const [glossaryTerms, setGlossaryTerms] = useState<{ sourceTerm: string; targetTerm: string }[]>([]);
+  const [glossaryTerms, setGlossaryTerms] = useState<
+    { sourceTerm: string; targetTerm: string }[]
+  >([]);
   const [glossaryWarning, setGlossaryWarning] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -65,8 +101,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [goToOpen, setGoToOpen] = useState(false);
   const [segmentFilter, setSegmentFilter] = useState<SegmentFilter>("all");
   const [propagatedCount, setPropagatedCount] = useState(0);
-  const [preTranslateProgress, setPreTranslateProgress] = useState<PreTranslateProgress | null>(null);
-  const [preTranslateToast, setPreTranslateToast] = useState<string | null>(null);
+  const [preTranslateProgress, setPreTranslateProgress] =
+    useState<PreTranslateProgress | null>(null);
+  const [preTranslateToast, setPreTranslateToast] = useState<string | null>(
+    null,
+  );
   const [generalToast, setGeneralToast] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -76,18 +115,30 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [analysisOpen, setAnalysisOpen] = useState(false);
   // B1: Auto-Glossary Detection
   const confirmCountRef = useRef<number>(0);
-  const [autoGlossarySuggestions, setAutoGlossarySuggestions] = useState<GlossarySuggestion[]>([]);
+  const [autoGlossarySuggestions, setAutoGlossarySuggestions] = useState<
+    GlossarySuggestion[]
+  >([]);
   // B2: Glossary Enforcement — pending confirm data while modal is showing
   const [glossaryEnforcementData, setGlossaryEnforcementData] = useState<{
     segmentId: string;
     mismatches: { sourceTerm: string; expectedTarget: string }[];
   } | null>(null);
   // B3: All glossary terms for the current language pair (for highlighting all segments)
-  const [allGlossarySourceTerms, setAllGlossarySourceTerms] = useState<string[]>([]);
+  const [allGlossarySourceTerms, setAllGlossarySourceTerms] = useState<
+    string[]
+  >([]);
   // D1: Context menu
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; segmentId: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    segmentId: string;
+  } | null>(null);
   // D2: Note modal
-  const [noteModal, setNoteModal] = useState<{ segmentId: string; position: number; note: string } | null>(null);
+  const [noteModal, setNoteModal] = useState<{
+    segmentId: string;
+    position: number;
+    note: string;
+  } | null>(null);
   // F1: Shortcuts modal
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   // Focus mode
@@ -107,7 +158,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const [columnRatio, setColumnRatio] = useState(0.5);
   const isDraggingRef = useRef(false);
   // D6: Undo/Redo history per segment
-  const undoHistoryRef = useRef<Map<string, { history: string[]; index: number }>>(new Map());
+  const undoHistoryRef = useRef<
+    Map<string, { history: string[]; index: number }>
+  >(new Map());
 
   // F3+F4: Load persisted preferences from localStorage
   useEffect(() => {
@@ -118,7 +171,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       if (savedRatio) setColumnRatio(Number(savedRatio));
       const savedPanelH = localStorage.getItem("tp-bottom-panel-height");
       if (savedPanelH) setBottomPanelHeight(Number(savedPanelH));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   // Auto-collapse bottom panel on small viewports
@@ -143,9 +198,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }, []);
 
   // Track glossary terms found in active segment
-  const handleGlossaryTermsFound = useCallback((terms: { sourceTerm: string; targetTerm: string }[]) => {
-    setGlossaryTerms(terms);
-  }, []);
+  const handleGlossaryTermsFound = useCallback(
+    (terms: { sourceTerm: string; targetTerm: string }[]) => {
+      setGlossaryTerms(terms);
+    },
+    [],
+  );
 
   // Auto-dismiss glossary warning
   useEffect(() => {
@@ -194,94 +252,101 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     async function fetchGlossaryTerms() {
       try {
         const res = await fetch(
-          `/api/glossary?srcLang=${project!.srcLang}&tgtLang=${project!.tgtLang}`
+          `/api/glossary?srcLang=${project!.srcLang}&tgtLang=${project!.tgtLang}`,
         );
         if (res.ok && !cancelled) {
           const terms = await res.json();
           setAllGlossarySourceTerms(
-            terms.map((t: { sourceTerm: string }) => t.sourceTerm)
+            terms.map((t: { sourceTerm: string }) => t.sourceTerm),
           );
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     fetchGlossaryTerms();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [project]);
 
   // Pre-translate: TM pass first, then API for remaining
-  const handlePreTranslate = useCallback(async (mode: "tm-only" | "full") => {
-    if (!project || preTranslateProgress?.running) return;
+  const handlePreTranslate = useCallback(
+    async (mode: "tm-only" | "full") => {
+      if (!project || preTranslateProgress?.running) return;
 
-    if (!checkOnline()) {
-      setAiError("Pre-translate unavailable — you are offline");
-      return;
-    }
-
-    const emptyCount = segments.filter(
-      (s) => s.targetText.trim() === "" || s.status === "empty"
-    ).length;
-
-    if (emptyCount === 0) {
-      setPreTranslateToast("No empty segments to pre-translate");
-      return;
-    }
-
-    setPreTranslateProgress({
-      running: true,
-      done: 0,
-      total: emptyCount,
-      tmFilled: 0,
-      apiFilled: 0,
-    });
-
-    try {
-      const res = await fetch(`/api/projects/${project.id}/pre-translate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setAiError(data.error || "Pre-translation failed");
-        setPreTranslateProgress(null);
+      if (!checkOnline()) {
+        setAiError("Pre-translate unavailable — you are offline");
         return;
       }
 
-      const data = await res.json();
+      const emptyCount = segments.filter(
+        (s) => s.targetText.trim() === "" || s.status === "empty",
+      ).length;
 
-      // Apply results to local state
-      if (data.results && Array.isArray(data.results)) {
-        for (const result of data.results) {
-          applyTranslation(result.segmentId, result.targetText);
-        }
+      if (emptyCount === 0) {
+        setPreTranslateToast("No empty segments to pre-translate");
+        return;
       }
 
-      const tmCount = data.tmFilled || 0;
-      const apiCount = data.apiFilled || 0;
-      const errorCount = data.errors || 0;
-      const skipped = data.skippedDueToQuota || 0;
-
-      let msg = `Pre-translated: ${tmCount} from TM, ${apiCount} via API`;
-      if (errorCount > 0) msg += `, ${errorCount} errors`;
-      if (skipped > 0) msg += `, ${skipped} skipped (quota limit)`;
-
-      setPreTranslateToast(msg);
       setPreTranslateProgress({
-        running: false,
-        done: tmCount + apiCount,
+        running: true,
+        done: 0,
         total: emptyCount,
-        tmFilled: tmCount,
-        apiFilled: apiCount,
+        tmFilled: 0,
+        apiFilled: 0,
       });
 
-      // Clear progress after a bit
-      setTimeout(() => setPreTranslateProgress(null), 3000);
-    } catch {
-      setAiError("Pre-translation failed — network error");
-      setPreTranslateProgress(null);
-    }
-  }, [project, segments, preTranslateProgress, applyTranslation]);
+      try {
+        const res = await fetch(`/api/projects/${project.id}/pre-translate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          setAiError(data.error || "Pre-translation failed");
+          setPreTranslateProgress(null);
+          return;
+        }
+
+        const data = await res.json();
+
+        // Apply results to local state
+        if (data.results && Array.isArray(data.results)) {
+          for (const result of data.results) {
+            applyTranslation(result.segmentId, result.targetText);
+          }
+        }
+
+        const tmCount = data.tmFilled || 0;
+        const apiCount = data.apiFilled || 0;
+        const errorCount = data.errors || 0;
+        const skipped = data.skippedDueToQuota || 0;
+
+        let msg = `Pre-translated: ${tmCount} from TM, ${apiCount} via API`;
+        if (errorCount > 0) msg += `, ${errorCount} errors`;
+        if (skipped > 0) msg += `, ${skipped} skipped (quota limit)`;
+
+        setPreTranslateToast(msg);
+        setPreTranslateProgress({
+          running: false,
+          done: tmCount + apiCount,
+          total: emptyCount,
+          tmFilled: tmCount,
+          apiFilled: apiCount,
+        });
+
+        // Clear progress after a bit
+        setTimeout(() => setPreTranslateProgress(null), 3000);
+      } catch {
+        setAiError("Pre-translation failed — network error");
+        setPreTranslateProgress(null);
+      }
+    },
+    [project, segments, preTranslateProgress, applyTranslation],
+  );
 
   // Request AI translation suggestion
   const requestAISuggestion = useCallback(async () => {
@@ -302,7 +367,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       // Build context: prev/next segments
       const segIndex = segments.findIndex((s) => s.id === activeSegmentId);
       const prevSeg = segIndex > 0 ? segments[segIndex - 1] : null;
-      const nextSeg = segIndex < segments.length - 1 ? segments[segIndex + 1] : null;
+      const nextSeg =
+        segIndex < segments.length - 1 ? segments[segIndex + 1] : null;
 
       // Build glossary terms for the request
       const glossaryForRequest = glossaryTerms.map((t) => ({
@@ -341,7 +407,14 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     } finally {
       setAiLoading(false);
     }
-  }, [activeSegmentId, project, segments, glossaryTerms, aiLoading, applyTranslation]);
+  }, [
+    activeSegmentId,
+    project,
+    segments,
+    glossaryTerms,
+    aiLoading,
+    applyTranslation,
+  ]);
 
   // Run QA batch — fetches glossary terms from API for full check
   const handleRunQA = useCallback(async () => {
@@ -351,7 +424,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     try {
       // Fetch all glossary terms for this language pair
       const glossRes = await fetch(
-        `/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`
+        `/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`,
       );
       const allGlossaryTerms = glossRes.ok ? await glossRes.json() : [];
 
@@ -359,7 +432,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         (t: { sourceTerm: string; targetTerm: string }) => ({
           sourceTerm: t.sourceTerm,
           targetTerm: t.targetTerm,
-        })
+        }),
       );
 
       const issues = runQABatch(segments, termsForQA);
@@ -401,7 +474,8 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           return;
         }
         const localSegments = await db.segments
-          .where("projectId").equals(id)
+          .where("projectId")
+          .equals(id)
           .sortBy("position");
 
         data = {
@@ -432,14 +506,23 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       }).catch(() => {});
       mirrorSegments(
         data.id,
-        data.segments.map((s: { id: string; position: number; sourceText: string; targetText: string; status: string; metadata?: unknown }) => ({
-          id: s.id,
-          position: s.position,
-          sourceText: s.sourceText,
-          targetText: s.targetText,
-          status: s.status,
-          metadata: s.metadata ? JSON.stringify(s.metadata) : undefined,
-        })),
+        data.segments.map(
+          (s: {
+            id: string;
+            position: number;
+            sourceText: string;
+            targetText: string;
+            status: string;
+            metadata?: unknown;
+          }) => ({
+            id: s.id,
+            position: s.position,
+            sourceText: s.sourceText,
+            targetText: s.targetText,
+            status: s.status,
+            metadata: s.metadata ? JSON.stringify(s.metadata) : undefined,
+          }),
+        ),
       ).catch(() => {});
     }
     fetchProject();
@@ -462,7 +545,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           }
           localStorage.removeItem(draftKey);
         }
-      } catch { /* ignore parse errors */ }
+      } catch {
+        /* ignore parse errors */
+      }
     });
     if (recovered) {
       setRecoveryBanner(true);
@@ -488,41 +573,44 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }, [segments.length]);
 
   // Add confirmed segment to TM (online → API + mirror, offline → IndexedDB + queue)
-  const addToTM = useCallback(async (sourceText: string, targetText: string) => {
-    if (!project) return;
+  const addToTM = useCallback(
+    async (sourceText: string, targetText: string) => {
+      if (!project) return;
 
-    const tmData = {
-      sourceText,
-      targetText,
-      srcLang: project.srcLang,
-      tgtLang: project.tgtLang,
-    };
+      const tmData = {
+        sourceText,
+        targetText,
+        srcLang: project.srcLang,
+        tgtLang: project.tgtLang,
+      };
 
-    try {
-      if (checkOnline()) {
-        await fetch("/api/tm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(tmData),
-        });
-      } else {
-        // Offline: save to IndexedDB + enqueue
-        const { db } = await import("@/lib/db");
-        const tmId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        await db.tm.put({
-          id: tmId,
-          srcLang: project.srcLang,
-          tgtLang: project.tgtLang,
-          sourceText,
-          targetText,
-          useCount: 1,
-        });
-        await enqueueSync("create", "tm", tmId, tmData);
+      try {
+        if (checkOnline()) {
+          await fetch("/api/tm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tmData),
+          });
+        } else {
+          // Offline: save to IndexedDB + enqueue
+          const { db } = await import("@/lib/db");
+          const tmId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          await db.tm.put({
+            id: tmId,
+            srcLang: project.srcLang,
+            tgtLang: project.tgtLang,
+            sourceText,
+            targetText,
+            useCount: 1,
+          });
+          await enqueueSync("create", "tm", tmId, tmData);
+        }
+      } catch {
+        // TM save failure is non-blocking
       }
-    } catch {
-      // TM save failure is non-blocking
-    }
-  }, [project]);
+    },
+    [project],
+  );
 
   // Auto-save with 2s debounce — works online and offline, with retry
   const saveSegments = useCallback(async () => {
@@ -533,10 +621,18 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     setSaving(true);
     setSaveError(null);
     try {
-      const segmentUpdates = toSave.map((segId) => {
-        const seg = state.segments.find((s) => s.id === segId);
-        return seg ? { id: seg.id, targetText: seg.targetText, status: seg.status } : null;
-      }).filter(Boolean) as { id: string; targetText: string; status: string }[];
+      const segmentUpdates = toSave
+        .map((segId) => {
+          const seg = state.segments.find((s) => s.id === segId);
+          return seg
+            ? { id: seg.id, targetText: seg.targetText, status: seg.status }
+            : null;
+        })
+        .filter(Boolean) as {
+        id: string;
+        targetText: string;
+        status: string;
+      }[];
 
       if (checkOnline()) {
         // Online: save to server + mirror to IndexedDB
@@ -574,10 +670,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       // Always mirror segments to IndexedDB
       const { db } = await import("@/lib/db");
       for (const update of segmentUpdates) {
-        await db.segments.update(update.id, {
-          targetText: update.targetText,
-          status: update.status,
-        }).catch(() => {});
+        await db.segments
+          .update(update.id, {
+            targetText: update.targetText,
+            status: update.status,
+          })
+          .catch(() => {});
       }
     } catch (err) {
       console.error("Auto-save failed:", err);
@@ -587,12 +685,17 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         const seg = state2.segments.find((s) => s.id === segId);
         if (seg) {
           try {
-            localStorage.setItem(`catforcat-draft-${segId}`, JSON.stringify({
-              text: seg.targetText,
-              timestamp: Date.now(),
-              projectId: id,
-            }));
-          } catch { /* localStorage full */ }
+            localStorage.setItem(
+              `catforcat-draft-${segId}`,
+              JSON.stringify({
+                text: seg.targetText,
+                timestamp: Date.now(),
+                projectId: id,
+              }),
+            );
+          } catch {
+            /* localStorage full */
+          }
         }
       }
       saveRetryRef.current += 1;
@@ -609,128 +712,164 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }, [id, markSaved, setSaving]);
 
   // B2: Execute confirm after glossary enforcement passes or user says "Confirm anyway"
-  const executeConfirm = useCallback((segId: string) => {
-    const seg = segments.find((s) => s.id === segId);
-    if (!seg) return;
-    confirmSegment(segId);
-    // Add to TM in background
-    addToTM(seg.sourceText, seg.targetText);
-    // Auto-propagate: fill identical source texts in other segments
-    const identicalEmpty = segments.filter(
-      (s) =>
-        s.id !== segId &&
-        s.sourceText === seg.sourceText &&
-        s.status !== "confirmed" &&
-        s.targetText.trim() === ""
-    );
-    if (identicalEmpty.length > 0) {
-      for (const s of identicalEmpty) {
-        applyTranslation(s.id, seg.targetText);
+  const executeConfirm = useCallback(
+    (segId: string) => {
+      const seg = segments.find((s) => s.id === segId);
+      if (!seg) return;
+      confirmSegment(segId);
+      // Add to TM in background
+      addToTM(seg.sourceText, seg.targetText);
+      // Auto-propagate: fill identical source texts in other segments
+      const identicalEmpty = segments.filter(
+        (s) =>
+          s.id !== segId &&
+          s.sourceText === seg.sourceText &&
+          s.status !== "confirmed" &&
+          s.targetText.trim() === "",
+      );
+      if (identicalEmpty.length > 0) {
+        for (const s of identicalEmpty) {
+          applyTranslation(s.id, seg.targetText);
+        }
+        setPropagatedCount(identicalEmpty.length);
+        setTimeout(() => setPropagatedCount(0), 4000);
       }
-      setPropagatedCount(identicalEmpty.length);
-      setTimeout(() => setPropagatedCount(0), 4000);
-    }
-    // Immediate save (flush debounce)
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    setTimeout(() => saveSegments(), 50);
-    // Advance to next unconfirmed
-    const nextId = getNextUnconfirmedId(segId);
-    if (nextId) setActiveSegment(nextId);
-    // B1: Auto-Glossary Detection — every 5 confirms, suggest frequent terms
-    confirmCountRef.current += 1;
-    if (confirmCountRef.current % 5 === 0) {
-      const existingTerms = glossaryTerms.map((t) => t.sourceTerm);
-      const suggestions = detectFrequentTerms(segments, existingTerms);
-      if (suggestions.length > 0) {
-        setAutoGlossarySuggestions(suggestions);
+      // Immediate save (flush debounce)
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      setTimeout(() => saveSegments(), 50);
+      // Advance to next unconfirmed
+      const nextId = getNextUnconfirmedId(segId);
+      if (nextId) setActiveSegment(nextId);
+      // B1: Auto-Glossary Detection — every 5 confirms, suggest frequent terms
+      confirmCountRef.current += 1;
+      if (confirmCountRef.current % 5 === 0) {
+        const existingTerms = glossaryTerms.map((t) => t.sourceTerm);
+        const suggestions = detectFrequentTerms(segments, existingTerms);
+        if (suggestions.length > 0) {
+          setAutoGlossarySuggestions(suggestions);
+        }
       }
-    }
-    // Refresh all glossary source terms after confirming (in case new terms were added)
-    if (project) {
-      fetch(`/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`)
-        .then((r) => r.ok ? r.json() : [])
-        .then((terms: { sourceTerm: string }[]) => setAllGlossarySourceTerms(terms.map((t) => t.sourceTerm)))
-        .catch(() => {});
-    }
-  }, [segments, confirmSegment, addToTM, applyTranslation, getNextUnconfirmedId, setActiveSegment, saveSegments, glossaryTerms, project]);
+      // Refresh all glossary source terms after confirming (in case new terms were added)
+      if (project) {
+        fetch(
+          `/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`,
+        )
+          .then((r) => (r.ok ? r.json() : []))
+          .then((terms: { sourceTerm: string }[]) =>
+            setAllGlossarySourceTerms(terms.map((t) => t.sourceTerm)),
+          )
+          .catch(() => {});
+      }
+    },
+    [
+      segments,
+      confirmSegment,
+      addToTM,
+      applyTranslation,
+      getNextUnconfirmedId,
+      setActiveSegment,
+      saveSegments,
+      glossaryTerms,
+      project,
+    ],
+  );
 
   // D1: Split segment at cursor position
-  const handleSplitSegment = useCallback(async (segmentId: string) => {
-    if (!project) return;
-    const seg = segments.find((s) => s.id === segmentId);
-    if (!seg) return;
+  const handleSplitSegment = useCallback(
+    async (segmentId: string) => {
+      if (!project) return;
+      const seg = segments.find((s) => s.id === segmentId);
+      if (!seg) return;
 
-    // Default split: at the middle of the source text (nearest space)
-    const mid = Math.floor(seg.sourceText.length / 2);
-    let splitPos = seg.sourceText.lastIndexOf(" ", mid);
-    if (splitPos <= 0) splitPos = seg.sourceText.indexOf(" ", mid);
-    if (splitPos <= 0) return; // Can't split single-word segment
+      // Default split: at the middle of the source text (nearest space)
+      const mid = Math.floor(seg.sourceText.length / 2);
+      let splitPos = seg.sourceText.lastIndexOf(" ", mid);
+      if (splitPos <= 0) splitPos = seg.sourceText.indexOf(" ", mid);
+      if (splitPos <= 0) return; // Can't split single-word segment
 
-    try {
-      const res = await fetch(`/api/projects/${project.id}/segments/split`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ segmentId, splitPosition: splitPos }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSegments(data.segments);
+      try {
+        const res = await fetch(`/api/projects/${project.id}/segments/split`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ segmentId, splitPosition: splitPos }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSegments(data.segments);
+        }
+      } catch {
+        /* ignore */
       }
-    } catch { /* ignore */ }
-  }, [project, segments, setSegments]);
+    },
+    [project, segments, setSegments],
+  );
 
   // D1: Merge with next segment
-  const handleMergeSegment = useCallback(async (segmentId: string) => {
-    if (!project) return;
-    const seg = segments.find((s) => s.id === segmentId);
-    if (!seg) return;
-    const nextSeg = segments.find((s) => s.position === seg.position + 1);
-    if (!nextSeg) return;
+  const handleMergeSegment = useCallback(
+    async (segmentId: string) => {
+      if (!project) return;
+      const seg = segments.find((s) => s.id === segmentId);
+      if (!seg) return;
+      const nextSeg = segments.find((s) => s.position === seg.position + 1);
+      if (!nextSeg) return;
 
-    try {
-      const res = await fetch(`/api/projects/${project.id}/segments/merge`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ segmentId, nextSegmentId: nextSeg.id }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSegments(data.segments);
-        setActiveSegment(segmentId);
+      try {
+        const res = await fetch(`/api/projects/${project.id}/segments/merge`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ segmentId, nextSegmentId: nextSeg.id }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSegments(data.segments);
+          setActiveSegment(segmentId);
+        }
+      } catch {
+        /* ignore */
       }
-    } catch { /* ignore */ }
-  }, [project, segments, setSegments, setActiveSegment]);
+    },
+    [project, segments, setSegments, setActiveSegment],
+  );
 
   // D2: Save note to segment metadata
-  const handleSaveNote = useCallback(async (segmentId: string, note: string) => {
-    if (!project) return;
-    const seg = segments.find((s) => s.id === segmentId);
-    if (!seg) return;
+  const handleSaveNote = useCallback(
+    async (segmentId: string, note: string) => {
+      if (!project) return;
+      const seg = segments.find((s) => s.id === segmentId);
+      if (!seg) return;
 
-    // Parse existing metadata, add comment
-    let meta: Record<string, unknown> = {};
-    try { meta = JSON.parse(seg.metadata || "{}"); } catch { /* ignore */ }
-    meta.comment = note || undefined;
-    const newMetadata = JSON.stringify(meta);
+      // Parse existing metadata, add comment
+      let meta: Record<string, unknown> = {};
+      try {
+        meta = JSON.parse(seg.metadata || "{}");
+      } catch {
+        /* ignore */
+      }
+      meta.comment = note || undefined;
+      const newMetadata = JSON.stringify(meta);
 
-    // Update local state
-    const updated = segments.map((s) =>
-      s.id === segmentId ? { ...s, metadata: newMetadata } : s
-    );
-    setSegments(updated);
+      // Update local state
+      const updated = segments.map((s) =>
+        s.id === segmentId ? { ...s, metadata: newMetadata } : s,
+      );
+      setSegments(updated);
 
-    // Save to server
-    try {
-      await fetch(`/api/projects/${project.id}/segments`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          segments: [{ id: segmentId, metadata: newMetadata }],
-        }),
-      });
-    } catch { /* ignore */ }
-    setNoteModal(null);
-  }, [project, segments, setSegments]);
+      // Save to server
+      try {
+        await fetch(`/api/projects/${project.id}/segments`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            segments: [{ id: segmentId, metadata: newMetadata }],
+          }),
+        });
+      } catch {
+        /* ignore */
+      }
+      setNoteModal(null);
+    },
+    [project, segments, setSegments],
+  );
 
   // D5: Copy all source to target
   const handleCopyAllSource = useCallback(() => {
@@ -743,7 +882,10 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   // D6: Track undo history when target changes
   const trackUndoHistory = useCallback((segId: string, text: string) => {
-    const entry = undoHistoryRef.current.get(segId) || { history: [""], index: 0 };
+    const entry = undoHistoryRef.current.get(segId) || {
+      history: [""],
+      index: 0,
+    };
     // Only track if text actually changed from current position
     if (entry.history[entry.index] === text) return;
     // Truncate any redo history
@@ -751,7 +893,10 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
     newHistory.push(text);
     // Keep max 10 entries
     if (newHistory.length > 10) newHistory.shift();
-    undoHistoryRef.current.set(segId, { history: newHistory, index: newHistory.length - 1 });
+    undoHistoryRef.current.set(segId, {
+      history: newHistory,
+      index: newHistory.length - 1,
+    });
   }, []);
 
   // D6: Undo
@@ -855,10 +1000,22 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       // Escape — close modals or deselect
       if (e.key === "Escape") {
         e.preventDefault();
-        if (shortcutsOpen) { setShortcutsOpen(false); return; }
-        if (concordanceOpen) { setConcordanceOpen(false); return; }
-        if (searchOpen) { setSearchOpen(false); return; }
-        if (goToOpen) { setGoToOpen(false); return; }
+        if (shortcutsOpen) {
+          setShortcutsOpen(false);
+          return;
+        }
+        if (concordanceOpen) {
+          setConcordanceOpen(false);
+          return;
+        }
+        if (searchOpen) {
+          setSearchOpen(false);
+          return;
+        }
+        if (goToOpen) {
+          setGoToOpen(false);
+          return;
+        }
         setActiveSegment(null);
         return;
       }
@@ -886,18 +1043,26 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           }
           // B2: Glossary enforcement — check if glossary terms are reflected in target
           if (glossaryTerms.length > 0) {
-            const mismatches = glossaryTerms.filter((t) => {
-              const srcLower = seg.sourceText.toLowerCase();
-              const tgtLower = seg.targetText.toLowerCase();
-              return (
-                srcLower.includes(t.sourceTerm.toLowerCase()) &&
-                !tgtLower.includes(t.targetTerm.toLowerCase())
-              );
-            }).map((t) => ({ sourceTerm: t.sourceTerm, expectedTarget: t.targetTerm }));
+            const mismatches = glossaryTerms
+              .filter((t) => {
+                const srcLower = seg.sourceText.toLowerCase();
+                const tgtLower = seg.targetText.toLowerCase();
+                return (
+                  srcLower.includes(t.sourceTerm.toLowerCase()) &&
+                  !tgtLower.includes(t.targetTerm.toLowerCase())
+                );
+              })
+              .map((t) => ({
+                sourceTerm: t.sourceTerm,
+                expectedTarget: t.targetTerm,
+              }));
 
             if (mismatches.length > 0) {
               // Show modal — block confirm until user decides
-              setGlossaryEnforcementData({ segmentId: activeSegmentId, mismatches });
+              setGlossaryEnforcementData({
+                segmentId: activeSegmentId,
+                mismatches,
+              });
               return;
             }
           }
@@ -954,9 +1119,27 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         handleRedo();
         return;
       }
-
     },
-    [activeSegmentId, segments, applyTranslation, getPrevSegmentId, getNextSegmentId, setActiveSegment, copySourceToTarget, saveSegments, resetSaveTimer, glossaryTerms, requestAISuggestion, searchOpen, goToOpen, concordanceOpen, shortcutsOpen, executeConfirm, handleUndo, handleRedo]
+    [
+      activeSegmentId,
+      segments,
+      applyTranslation,
+      getPrevSegmentId,
+      getNextSegmentId,
+      setActiveSegment,
+      copySourceToTarget,
+      saveSegments,
+      resetSaveTimer,
+      glossaryTerms,
+      requestAISuggestion,
+      searchOpen,
+      goToOpen,
+      concordanceOpen,
+      shortcutsOpen,
+      executeConfirm,
+      handleUndo,
+      handleRedo,
+    ],
   );
 
   useEffect(() => {
@@ -965,13 +1148,16 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   }, [handleKeyDown]);
 
   // Register textarea ref
-  const registerRef = useCallback((id: string, el: HTMLTextAreaElement | null) => {
-    if (el) {
-      segmentRefs.current.set(id, el);
-    } else {
-      segmentRefs.current.delete(id);
-    }
-  }, []);
+  const registerRef = useCallback(
+    (id: string, el: HTMLTextAreaElement | null) => {
+      if (el) {
+        segmentRefs.current.set(id, el);
+      } else {
+        segmentRefs.current.delete(id);
+      }
+    },
+    [],
+  );
 
   // Get active segment for TM panel
   const activeSegment = activeSegmentId
@@ -980,25 +1166,37 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
 
   if (!project || segments.length === 0) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1, color: "var(--text-muted)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+          color: "var(--text-muted)",
+        }}
+      >
         Loading editor...
       </div>
     );
   }
 
   const totalSegments = segments.length;
-  const confirmedSegments = segments.filter((s) => s.status === "confirmed").length;
+  const confirmedSegments = segments.filter(
+    (s) => s.status === "confirmed",
+  ).length;
   const progress = Math.round((confirmedSegments / totalSegments) * 100);
 
   // Filtered segments based on toolbar filter
-  const filteredSegments = segmentFilter === "all"
-    ? segments
-    : segments.filter((s) => {
-        if (segmentFilter === "empty") return s.targetText.trim() === "" && s.status !== "confirmed";
-        if (segmentFilter === "draft") return s.status === "draft";
-        if (segmentFilter === "confirmed") return s.status === "confirmed";
-        return true;
-      });
+  const filteredSegments =
+    segmentFilter === "all"
+      ? segments
+      : segments.filter((s) => {
+          if (segmentFilter === "empty")
+            return s.targetText.trim() === "" && s.status !== "confirmed";
+          if (segmentFilter === "draft") return s.status === "draft";
+          if (segmentFilter === "confirmed") return s.status === "confirmed";
+          return true;
+        });
 
   // GoTo handler: find segment by position number (1-based)
   const handleGoToSegment = (position: number) => {
@@ -1007,13 +1205,24 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   };
 
   // Computed word counts for StatusBar
-  const totalWordCount = segments.reduce((sum, s) => sum + s.sourceText.split(/\s+/).filter(Boolean).length, 0);
+  const totalWordCount = segments.reduce(
+    (sum, s) => sum + s.sourceText.split(/\s+/).filter(Boolean).length,
+    0,
+  );
   const activeSegmentWordCount = activeSegment
     ? activeSegment.sourceText.split(/\s+/).filter(Boolean).length
     : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, background: "var(--bg-deep)" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        minHeight: 0,
+        background: "var(--bg-deep)",
+      }}
+    >
       {/* ─── Minimal Toolbar ─── */}
       <EditorToolbar
         projectName={project.name}
@@ -1085,7 +1294,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <span>{glossaryWarning}</span>
           <button
             onClick={() => setGlossaryWarning(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+            style={{
+              marginLeft: "auto",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+              padding: "0 4px",
+            }}
           >
             ×
           </button>
@@ -1108,7 +1325,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <span>{aiError}</span>
           <button
             onClick={() => setAiError(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+            style={{
+              marginLeft: "auto",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+              padding: "0 4px",
+            }}
           >
             ×
           </button>
@@ -1131,7 +1356,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <span>{preTranslateToast}</span>
           <button
             onClick={() => setPreTranslateToast(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+            style={{
+              marginLeft: "auto",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+              padding: "0 4px",
+            }}
           >
             ×
           </button>
@@ -1154,7 +1387,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           <span>{generalToast}</span>
           <button
             onClick={() => setGeneralToast(null)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+            style={{
+              marginLeft: "auto",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+              padding: "0 4px",
+            }}
           >
             ×
           </button>
@@ -1174,10 +1415,21 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             borderBottom: "1px solid var(--bg-hover)",
           }}
         >
-          <span>{propagatedCount} identical segment{propagatedCount > 1 ? "s" : ""} auto-filled</span>
+          <span>
+            {propagatedCount} identical segment{propagatedCount > 1 ? "s" : ""}{" "}
+            auto-filled
+          </span>
           <button
             onClick={() => setPropagatedCount(0)}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+            style={{
+              marginLeft: "auto",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+              padding: "0 4px",
+            }}
           >
             ×
           </button>
@@ -1228,12 +1480,20 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                       tgtLang: project.tgtLang,
                     }),
                   });
-                  setAutoGlossarySuggestions((prev) => prev.filter((_, idx) => idx !== i));
-                  fetch(`/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`)
-                    .then((r) => r.ok ? r.json() : [])
-                    .then((terms: { sourceTerm: string }[]) => setAllGlossarySourceTerms(terms.map((t) => t.sourceTerm)))
+                  setAutoGlossarySuggestions((prev) =>
+                    prev.filter((_, idx) => idx !== i),
+                  );
+                  fetch(
+                    `/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`,
+                  )
+                    .then((r) => (r.ok ? r.json() : []))
+                    .then((terms: { sourceTerm: string }[]) =>
+                      setAllGlossarySourceTerms(terms.map((t) => t.sourceTerm)),
+                    )
                     .catch(() => {});
-                } catch { /* ignore */ }
+                } catch {
+                  /* ignore */
+                }
               }}
               title={`Add "${s.term}" to glossary (seen ${s.count}× in source)`}
             >
@@ -1242,7 +1502,15 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           ))}
           <button
             onClick={() => setAutoGlossarySuggestions([])}
-            style={{ marginLeft: "auto", background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 600, padding: "0 4px" }}
+            style={{
+              marginLeft: "auto",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              cursor: "pointer",
+              fontWeight: 600,
+              padding: "0 4px",
+            }}
           >
             ×
           </button>
@@ -1263,10 +1531,20 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             color: "var(--text-secondary)",
           }}
         >
-          <span>Showing: {segmentFilter} ({filteredSegments.length}/{totalSegments})</span>
+          <span>
+            Showing: {segmentFilter} ({filteredSegments.length}/{totalSegments})
+          </span>
           <button
             onClick={() => setSegmentFilter("all")}
-            style={{ textDecoration: "underline", fontSize: 12, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+            style={{
+              textDecoration: "underline",
+              fontSize: 12,
+              color: "var(--accent)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
           >
             Show all
           </button>
@@ -1279,7 +1557,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           segments={segments}
           onClose={() => setSearchOpen(false)}
           onNavigateToSegment={(segId) => setActiveSegment(segId)}
-          onReplaceInTarget={(segId, newText) => applyTranslation(segId, newText)}
+          onReplaceInTarget={(segId, newText) =>
+            applyTranslation(segId, newText)
+          }
         />
       )}
       {goToOpen && (
@@ -1333,97 +1613,117 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
       )}
 
       {/* ─── Context Menu ─── */}
-      {contextMenu && (() => {
-        const seg = segments.find((s) => s.id === contextMenu.segmentId);
-        const hasNext = seg ? segments.some((s) => s.position === seg.position + 1) : false;
-        const isConfirmedSeg = seg?.status === "confirmed";
-        const entries: ContextMenuEntry[] = [
-          {
-            label: isConfirmedSeg ? "Confirmed" : "Confirm segment",
-            icon: "✅",
-            action: () => { if (seg) confirmSegment(seg.id); },
-            disabled: isConfirmedSeg || !seg,
-            shortcut: "Ctrl+Enter",
-          },
-          {
-            label: "Copy source → target",
-            icon: "📋",
-            action: () => { if (seg) copySourceToTarget(seg.id); },
-            shortcut: "Ctrl+I",
-          },
-          {
-            label: "Pre-translate this segment",
-            icon: "🔄",
-            action: () => {
-              if (seg && online) {
-                setActiveSegment(seg.id);
-                if (typeof requestAISuggestion === "function") requestAISuggestion();
-              }
+      {contextMenu &&
+        (() => {
+          const seg = segments.find((s) => s.id === contextMenu.segmentId);
+          const hasNext = seg
+            ? segments.some((s) => s.position === seg.position + 1)
+            : false;
+          const isConfirmedSeg = seg?.status === "confirmed";
+          const entries: ContextMenuEntry[] = [
+            {
+              label: isConfirmedSeg ? "Confirmed" : "Confirm segment",
+              icon: "✅",
+              action: () => {
+                if (seg) confirmSegment(seg.id);
+              },
+              disabled: isConfirmedSeg || !seg,
+              shortcut: "Ctrl+Enter",
             },
-            disabled: !online,
-            shortcut: "Ctrl+Shift+Enter",
-          },
-          { type: "separator" },
-          {
-            label: "Split segment",
-            icon: "✂",
-            action: () => handleSplitSegment(contextMenu.segmentId),
-            disabled: !seg || seg.sourceText.split(" ").length < 2,
-          },
-          {
-            label: "Merge with next",
-            icon: "⊕",
-            action: () => handleMergeSegment(contextMenu.segmentId),
-            disabled: !hasNext,
-          },
-          { type: "separator" },
-          {
-            label: "Add/Edit note",
-            icon: "📝",
-            action: () => {
-              if (seg) {
-                let comment = "";
-                try { comment = JSON.parse(seg.metadata || "{}").comment || ""; } catch { /* ignore */ }
-                setNoteModal({ segmentId: seg.id, position: seg.position, note: comment });
-              }
+            {
+              label: "Copy source → target",
+              icon: "📋",
+              action: () => {
+                if (seg) copySourceToTarget(seg.id);
+              },
+              shortcut: "Ctrl+I",
             },
-          },
-          {
-            label: "Concordance search",
-            icon: "🔍",
-            action: () => {
-              if (seg) {
-                setActiveSegment(seg.id);
-                setConcordanceOpen(true);
-              }
+            {
+              label: "Pre-translate this segment",
+              icon: "🔄",
+              action: () => {
+                if (seg && online) {
+                  setActiveSegment(seg.id);
+                  if (typeof requestAISuggestion === "function")
+                    requestAISuggestion();
+                }
+              },
+              disabled: !online,
+              shortcut: "Ctrl+Shift+Enter",
             },
-            shortcut: "Ctrl+K",
-          },
-          { type: "separator" },
-          {
-            label: "Clear target",
-            icon: "🗑",
-            action: () => { if (seg) applyTranslation(seg.id, ""); },
-            danger: true,
-            disabled: !seg || seg.targetText.trim() === "",
-          },
-          { type: "separator" },
-          {
-            label: seg ? `Seg ${seg.position} · ${seg.sourceText.split(/\s+/).filter(Boolean).length} words · ${seg.status}` : "Segment info",
-            icon: "📊",
-            action: () => {},
-            disabled: true,
-          },
-        ];
-        return (
-          <SegmentContextMenu
-            x={contextMenu.x}
-            y={contextMenu.y}
-            items={entries}
-            onClose={() => setContextMenu(null)}
-          />
-        );
-      })()}
+            { type: "separator" },
+            {
+              label: "Split segment",
+              icon: "✂",
+              action: () => handleSplitSegment(contextMenu.segmentId),
+              disabled: !seg || seg.sourceText.split(" ").length < 2,
+            },
+            {
+              label: "Merge with next",
+              icon: "⊕",
+              action: () => handleMergeSegment(contextMenu.segmentId),
+              disabled: !hasNext,
+            },
+            { type: "separator" },
+            {
+              label: "Add/Edit note",
+              icon: "📝",
+              action: () => {
+                if (seg) {
+                  let comment = "";
+                  try {
+                    comment = JSON.parse(seg.metadata || "{}").comment || "";
+                  } catch {
+                    /* ignore */
+                  }
+                  setNoteModal({
+                    segmentId: seg.id,
+                    position: seg.position,
+                    note: comment,
+                  });
+                }
+              },
+            },
+            {
+              label: "Concordance search",
+              icon: "🔍",
+              action: () => {
+                if (seg) {
+                  setActiveSegment(seg.id);
+                  setConcordanceOpen(true);
+                }
+              },
+              shortcut: "Ctrl+K",
+            },
+            { type: "separator" },
+            {
+              label: "Clear target",
+              icon: "🗑",
+              action: () => {
+                if (seg) applyTranslation(seg.id, "");
+              },
+              danger: true,
+              disabled: !seg || seg.targetText.trim() === "",
+            },
+            { type: "separator" },
+            {
+              label: seg
+                ? `Seg ${seg.position} · ${seg.sourceText.split(/\s+/).filter(Boolean).length} words · ${seg.status}`
+                : "Segment info",
+              icon: "📊",
+              action: () => {},
+              disabled: true,
+            },
+          ];
+          return (
+            <SegmentContextMenu
+              x={contextMenu.x}
+              y={contextMenu.y}
+              items={entries}
+              onClose={() => setContextMenu(null)}
+            />
+          );
+        })()}
 
       {/* ═══ Horizontal Toolbar ═══ */}
       <EditorToolstrip
@@ -1439,19 +1739,87 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         editorFontSize={editorFontSize}
         onFontSizeChange={(size) => {
           setEditorFontSize(size);
-          try { localStorage.setItem("tp-editor-font-size", String(size)); } catch { /* ignore */ }
+          try {
+            localStorage.setItem("tp-editor-font-size", String(size));
+          } catch {
+            /* ignore */
+          }
         }}
       />
 
-      {/* ═══ MAIN LAYOUT: Full-width segments ═══ */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      {/* ═══ MAIN LAYOUT: Sidebar + Content ═══ */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "row",
+          overflow: "hidden",
+        }}
+      >
+        {/* Sidebar */}
+        <EditorSidebar
+          onPreTranslate={online ? handlePreTranslate : undefined}
+          preTranslating={!!preTranslateProgress?.running}
+          onAnalysis={() => setAnalysisOpen(true)}
+          onRunQA={handleRunQA}
+          qaRunning={qaRunning}
+          onSearchOpen={() => setSearchOpen(true)}
+          onConcordanceOpen={() => setConcordanceOpen(true)}
+          onGlossaryOpen={() => setBottomTab("glossary")}
+          onNotesOpen={() => {
+            const seg = segments.find((s) => s.id === activeSegmentId);
+            if (seg) {
+              let comment = "";
+              try {
+                comment = JSON.parse(seg.metadata || "{}").comment || "";
+              } catch {
+                /* ignore */
+              }
+              setNoteModal({
+                segmentId: seg.id,
+                position: seg.position,
+                note: comment,
+              });
+            }
+          }}
+          onExportOpen={() => setExportDropdownOpen(true)}
+          editorFontSize={editorFontSize}
+          onFontSizeChange={(size) => {
+            setEditorFontSize(size);
+            try {
+              localStorage.setItem("tp-editor-font-size", String(size));
+            } catch {
+              /* ignore */
+            }
+          }}
+          activePanel={bottomPanelCollapsed ? null : bottomTab}
+          onPanelToggle={(panel) => {
+            if (bottomTab === panel && !bottomPanelCollapsed) {
+              setBottomPanelCollapsed(true);
+            } else {
+              setBottomTab(panel as "tm" | "glossary");
+              setBottomPanelCollapsed(false);
+            }
+          }}
+        />
 
+        {/* Content area */}
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
           {/* Document header — language labels */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              padding: "4px 16px 4px 60px",
+              padding: "4px 16px 4px 52px",
               fontSize: 9,
               fontFamily: "'Inter', system-ui, sans-serif",
               color: "var(--text-muted)",
@@ -1479,7 +1847,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               onMouseDown={(e) => {
                 e.preventDefault();
                 isDraggingRef.current = true;
-                const contentEl = e.currentTarget.closest("[data-editor-content]");
+                const contentEl = e.currentTarget.closest(
+                  "[data-editor-content]",
+                );
                 const handleMove = (ev: MouseEvent) => {
                   if (!isDraggingRef.current || !contentEl) return;
                   const rect = contentEl.getBoundingClientRect();
@@ -1490,7 +1860,14 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 };
                 const handleUp = () => {
                   isDraggingRef.current = false;
-                  try { localStorage.setItem("tp-column-ratio", String(columnRatio)); } catch { /* ignore */ }
+                  try {
+                    localStorage.setItem(
+                      "tp-column-ratio",
+                      String(columnRatio),
+                    );
+                  } catch {
+                    /* ignore */
+                  }
                   window.removeEventListener("mousemove", handleMove);
                   window.removeEventListener("mouseup", handleUp);
                 };
@@ -1522,7 +1899,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               try {
                 const meta = JSON.parse(segment.metadata || "{}");
                 segComment = meta.comment || "";
-              } catch { /* ignore */ }
+              } catch {
+                /* ignore */
+              }
 
               return (
                 <SegmentRow
@@ -1535,13 +1914,33 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                     updateSegmentTarget(segment.id, text);
                   }}
                   registerRef={(el) => registerRef(segment.id, el)}
-                  highlightTerms={segment.id === activeSegmentId ? glossaryTerms.map((t) => t.sourceTerm) : allGlossarySourceTerms}
-                  onRequestAI={segment.id === activeSegmentId && online ? requestAISuggestion : undefined}
+                  highlightTerms={
+                    segment.id === activeSegmentId
+                      ? glossaryTerms.map((t) => t.sourceTerm)
+                      : allGlossarySourceTerms
+                  }
+                  onRequestAI={
+                    segment.id === activeSegmentId && online
+                      ? requestAISuggestion
+                      : undefined
+                  }
                   aiLoading={segment.id === activeSegmentId ? aiLoading : false}
                   tgtLang={project.tgtLang}
                   comment={segComment}
-                  onNoteClick={() => setNoteModal({ segmentId: segment.id, position: segment.position, note: segComment })}
-                  onContextMenu={(e) => setContextMenu({ x: e.clientX, y: e.clientY, segmentId: segment.id })}
+                  onNoteClick={() =>
+                    setNoteModal({
+                      segmentId: segment.id,
+                      position: segment.position,
+                      note: segComment,
+                    })
+                  }
+                  onContextMenu={(e) =>
+                    setContextMenu({
+                      x: e.clientX,
+                      y: e.clientY,
+                      segmentId: segment.id,
+                    })
+                  }
                   fontSize={editorFontSize}
                   columnRatio={columnRatio}
                   dimmed={focusMode && segment.id !== activeSegmentId}
@@ -1556,45 +1955,85 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               issues={qaIssues}
               onClose={() => setQaVisible(false)}
               onNavigateToSegment={(segmentId) => setActiveSegment(segmentId)}
-              translatedCount={segments.filter((s) => s.targetText && s.targetText.trim() !== "").length}
+              translatedCount={
+                segments.filter(
+                  (s) => s.targetText && s.targetText.trim() !== "",
+                ).length
+              }
             />
           )}
 
           {/* Context Preview — prev/next segments */}
-          {activeSegment && (() => {
-            const idx = segments.findIndex((s) => s.id === activeSegmentId);
-            const prev = idx > 0 ? segments[idx - 1] : null;
-            const next = idx < segments.length - 1 ? segments[idx + 1] : null;
-            if (!prev && !next) return null;
-            return (
-              <div
-                style={{
-                  display: "flex",
-                  fontSize: 12,
-                  borderTop: "1px solid var(--bg-hover)",
-                  background: "var(--bg-hover)",
-                  maxHeight: 48,
-                  overflowY: "auto",
-                  margin: "0 20px",
-                  borderRadius: "var(--radius-sm)",
-                  marginBottom: 4,
-                }}
-              >
-                {prev && (
-                  <div style={{ flex: 1, padding: "5px 12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-muted)" }}>
-                    <span style={{ fontWeight: 500, color: "var(--text-secondary)" }}>← {prev.position}: </span>
-                    {prev.sourceText.slice(0, 80)}{prev.sourceText.length > 80 ? "…" : ""}
-                  </div>
-                )}
-                {next && (
-                  <div style={{ flex: 1, padding: "5px 12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-muted)", borderLeft: "1px solid var(--bg-hover)" }}>
-                    <span style={{ fontWeight: 500, color: "var(--text-secondary)" }}>{next.position} →: </span>
-                    {next.sourceText.slice(0, 80)}{next.sourceText.length > 80 ? "…" : ""}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+          {activeSegment &&
+            (() => {
+              const idx = segments.findIndex((s) => s.id === activeSegmentId);
+              const prev = idx > 0 ? segments[idx - 1] : null;
+              const next = idx < segments.length - 1 ? segments[idx + 1] : null;
+              if (!prev && !next) return null;
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: 12,
+                    borderTop: "1px solid var(--bg-hover)",
+                    background: "var(--bg-hover)",
+                    maxHeight: 48,
+                    overflowY: "auto",
+                    margin: "0 20px",
+                    borderRadius: "var(--radius-sm)",
+                    marginBottom: 4,
+                  }}
+                >
+                  {prev && (
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "5px 12px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 500,
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        ← {prev.position}:{" "}
+                      </span>
+                      {prev.sourceText.slice(0, 80)}
+                      {prev.sourceText.length > 80 ? "…" : ""}
+                    </div>
+                  )}
+                  {next && (
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "5px 12px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        color: "var(--text-muted)",
+                        borderLeft: "1px solid var(--bg-hover)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 500,
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        {next.position} →:{" "}
+                      </span>
+                      {next.sourceText.slice(0, 80)}
+                      {next.sourceText.length > 80 ? "…" : ""}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
           {/* Bottom Panels: Collapsible TM + Glossary */}
           <div
@@ -1615,25 +2054,63 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
             {/* Drag handle */}
             <div
               style={{
-                height: 4,
+                height: 8,
                 cursor: "ns-resize",
                 background: "transparent",
                 flexShrink: 0,
                 position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onDoubleClick={() => {
+                setBottomPanelCollapsed((prev) => !prev);
               }}
               onMouseDown={(e) => {
                 e.preventDefault();
-                if (bottomPanelCollapsed) return;
-                bottomDragRef.current = { startY: e.clientY, startH: bottomPanelHeight };
+                bottomDragRef.current = {
+                  startY: e.clientY,
+                  startH: bottomPanelCollapsed ? 200 : bottomPanelHeight,
+                };
+                if (bottomPanelCollapsed) {
+                  setBottomPanelCollapsed(false);
+                  setBottomPanelHeight(200);
+                }
+                const grip = e.currentTarget.querySelector(
+                  "[data-grip]",
+                ) as HTMLElement;
+                if (grip) {
+                  grip.style.background = "var(--accent)";
+                  grip.style.width = "48px";
+                }
                 const onMove = (ev: MouseEvent) => {
                   if (!bottomDragRef.current) return;
                   const delta = bottomDragRef.current.startY - ev.clientY;
-                  const newH = Math.max(80, Math.min(300, bottomDragRef.current.startH + delta));
-                  setBottomPanelHeight(newH);
+                  const newH = Math.max(
+                    40,
+                    Math.min(300, bottomDragRef.current.startH + delta),
+                  );
+                  if (newH < 40) {
+                    setBottomPanelCollapsed(true);
+                  } else {
+                    setBottomPanelCollapsed(false);
+                    setBottomPanelHeight(newH);
+                  }
                 };
                 const onUp = () => {
+                  if (grip) {
+                    grip.style.background = "var(--border)";
+                    grip.style.width = "32px";
+                  }
                   if (bottomDragRef.current) {
-                    try { localStorage.setItem("tp-bottom-panel-height", String(bottomPanelHeight)); } catch { /* */ }
+                    try {
+                      localStorage.setItem(
+                        "tp-bottom-panel-height",
+                        String(bottomPanelHeight),
+                      );
+                    } catch {
+                      /* */
+                    }
                   }
                   bottomDragRef.current = null;
                   window.removeEventListener("mousemove", onMove);
@@ -1642,18 +2119,36 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 window.addEventListener("mousemove", onMove);
                 window.addEventListener("mouseup", onUp);
               }}
+              onMouseEnter={(e) => {
+                const grip = e.currentTarget.querySelector(
+                  "[data-grip]",
+                ) as HTMLElement;
+                if (grip) {
+                  grip.style.background = "var(--text-muted)";
+                  grip.style.width = "48px";
+                }
+              }}
+              onMouseLeave={(e) => {
+                const grip = e.currentTarget.querySelector(
+                  "[data-grip]",
+                ) as HTMLElement;
+                if (grip && !bottomDragRef.current) {
+                  grip.style.background = "var(--border)";
+                  grip.style.width = "32px";
+                }
+              }}
             >
               {/* Visual grip line */}
-              <div style={{
-                position: "absolute",
-                left: "50%",
-                top: 1,
-                transform: "translateX(-50%)",
-                width: 32,
-                height: 2,
-                borderRadius: 1,
-                background: "var(--border)",
-              }} />
+              <div
+                data-grip
+                style={{
+                  width: 32,
+                  height: 3,
+                  borderRadius: 2,
+                  background: "var(--border)",
+                  transition: "background 150ms, width 150ms",
+                }}
+              />
             </div>
 
             {/* Tab bar (always visible — acts as collapsed header) */}
@@ -1664,7 +2159,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               style={{
                 display: "flex",
                 alignItems: "center",
-                borderBottom: bottomPanelCollapsed ? "none" : "1px solid var(--bg-hover)",
+                borderBottom: bottomPanelCollapsed
+                  ? "none"
+                  : "1px solid var(--bg-hover)",
                 padding: "0 12px",
                 gap: 0,
                 cursor: bottomPanelCollapsed ? "pointer" : "default",
@@ -1672,10 +2169,10 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 minHeight: 24,
               }}
             >
-              {([
+              {[
                 { id: "tm" as const, label: "TM Matches" },
                 { id: "glossary" as const, label: "Glossary" },
-              ]).map((tab) => (
+              ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={(e) => {
@@ -1687,10 +2184,17 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                     padding: "4px 14px",
                     fontSize: 10,
                     fontWeight: bottomTab === tab.id ? 600 : 400,
-                    color: bottomTab === tab.id ? "var(--accent)" : "var(--text-muted)",
+                    color:
+                      bottomTab === tab.id
+                        ? "var(--accent)"
+                        : "var(--text-muted)",
                     background: "transparent",
                     border: "none",
-                    borderBottom: bottomPanelCollapsed ? "none" : (bottomTab === tab.id ? "2px solid var(--accent)" : "2px solid transparent"),
+                    borderBottom: bottomPanelCollapsed
+                      ? "none"
+                      : bottomTab === tab.id
+                        ? "2px solid var(--accent)"
+                        : "2px solid transparent",
                     cursor: "pointer",
                     transition: "color 150ms, border-color 150ms",
                     fontFamily: "inherit",
@@ -1698,10 +2202,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                     letterSpacing: "0.5px",
                   }}
                   onMouseEnter={(e) => {
-                    if (bottomTab !== tab.id) e.currentTarget.style.color = "var(--text-secondary)";
+                    if (bottomTab !== tab.id)
+                      e.currentTarget.style.color = "var(--text-secondary)";
                   }}
                   onMouseLeave={(e) => {
-                    if (bottomTab !== tab.id) e.currentTarget.style.color = "var(--text-muted)";
+                    if (bottomTab !== tab.id)
+                      e.currentTarget.style.color = "var(--text-muted)";
                   }}
                 >
                   {tab.label}
@@ -1711,12 +2217,25 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               {/* Match count summary + collapse toggle */}
               <div style={{ flex: 1 }} />
               {bottomPanelCollapsed && tmMatchCount > 0 && (
-                <span style={{ fontSize: 9, color: "var(--text-muted)", marginRight: 8 }}>
-                  {tmMatchCount} match{tmMatchCount !== 1 ? "es" : ""} — click to expand
+                <span
+                  style={{
+                    fontSize: 9,
+                    color: "var(--text-muted)",
+                    marginRight: 8,
+                  }}
+                >
+                  {tmMatchCount} match{tmMatchCount !== 1 ? "es" : ""} — click
+                  to expand
                 </span>
               )}
               {bottomPanelCollapsed && tmMatchCount === 0 && (
-                <span style={{ fontSize: 9, color: "var(--text-muted)", marginRight: 8 }}>
+                <span
+                  style={{
+                    fontSize: 9,
+                    color: "var(--text-muted)",
+                    marginRight: 8,
+                  }}
+                >
                   No matches
                 </span>
               )}
@@ -1735,8 +2254,12 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                   lineHeight: 1,
                   transition: "color 150ms",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "var(--text-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "var(--text-muted)";
+                }}
                 title={bottomPanelCollapsed ? "Expand panel" : "Collapse panel"}
               >
                 {bottomPanelCollapsed ? "↑" : "↓"}
@@ -1769,7 +2292,9 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                     onTermsFound={handleGlossaryTermsFound}
                     onInsertTerm={(targetTerm) => {
                       if (activeSegmentId) {
-                        const seg = segments.find((s) => s.id === activeSegmentId);
+                        const seg = segments.find(
+                          (s) => s.id === activeSegmentId,
+                        );
                         if (seg) {
                           const newText = seg.targetText
                             ? seg.targetText + " " + targetTerm
@@ -1783,7 +2308,10 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
               </div>
             )}
           </div>
+        </div>
+        {/* end content area */}
       </div>
+      {/* end row wrapper (sidebar + content) */}
 
       {/* Status Bar */}
       <StatusBar

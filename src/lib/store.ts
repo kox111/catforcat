@@ -60,9 +60,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set((state) => {
       const segments = state.segments.map((s) => {
         if (s.id !== id) return s;
-        const newStatus: Segment["status"] = targetText.trim() === "" ? "empty" : "draft";
+        const newStatus: Segment["status"] =
+          targetText.trim() === "" ? "empty" : "draft";
         // Don't downgrade from confirmed to draft while typing
-        const status: Segment["status"] = s.status === "confirmed" ? "confirmed" : newStatus;
+        const status: Segment["status"] =
+          s.status === "confirmed" ? "confirmed" : newStatus;
         return { ...s, targetText, status };
       });
       const pendingSaves = new Set(state.pendingSaves);
@@ -74,7 +76,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   confirmSegment: (id) => {
     set((state) => {
       const segments = state.segments.map((s) =>
-        s.id === id ? { ...s, status: "confirmed" as const } : s
+        s.id === id ? { ...s, status: "confirmed" as const } : s,
       );
       const pendingSaves = new Set(state.pendingSaves);
       pendingSaves.add(id);

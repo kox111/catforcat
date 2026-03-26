@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -8,13 +7,11 @@ import { prisma } from "@/lib/prisma";
  * Returns the current user's plan and usage info.
  */
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  const userData = await prisma.user.findUnique({
+    where: { id: user.id },
     select: {
       plan: true,
       aiRequestsUsed: true,
@@ -24,28 +21,29 @@ export async function GET() {
     },
   });
 
-  if (!user) {
+  if (!userData) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   const now = new Date();
-  let aiRequestsUsed = user.aiRequestsUsed;
+  let aiRequestsUsed = userData.aiRequestsUsed;
   // Reset counter display if new month
   if (
-    user.aiRequestsResetAt.getMonth() !== now.getMonth() ||
-    user.aiRequestsResetAt.getFullYear() !== now.getFullYear()
+    userData.aiRequestsResetAt.getMonth() !== now.getMonth() ||
+    userData.aiRequestsResetAt.getFullYear() !== now.getFullYear()
   ) {
     aiRequestsUsed = 0;
   }
 
-  const aiLimit = user.plan === "pro" ? 1000 : 50;
+  const aiLimit = userData.plan === "pro" ? 1000 : 50;
 
   return NextResponse.json({
-    plan: user.plan,
-    translationProvider: user.plan === "pro" ? "DeepL Pro" : "Google Translate",
+    plan: userData.plan,
+    translationProvider:
+      userData.plan === "pro" ? "DeepL Pro" : "Google Translate",
     aiRequestsUsed,
     aiRequestsLimit: aiLimit,
-    hasSubscription: !!user.stripeSubscriptionId,
-    subscriptionEndsAt: user.stripeCurrentPeriodEnd?.toISOString() || null,
+    hasSubscription: !!userData.stripeSubscriptionId,
+    subscriptionEndsAt: userData.stripeCurrentPeriodEnd?.toISOString() || null,
   });
 }

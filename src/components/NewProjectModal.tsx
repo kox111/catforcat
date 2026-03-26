@@ -15,11 +15,21 @@ interface LangEntry {
 
 const LANGUAGES: LangEntry[] = [
   { code: "en-US", name: "English", region: "United States", group: "english" },
-  { code: "en-GB", name: "English", region: "United Kingdom", group: "english" },
+  {
+    code: "en-GB",
+    name: "English",
+    region: "United Kingdom",
+    group: "english",
+  },
   { code: "en-AU", name: "English", region: "Australia", group: "english" },
   { code: "en-CA", name: "English", region: "Canada", group: "english" },
   { code: "es-ES", name: "Español", region: "Spain", group: "español" },
-  { code: "es-419", name: "Español", region: "Latin America", group: "español" },
+  {
+    code: "es-419",
+    name: "Español",
+    region: "Latin America",
+    group: "español",
+  },
   { code: "es-MX", name: "Español", region: "Mexico", group: "español" },
   { code: "es-PE", name: "Español", region: "Peru", group: "español" },
   { code: "es-AR", name: "Español", region: "Argentina", group: "español" },
@@ -58,7 +68,9 @@ function getRecentLangs(): string[] {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed.slice(0, 5);
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return DEFAULT_FREQUENT;
 }
 
@@ -68,7 +80,9 @@ function saveRecentLang(code: string) {
     const current = getRecentLangs();
     const updated = [code, ...current.filter((c) => c !== code)].slice(0, 5);
     localStorage.setItem("catforcat-recent-langs", JSON.stringify(updated));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 /* ─── Accent colors per theme ─── */
@@ -80,13 +94,23 @@ const ACCENT_CODE_COLOR: Record<Theme, string> = {
 };
 
 const GRADIENT_COLORS: Record<Theme, [string, string]> = {
-  dark:   ["#BDB8B2", "#8A8580"],
+  dark: ["#BDB8B2", "#8A8580"],
   sakura: ["#8B5A6B", "#B08090"],
-  light:  ["#6B6B6B", "#AAAAAA"],
-  linen:  ["#A47864", "#C4A898"],
+  light: ["#6B6B6B", "#AAAAAA"],
+  linen: ["#A47864", "#C4A898"],
 };
 
-const ACCEPTED_EXTENSIONS = [".txt", ".docx", ".pdf", ".xlf", ".xliff", ".json", ".srt", ".po", ".md"];
+const ACCEPTED_EXTENSIONS = [
+  ".txt",
+  ".docx",
+  ".pdf",
+  ".xlf",
+  ".xliff",
+  ".json",
+  ".srt",
+  ".po",
+  ".md",
+];
 
 interface ParsedSegment {
   text: string;
@@ -145,7 +169,7 @@ function LanguagePicker({
         (l) =>
           l.name.toLowerCase().includes(filter.toLowerCase()) ||
           l.region.toLowerCase().includes(filter.toLowerCase()) ||
-          l.code.toLowerCase().includes(filter.toLowerCase())
+          l.code.toLowerCase().includes(filter.toLowerCase()),
       )
     : LANGUAGES;
 
@@ -182,7 +206,12 @@ function LanguagePicker({
         }}
       >
         {/* Search bar */}
-        <div style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--border)" }}>
+        <div
+          style={{
+            padding: "10px 12px",
+            borderBottom: "0.5px solid var(--border)",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -194,7 +223,10 @@ function LanguagePicker({
               border: "0.5px solid var(--border)",
             }}
           >
-            <Search size={12} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+            <Search
+              size={12}
+              style={{ color: "var(--text-muted)", flexShrink: 0 }}
+            />
             <input
               ref={inputRef}
               value={filter}
@@ -215,7 +247,15 @@ function LanguagePicker({
 
         {/* Frequent pills */}
         {!filter.trim() && (
-          <div style={{ padding: "8px 12px", display: "flex", flexWrap: "wrap", gap: 4, borderBottom: "0.5px solid var(--border)" }}>
+          <div
+            style={{
+              padding: "8px 12px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 4,
+              borderBottom: "0.5px solid var(--border)",
+            }}
+          >
             {frequent.map((code) => {
               const lang = LANGUAGES.find((l) => l.code === code);
               if (!lang) return null;
@@ -300,14 +340,17 @@ function LanguagePicker({
                         textAlign: "left",
                       }}
                       onMouseEnter={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = "var(--bg-hover)";
+                        if (!isSelected)
+                          e.currentTarget.style.background = "var(--bg-hover)";
                       }}
                       onMouseLeave={(e) => {
                         if (!isSelected)
                           e.currentTarget.style.background = "transparent";
                       }}
                     >
-                      <span style={{ fontSize: 12, color: "var(--text-primary)" }}>
+                      <span
+                        style={{ fontSize: 12, color: "var(--text-primary)" }}
+                      >
                         {lang.region}
                       </span>
                       <span
@@ -342,7 +385,10 @@ function hexToRgb(hex: string): string {
 
 /* ─── Main Modal ─── */
 
-export default function NewProjectModal({ onClose, onCreated }: NewProjectModalProps) {
+export default function NewProjectModal({
+  onClose,
+  onCreated,
+}: NewProjectModalProps) {
   const { theme } = useTheme();
   const [name, setName] = useState("");
   const [srcLang, setSrcLang] = useState("en-US");
@@ -355,7 +401,9 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
 
   const [file, setFile] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
-  const [parsedSegments, setParsedSegments] = useState<ParsedSegment[] | null>(null);
+  const [parsedSegments, setParsedSegments] = useState<ParsedSegment[] | null>(
+    null,
+  );
   const [fileFormat, setFileFormat] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -374,59 +422,90 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
   const srcEntry = LANGUAGES.find((l) => l.code === srcLang);
   const tgtEntry = LANGUAGES.find((l) => l.code === tgtLang);
 
-  const handleFileParse = useCallback(async (selectedFile: File) => {
-    setFile(selectedFile);
-    setParsing(true);
-    setError("");
-    setParsedSegments(null);
+  const handleFileParse = useCallback(
+    async (selectedFile: File) => {
+      setFile(selectedFile);
+      setParsing(true);
+      setError("");
+      setParsedSegments(null);
 
-    try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      const res = await fetch("/api/files/parse", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to parse file"); setParsing(false); return; }
-      setParsedSegments(data.segments);
-      setFileFormat(data.fileFormat);
-      if (data.isXliff && data.srcLang) {
-        setSrcLang(data.srcLang);
-        if (data.tgtLang) setTgtLang(data.tgtLang);
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        const res = await fetch("/api/files/parse", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Failed to parse file");
+          setParsing(false);
+          return;
+        }
+        setParsedSegments(data.segments);
+        setFileFormat(data.fileFormat);
+        if (data.isXliff && data.srcLang) {
+          setSrcLang(data.srcLang);
+          if (data.tgtLang) setTgtLang(data.tgtLang);
+        }
+        if (!name.trim()) {
+          setName(selectedFile.name.replace(/\.[^/.]+$/, ""));
+        }
+      } catch {
+        setError("Failed to parse file.");
+      } finally {
+        setParsing(false);
       }
-      if (!name.trim()) {
-        setName(selectedFile.name.replace(/\.[^/.]+$/, ""));
+    },
+    [name],
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      const droppedFile = e.dataTransfer.files[0];
+      if (!droppedFile) return;
+      const ext = "." + droppedFile.name.split(".").pop()?.toLowerCase();
+      if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+        setError(`Unsupported format: ${ext}`);
+        return;
       }
-    } catch {
-      setError("Failed to parse file.");
-    } finally {
-      setParsing(false);
-    }
-  }, [name]);
+      handleFileParse(droppedFile);
+    },
+    [handleFileParse],
+  );
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (!droppedFile) return;
-    const ext = "." + droppedFile.name.split(".").pop()?.toLowerCase();
-    if (!ACCEPTED_EXTENSIONS.includes(ext)) {
-      setError(`Unsupported format: ${ext}`);
-      return;
-    }
-    handleFileParse(droppedFile);
-  }, [handleFileParse]);
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) handleFileParse(selectedFile);
-  }, [handleFileParse]);
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) handleFileParse(selectedFile);
+    },
+    [handleFileParse],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!name.trim()) { setError("Project name is required"); return; }
-    if (srcLang === tgtLang) { setError("Source and target languages must be different"); return; }
-    if (inputMode === "text" && !text.trim()) { setError("Please paste some text to translate"); return; }
-    if (inputMode === "file" && (!parsedSegments || parsedSegments.length === 0)) { setError("Please upload a file first"); return; }
+    if (!name.trim()) {
+      setError("Project name is required");
+      return;
+    }
+    if (srcLang === tgtLang) {
+      setError("Source and target languages must be different");
+      return;
+    }
+    if (inputMode === "text" && !text.trim()) {
+      setError("Please paste some text to translate");
+      return;
+    }
+    if (
+      inputMode === "file" &&
+      (!parsedSegments || parsedSegments.length === 0)
+    ) {
+      setError("Please upload a file first");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -440,9 +519,16 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
       } else {
         body.text = text;
       }
-      const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to create project"); return; }
+      if (!res.ok) {
+        setError(data.error || "Failed to create project");
+        return;
+      }
       onCreated(data.id);
     } catch {
       setError("Something went wrong");
@@ -464,7 +550,9 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
           justifyContent: "center",
           background: "var(--overlay)",
         }}
-        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
         {/* Modal card */}
         <div
@@ -495,8 +583,12 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
               transition: "color 150ms",
               padding: 4,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = "var(--text-primary)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "var(--text-muted)")
+            }
           >
             <X size={14} />
           </button>
@@ -576,8 +668,12 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                 transition: "border-color 150ms",
                 boxSizing: "border-box",
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border-focus)")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border)")
+              }
             />
 
             {/* LANGUAGES */}
@@ -597,7 +693,14 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
               LANGUAGES
             </label>
 
-            <div style={{ display: "flex", flexDirection: isNarrow ? "column" : "row", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: isNarrow ? "column" : "row",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
               {/* Source card */}
               <div
                 onClick={() => setPickerFor("src")}
@@ -615,7 +718,8 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "var(--text-muted)";
-                  e.currentTarget.style.boxShadow = "0 0 0 1px rgba(var(--text-primary), 0.03)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 0 1px rgba(var(--text-primary), 0.03)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "var(--border)";
@@ -634,13 +738,35 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                     borderRadius: "12px 12px 0 0",
                   }}
                 />
-                <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", fontFamily: "'Inter', system-ui, sans-serif", marginBottom: 2 }}>
+                <div
+                  style={{
+                    fontSize: 9,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: "var(--text-muted)",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                    marginBottom: 2,
+                  }}
+                >
                   SOURCE
                 </div>
-                <div style={{ fontSize: 14, color: "var(--text-primary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-primary)",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                  }}
+                >
                   {srcEntry?.name || "Select"}
                 </div>
-                <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: accentColor, marginTop: 2 }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    color: accentColor,
+                    marginTop: 2,
+                  }}
+                >
                   {srcLang}
                 </div>
               </div>
@@ -681,7 +807,8 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "var(--text-muted)";
-                  e.currentTarget.style.boxShadow = "0 0 0 1px rgba(var(--text-primary), 0.03)";
+                  e.currentTarget.style.boxShadow =
+                    "0 0 0 1px rgba(var(--text-primary), 0.03)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "var(--border)";
@@ -699,20 +826,49 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                     borderRadius: "12px 12px 0 0",
                   }}
                 />
-                <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", fontFamily: "'Inter', system-ui, sans-serif", marginBottom: 2 }}>
+                <div
+                  style={{
+                    fontSize: 9,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: "var(--text-muted)",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                    marginBottom: 2,
+                  }}
+                >
                   TARGET
                 </div>
-                <div style={{ fontSize: 14, color: "var(--text-primary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-primary)",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                  }}
+                >
                   {tgtEntry?.name || "Select"}
                 </div>
-                <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: accentColor, marginTop: 2 }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    color: accentColor,
+                    marginTop: 2,
+                  }}
+                >
                   {tgtLang}
                 </div>
               </div>
             </div>
 
             {/* Content toggle pills */}
-            <div style={{ display: "flex", gap: 6, marginTop: 20, marginBottom: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                marginTop: 20,
+                marginBottom: 12,
+              }}
+            >
               {(["text", "file"] as const).map((mode) => {
                 const active = inputMode === mode;
                 return (
@@ -735,7 +891,9 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                       boxShadow: active
                         ? `0 0 12px rgba(${hexToRgb(gradientColors[0])}, 0.04)`
                         : "none",
-                      color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                      color: active
+                        ? "var(--text-primary)"
+                        : "var(--text-secondary)",
                       cursor: "pointer",
                       transition: "all 0.3s ease",
                       display: "flex",
@@ -743,7 +901,11 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                       gap: 5,
                     }}
                   >
-                    {mode === "text" ? <Type size={11} /> : <Upload size={11} />}
+                    {mode === "text" ? (
+                      <Type size={11} />
+                    ) : (
+                      <Upload size={11} />
+                    )}
                     {mode === "text" ? "Paste text" : "Upload file"}
                   </button>
                 );
@@ -774,7 +936,13 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                   }}
                 />
                 {text.trim().length > 0 && (
-                  <p style={{ marginTop: 4, fontSize: 10, color: "var(--text-muted)" }}>
+                  <p
+                    style={{
+                      marginTop: 4,
+                      fontSize: 10,
+                      color: "var(--text-muted)",
+                    }}
+                  >
                     ~{text.trim().split(/[.!?]+\s+/).length} segments estimated
                   </p>
                 )}
@@ -791,10 +959,15 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                     cursor: "pointer",
                     padding: 32,
                     border: `0.5px dashed ${dragOver ? "var(--accent)" : "var(--border)"}`,
-                    background: dragOver ? "var(--accent-soft)" : "var(--bg-sidebar)",
+                    background: dragOver
+                      ? "var(--accent-soft)"
+                      : "var(--bg-sidebar)",
                     transition: "all 150ms",
                   }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
@@ -808,23 +981,49 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                   />
                   {parsing ? (
                     <div>
-                      <div style={{ fontSize: 12, color: "var(--text-primary)", marginBottom: 4 }}>Parsing file...</div>
-                      <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Extracting text and segmenting</div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-primary)",
+                          marginBottom: 4,
+                        }}
+                      >
+                        Parsing file...
+                      </div>
+                      <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                        Extracting text and segmenting
+                      </div>
                     </div>
                   ) : file ? (
                     <div>
-                      <div style={{ fontSize: 12, color: "var(--text-primary)", marginBottom: 4 }}>{file.name}</div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-primary)",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {file.name}
+                      </div>
                       <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
-                        {(file.size / 1024).toFixed(1)} KB — Click or drag to replace
+                        {(file.size / 1024).toFixed(1)} KB — Click or drag to
+                        replace
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-secondary)",
+                          marginBottom: 4,
+                        }}
+                      >
                         Drag & drop a file here, or click to browse
                       </div>
                       <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
-                        Supported: .txt, .docx, .pdf, .xlf, .json, .srt, .po, .md
+                        Supported: .txt, .docx, .pdf, .xlf, .json, .srt, .po,
+                        .md
                       </div>
                     </div>
                   )}
@@ -832,10 +1031,22 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
 
                 {parsedSegments && parsedSegments.length > 0 && (
                   <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 10, marginBottom: 6, color: "var(--text-muted)" }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        marginBottom: 6,
+                        color: "var(--text-muted)",
+                      }}
+                    >
                       Preview ({parsedSegments.length} segments):
                     </div>
-                    <div style={{ borderRadius: "var(--radius-sm)", overflow: "hidden", border: "0.5px solid var(--border)" }}>
+                    <div
+                      style={{
+                        borderRadius: "var(--radius-sm)",
+                        overflow: "hidden",
+                        border: "0.5px solid var(--border)",
+                      }}
+                    >
                       {parsedSegments.slice(0, 5).map((seg, i) => (
                         <div
                           key={i}
@@ -844,20 +1055,45 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                             fontSize: 11,
                             display: "flex",
                             gap: 8,
-                            background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-deep)",
-                            borderBottom: i < 4 ? "0.5px solid var(--border)" : "none",
+                            background:
+                              i % 2 === 0 ? "var(--bg-card)" : "var(--bg-deep)",
+                            borderBottom:
+                              i < 4 ? "0.5px solid var(--border)" : "none",
                           }}
                         >
-                          <span style={{ color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", flexShrink: 0, width: 20, textAlign: "right" }}>
+                          <span
+                            style={{
+                              color: "var(--text-muted)",
+                              fontFamily: "'JetBrains Mono', monospace",
+                              flexShrink: 0,
+                              width: 20,
+                              textAlign: "right",
+                            }}
+                          >
                             {i + 1}
                           </span>
-                          <span style={{ color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <span
+                            style={{
+                              color: "var(--text-primary)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {seg.text}
                           </span>
                         </div>
                       ))}
                       {parsedSegments.length > 5 && (
-                        <div style={{ padding: "8px 12px", fontSize: 10, textAlign: "center", color: "var(--text-muted)", background: "var(--bg-card)" }}>
+                        <div
+                          style={{
+                            padding: "8px 12px",
+                            fontSize: 10,
+                            textAlign: "center",
+                            color: "var(--text-muted)",
+                            background: "var(--bg-card)",
+                          }}
+                        >
                           ... and {parsedSegments.length - 5} more segments
                         </div>
                       )}
@@ -899,8 +1135,12 @@ export default function NewProjectModal({ onClose, onCreated }: NewProjectModalP
                 e.currentTarget.style.borderColor = `rgba(${hexToRgb(gradientColors[0])}, 0.2)`;
                 e.currentTarget.style.boxShadow = "none";
               }}
-              onMouseDown={(e) => { e.currentTarget.style.transform = "scale(0.98)"; }}
-              onMouseUp={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = "scale(0.98)";
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+              }}
             >
               {loading ? "Creating..." : "Create project"}
             </button>

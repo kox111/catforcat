@@ -32,11 +32,20 @@ export default function SettingsPage() {
     try {
       const v = localStorage.getItem("catforcat-break-interval");
       if (v !== null) setBreakEnabled(parseInt(v, 10) !== 0);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const userName = session?.user?.name || "";
-  const userInitials = userName.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
+  const userInitials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,7 +59,8 @@ export default function SettingsPage() {
       reader.onload = () => {
         img.onload = async () => {
           const MAX = 128;
-          let w = img.width, h = img.height;
+          let w = img.width,
+            h = img.height;
           if (w > MAX || h > MAX) {
             const scale = MAX / Math.max(w, h);
             w = Math.round(w * scale);
@@ -67,7 +77,9 @@ export default function SettingsPage() {
               body: JSON.stringify({ avatarUrl: dataUrl }),
             });
             if (res.ok) setAvatarUrl(dataUrl);
-          } catch { /* silent */ }
+          } catch {
+            /* silent */
+          }
           setUploadingAvatar(false);
         };
         img.src = reader.result as string;
@@ -86,7 +98,9 @@ export default function SettingsPage() {
         body: JSON.stringify({ avatarUrl: null }),
       });
       if (res.ok) setAvatarUrl(null);
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
   useEffect(() => {
@@ -139,17 +153,29 @@ export default function SettingsPage() {
 
   const isPro = settings?.plan === "pro";
   const aiPct = settings
-    ? Math.min(100, Math.round((settings.aiRequestsUsed / settings.aiRequestsLimit) * 100))
+    ? Math.min(
+        100,
+        Math.round((settings.aiRequestsUsed / settings.aiRequestsLimit) * 100),
+      )
     : 0;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto" style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
-      <h1 className="text-xl font-semibold mb-6" style={{ color: "var(--text-primary)" }}>
+    <div
+      className="p-6 max-w-2xl mx-auto"
+      style={{ flex: 1, minHeight: 0, overflowY: "auto" }}
+    >
+      <h1
+        className="text-xl font-semibold mb-6"
+        style={{ color: "var(--text-primary)" }}
+      >
         Settings
       </h1>
 
       {loading ? (
-        <div className="text-sm py-8 text-center" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="text-sm py-8 text-center"
+          style={{ color: "var(--text-muted)" }}
+        >
           Loading settings...
         </div>
       ) : (
@@ -164,7 +190,10 @@ export default function SettingsPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+            <h2
+              className="text-sm font-semibold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
               Profile
             </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -202,7 +231,14 @@ export default function SettingsPage() {
                 </div>
               )}
               <div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", marginBottom: 4 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "var(--text-primary)",
+                    marginBottom: 4,
+                  }}
+                >
                   {userName || session?.user?.email || "User"}
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -264,14 +300,19 @@ export default function SettingsPage() {
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+              <h2
+                className="text-sm font-semibold"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Your Plan
               </h2>
               <span
                 className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
                 style={{
                   background: isPro ? "var(--accent-soft)" : "var(--bg-deep)",
-                  color: isPro ? "var(--text-primary)" : "var(--text-secondary)",
+                  color: isPro
+                    ? "var(--text-primary)"
+                    : "var(--text-secondary)",
                   border: "0.5px solid var(--border)",
                 }}
               >
@@ -281,13 +322,27 @@ export default function SettingsPage() {
 
             {isPro ? (
               <div>
-                <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
-                  You&apos;re on the <strong style={{ color: "var(--text-primary)" }}>Pro plan</strong> ($10/month).
-                  Translations powered by <strong style={{ color: "var(--text-primary)" }}>DeepL Pro</strong>.
+                <p
+                  className="text-sm mb-3"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  You&apos;re on the{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>
+                    Pro plan
+                  </strong>{" "}
+                  ($10/month). Translations powered by{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>
+                    DeepL Pro
+                  </strong>
+                  .
                 </p>
                 {settings?.subscriptionEndsAt && (
-                  <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
-                    Current period ends: {new Date(settings.subscriptionEndsAt).toLocaleDateString()}
+                  <p
+                    className="text-xs mb-3"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Current period ends:{" "}
+                    {new Date(settings.subscriptionEndsAt).toLocaleDateString()}
                   </p>
                 )}
                 <button
@@ -304,9 +359,15 @@ export default function SettingsPage() {
               </div>
             ) : (
               <div>
-                <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
-                  Free plan — translations powered by <strong style={{ color: "var(--text-primary)" }}>Google Translate</strong>.
-                  Upgrade to Pro for DeepL Pro quality and higher limits.
+                <p
+                  className="text-sm mb-4"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Free plan — translations powered by{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>
+                    Google Translate
+                  </strong>
+                  . Upgrade to Pro for DeepL Pro quality and higher limits.
                 </p>
 
                 {/* Feature comparison */}
@@ -333,8 +394,14 @@ export default function SettingsPage() {
                     ["Import formats", "All formats", "All formats"],
                     ["Export formats", "All formats", "All formats"],
                   ].map(([feature, free, pro]) => (
-                    <div key={feature} className="grid grid-cols-3 gap-2 text-xs py-1.5" style={{ borderTop: "1px solid var(--border)" }}>
-                      <div style={{ color: "var(--text-secondary)" }}>{feature}</div>
+                    <div
+                      key={feature}
+                      className="grid grid-cols-3 gap-2 text-xs py-1.5"
+                      style={{ borderTop: "1px solid var(--border)" }}
+                    >
+                      <div style={{ color: "var(--text-secondary)" }}>
+                        {feature}
+                      </div>
                       <div style={{ color: "var(--text-muted)" }}>{free}</div>
                       <div style={{ color: "var(--text-primary)" }}>{pro}</div>
                     </div>
@@ -368,15 +435,21 @@ export default function SettingsPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+            <h2
+              className="text-sm font-semibold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
               Usage This Month
             </h2>
 
             <div className="mb-2">
               <div className="flex justify-between text-xs mb-1">
-                <span style={{ color: "var(--text-secondary)" }}>AI Translation Requests</span>
+                <span style={{ color: "var(--text-secondary)" }}>
+                  AI Translation Requests
+                </span>
                 <span style={{ color: "var(--text-muted)" }}>
-                  {settings?.aiRequestsUsed || 0} / {settings?.aiRequestsLimit || 0}
+                  {settings?.aiRequestsUsed || 0} /{" "}
+                  {settings?.aiRequestsLimit || 0}
                 </span>
               </div>
               <div
@@ -387,7 +460,12 @@ export default function SettingsPage() {
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${aiPct}%`,
-                    background: aiPct > 90 ? "var(--red)" : aiPct > 70 ? "var(--amber)" : "var(--accent)",
+                    background:
+                      aiPct > 90
+                        ? "var(--red)"
+                        : aiPct > 70
+                          ? "var(--amber)"
+                          : "var(--accent)",
                   }}
                 />
               </div>
@@ -408,25 +486,49 @@ export default function SettingsPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+            <h2
+              className="text-sm font-semibold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
               Appearance
             </h2>
 
             {/* Theme Picker */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Theme</p>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Theme
+                </p>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   {theme.charAt(0).toUpperCase() + theme.slice(1)}
                 </p>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {([
-                  { id: "dark" as const, color: "#202124", border: "0.5px solid #3C3C3F" },
-                  { id: "sakura" as const, color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.2)" },
-                  { id: "light" as const, color: "#F7F6F3", border: "0.5px solid #ECEAE5" },
-                  { id: "linen" as const, color: "#C4AA90", border: "0.5px solid #B09878" },
-                ]).map((t) => (
+                {[
+                  {
+                    id: "dark" as const,
+                    color: "#202124",
+                    border: "0.5px solid #3C3C3F",
+                  },
+                  {
+                    id: "sakura" as const,
+                    color: "#EFC4CC",
+                    border: "0.5px solid rgba(255,255,255,0.2)",
+                  },
+                  {
+                    id: "light" as const,
+                    color: "#F7F6F3",
+                    border: "0.5px solid #ECEAE5",
+                  },
+                  {
+                    id: "linen" as const,
+                    color: "#C4AA90",
+                    border: "0.5px solid #B09878",
+                  },
+                ].map((t) => (
                   <div
                     key={t.id}
                     onClick={() => setTheme(t.id)}
@@ -435,12 +537,14 @@ export default function SettingsPage() {
                       height: theme === t.id ? 20 : 16,
                       borderRadius: "50%",
                       background: t.color,
-                      border: theme === t.id ? "1.5px solid var(--accent)" : t.border,
+                      border:
+                        theme === t.id ? "1.5px solid var(--accent)" : t.border,
                       cursor: "pointer",
                       transition: "all 150ms",
-                      boxShadow: theme === t.id
-                        ? "0 0 0 2px var(--bg-deep), 0 0 0 4px var(--accent)"
-                        : "none",
+                      boxShadow:
+                        theme === t.id
+                          ? "0 0 0 2px var(--bg-deep), 0 0 0 4px var(--accent)"
+                          : "none",
                     }}
                     title={t.id.charAt(0).toUpperCase() + t.id.slice(1)}
                   />
@@ -451,7 +555,12 @@ export default function SettingsPage() {
             {/* Font Size */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Editor Font Size</p>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Editor Font Size
+                </p>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   Adjust text size in the translation editor (12–20px)
                 </p>
@@ -464,20 +573,30 @@ export default function SettingsPage() {
                   step={1}
                   defaultValue={
                     typeof window !== "undefined"
-                      ? Number(localStorage.getItem("tp-editor-font-size") || "13")
+                      ? Number(
+                          localStorage.getItem("tp-editor-font-size") || "13",
+                        )
                       : 13
                   }
                   onChange={(e) => {
                     const v = Number(e.target.value);
-                    try { localStorage.setItem("tp-editor-font-size", String(v)); } catch { /* ignore */ }
+                    try {
+                      localStorage.setItem("tp-editor-font-size", String(v));
+                    } catch {
+                      /* ignore */
+                    }
                   }}
                   className="w-24"
                   style={{ accentColor: "var(--accent)" }}
                 />
-                <span className="text-xs font-mono w-8 text-right" style={{ color: "var(--text-secondary)" }}>
+                <span
+                  className="text-xs font-mono w-8 text-right"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   {typeof window !== "undefined"
                     ? localStorage.getItem("tp-editor-font-size") || "13"
-                    : "13"}px
+                    : "13"}
+                  px
                 </span>
               </div>
             </div>
@@ -493,14 +612,23 @@ export default function SettingsPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+            <h2
+              className="text-sm font-semibold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
               Break Reminder
             </h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Break reminder (20-20-20 rule)</p>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Break reminder (20-20-20 rule)
+                </p>
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  Reminds you to look at something 20ft away for 20 seconds every 20 minutes while in the editor.
+                  Reminds you to look at something 20ft away for 20 seconds
+                  every 20 minutes while in the editor.
                 </p>
               </div>
               <button
@@ -508,15 +636,22 @@ export default function SettingsPage() {
                   const next = !breakEnabled;
                   setBreakEnabled(next);
                   try {
-                    localStorage.setItem("catforcat-break-interval", next ? "20" : "0");
-                  } catch { /* ignore */ }
+                    localStorage.setItem(
+                      "catforcat-break-interval",
+                      next ? "20" : "0",
+                    );
+                  } catch {
+                    /* ignore */
+                  }
                 }}
                 style={{
                   width: 40,
                   height: 22,
                   borderRadius: 11,
                   border: "1px solid var(--border)",
-                  background: breakEnabled ? "var(--accent)" : "var(--bg-hover)",
+                  background: breakEnabled
+                    ? "var(--accent)"
+                    : "var(--bg-hover)",
                   cursor: "pointer",
                   position: "relative",
                   transition: "background 200ms",
@@ -551,11 +686,15 @@ export default function SettingsPage() {
               border: "1px solid var(--border)",
             }}
           >
-            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
+            <h2
+              className="text-sm font-semibold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
               Display Scale
             </h2>
             <p className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-              Auto-scales to fit your monitor. You can also cycle with the button in the top bar.
+              Auto-scales to fit your monitor. You can also cycle with the
+              button in the top bar.
             </p>
 
             <div style={{ display: "flex", gap: 10 }}>
@@ -570,17 +709,23 @@ export default function SettingsPage() {
                       flex: 1,
                       padding: "12px 10px",
                       borderRadius: 10,
-                      background: isActive ? "var(--accent-soft)" : "var(--bg-deep)",
-                      border: isActive ? "1.5px solid var(--accent)" : "1px solid var(--border)",
+                      background: isActive
+                        ? "var(--accent-soft)"
+                        : "var(--bg-deep)",
+                      border: isActive
+                        ? "1.5px solid var(--accent)"
+                        : "1px solid var(--border)",
                       cursor: "pointer",
                       transition: "border-color 150ms, background 150ms",
                       textAlign: "center",
                     }}
                     onMouseEnter={(e) => {
-                      if (!isActive) e.currentTarget.style.borderColor = "var(--accent)";
+                      if (!isActive)
+                        e.currentTarget.style.borderColor = "var(--accent)";
                     }}
                     onMouseLeave={(e) => {
-                      if (!isActive) e.currentTarget.style.borderColor = "var(--border)";
+                      if (!isActive)
+                        e.currentTarget.style.borderColor = "var(--border)";
                     }}
                   >
                     <div
@@ -588,7 +733,9 @@ export default function SettingsPage() {
                         fontFamily: "'Inter', system-ui, sans-serif",
                         fontSize: 13,
                         fontWeight: isActive ? 500 : 400,
-                        color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                        color: isActive
+                          ? "var(--text-primary)"
+                          : "var(--text-secondary)",
                         marginBottom: 4,
                       }}
                     >

@@ -6,7 +6,11 @@ import { Globe, Lock, Shield } from "lucide-react";
 
 const THEME_DOTS: { id: Theme; color: string; border: string }[] = [
   { id: "dark", color: "#202124", border: "0.5px solid #3C3C3F" },
-  { id: "sakura", color: "#EFC4CC", border: "0.5px solid rgba(255,255,255,0.3)" },
+  {
+    id: "sakura",
+    color: "#EFC4CC",
+    border: "0.5px solid #ffffff4d",
+  },
   { id: "light", color: "#F7F6F3", border: "0.5px solid #ECEAE5" },
   { id: "linen", color: "#C4AA90", border: "0.5px solid #B09878" },
 ];
@@ -21,13 +25,19 @@ export default function Onboarding() {
       if (!localStorage.getItem("catforcat-onboarded")) {
         setShow(true);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   if (!show) return null;
 
   const finish = () => {
-    try { localStorage.setItem("catforcat-onboarded", "true"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem("catforcat-onboarded", "true");
+    } catch {
+      /* ignore */
+    }
     setShow(false);
   };
 
@@ -108,8 +118,12 @@ export default function Onboarding() {
             <button
               onClick={next}
               style={btnStyle}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--btn-bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--btn-bg)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg-hover)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg)")
+              }
             >
               Let&apos;s go
             </button>
@@ -139,13 +153,18 @@ export default function Onboarding() {
                 lineHeight: 1.6,
               }}
             >
-              Create projects, import files, and start translating. Your editor has all the tools you need on the left sidebar.
+              Create projects, import files, and start translating. Your editor
+              has all the tools you need on the left sidebar.
             </p>
             <button
               onClick={next}
               style={btnStyle}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--btn-bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--btn-bg)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg-hover)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg)")
+              }
             >
               Next
             </button>
@@ -175,16 +194,33 @@ export default function Onboarding() {
                 lineHeight: 1.6,
               }}
             >
-              Every project has a privacy level. Standard uses all features. Private keeps data off public TMs. Confidential means zero external calls.
+              Every project has a privacy level. Standard uses all features.
+              Private keeps data off public TMs. Confidential means zero
+              external calls.
             </p>
 
-            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 28 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 24,
+                marginBottom: 28,
+              }}
+            >
               {[
                 { icon: Globe, label: "Standard" },
                 { icon: Lock, label: "Private" },
                 { icon: Shield, label: "Confidential" },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
                   <div
                     style={{
                       width: 40,
@@ -199,7 +235,13 @@ export default function Onboarding() {
                   >
                     <Icon size={18} />
                   </div>
-                  <span style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "var(--text-secondary)",
+                      fontFamily: "'Inter', system-ui, sans-serif",
+                    }}
+                  >
                     {label}
                   </span>
                 </div>
@@ -209,8 +251,12 @@ export default function Onboarding() {
             <button
               onClick={next}
               style={btnStyle}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--btn-bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--btn-bg)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg-hover)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg)")
+              }
             >
               Next
             </button>
@@ -244,7 +290,14 @@ export default function Onboarding() {
             </p>
 
             {/* Functional theme dots */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 28 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 8,
+                marginBottom: 28,
+              }}
+            >
               {THEME_DOTS.map((t) => (
                 <div
                   key={t.id}
@@ -256,9 +309,10 @@ export default function Onboarding() {
                     background: t.color,
                     border: t.border,
                     cursor: "pointer",
-                    boxShadow: theme === t.id
-                      ? "0 0 0 2px var(--bg-panel), 0 0 0 4px var(--accent)"
-                      : "none",
+                    boxShadow:
+                      theme === t.id
+                        ? "0 0 0 2px var(--bg-panel), 0 0 0 4px var(--accent)"
+                        : "none",
                     transition: "box-shadow 150ms",
                   }}
                   title={t.id.charAt(0).toUpperCase() + t.id.slice(1)}
@@ -269,8 +323,12 @@ export default function Onboarding() {
             <button
               onClick={finish}
               style={btnStyle}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--btn-bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--btn-bg)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg-hover)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "var(--btn-bg)")
+              }
             >
               Start translating
             </button>
@@ -278,7 +336,14 @@ export default function Onboarding() {
         )}
 
         {/* Progress dots */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 20 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 6,
+            marginTop: 20,
+          }}
+        >
           {[0, 1, 2, 3].map((i) => (
             <div key={i} style={dotStyle(i === step)} />
           ))}

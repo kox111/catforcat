@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 // PUT /api/projects/[id]/qa-rules/[ruleId] — update a QA rule
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ruleId: string }> }
+  { params }: { params: Promise<{ id: string; ruleId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { id: projectId, ruleId } = await params;
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
 
   // Verify the project belongs to this user
   const project = await prisma.project.findFirst({
@@ -54,7 +44,7 @@ export async function PUT(
       if (!["warning", "error"].includes(severity)) {
         return NextResponse.json(
           { error: 'Severity must be "warning" or "error"' },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.severity = severity;
@@ -70,7 +60,7 @@ export async function PUT(
       } catch (e) {
         return NextResponse.json(
           { error: `Invalid regex pattern: ${(e as Error).message}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -84,7 +74,7 @@ export async function PUT(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update QA rule" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -92,21 +82,12 @@ export async function PUT(
 // DELETE /api/projects/[id]/qa-rules/[ruleId] — delete a QA rule
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; ruleId: string }> }
+  { params }: { params: Promise<{ id: string; ruleId: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { id: projectId, ruleId } = await params;
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
 
   // Verify the project belongs to this user
   const project = await prisma.project.findFirst({
@@ -133,7 +114,7 @@ export async function DELETE(
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to delete QA rule" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

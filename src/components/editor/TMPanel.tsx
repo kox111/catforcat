@@ -55,11 +55,16 @@ export default function TMPanel({
     };
 
     const timer = setTimeout(searchTM, 300);
-    return () => { cancelled = true; clearTimeout(timer); };
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [sourceText, srcLang, tgtLang, isActive]);
 
   // Reset applied state when source changes
-  useEffect(() => { setAppliedId(null); }, [sourceText]);
+  useEffect(() => {
+    setAppliedId(null);
+  }, [sourceText]);
 
   if (!isActive) {
     return (
@@ -165,11 +170,14 @@ export default function TMPanel({
                 position: "relative",
               }}
               onMouseEnter={(e) => {
-                if (!isApplied) e.currentTarget.style.background = "var(--bg-hover)";
+                if (!isApplied)
+                  e.currentTarget.style.background = "var(--bg-hover)";
                 e.currentTarget.style.boxShadow = "var(--shadow-sm)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = isApplied ? "var(--green-soft)" : "var(--bg-deep)";
+                e.currentTarget.style.background = isApplied
+                  ? "var(--green-soft)"
+                  : "var(--bg-deep)";
                 e.currentTarget.style.boxShadow = "none";
               }}
               title={`Click to apply · Ctrl+${idx + 1}`}

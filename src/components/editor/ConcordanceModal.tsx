@@ -28,12 +28,21 @@ function HighlightText({ text, query }: { text: string; query: string }) {
     <>
       {parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} style={{ background: "var(--mark-bg)", color: "var(--mark-text)", borderRadius: "2px", padding: "0 1px", fontStyle: "inherit" }}>
+          <mark
+            key={i}
+            style={{
+              background: "var(--mark-bg)",
+              color: "var(--mark-text)",
+              borderRadius: "2px",
+              padding: "0 1px",
+              fontStyle: "inherit",
+            }}
+          >
             {part}
           </mark>
         ) : (
           <span key={i}>{part}</span>
-        )
+        ),
       )}
     </>
   );
@@ -55,29 +64,40 @@ export default function ConcordanceModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const search = useCallback(async (q: string, p: number) => {
-    if (q.trim().length < 2) {
-      setResults([]);
-      setTotal(0);
-      setTotalPages(0);
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch("/api/tm/concordance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: q, srcLang, tgtLang, page: p, pageSize: 10 }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setResults(data.results);
-        setTotal(data.total);
-        setTotalPages(data.totalPages);
+  const search = useCallback(
+    async (q: string, p: number) => {
+      if (q.trim().length < 2) {
+        setResults([]);
+        setTotal(0);
+        setTotalPages(0);
+        return;
       }
-    } catch { /* ignore */ }
-    setLoading(false);
-  }, [srcLang, tgtLang]);
+      setLoading(true);
+      try {
+        const res = await fetch("/api/tm/concordance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: q,
+            srcLang,
+            tgtLang,
+            page: p,
+            pageSize: 10,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setResults(data.results);
+          setTotal(data.total);
+          setTotalPages(data.totalPages);
+        }
+      } catch {
+        /* ignore */
+      }
+      setLoading(false);
+    },
+    [srcLang, tgtLang],
+  );
 
   // Auto-search with debounce
   useEffect(() => {
@@ -86,7 +106,9 @@ export default function ConcordanceModal({
       setPage(1);
       search(query, 1);
     }, 400);
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [query, search]);
 
   // Focus input on mount
@@ -111,7 +133,9 @@ export default function ConcordanceModal({
         paddingTop: "6rem",
         background: "var(--overlay)",
       }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         style={{
@@ -125,17 +149,53 @@ export default function ConcordanceModal({
         }}
       >
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "0.75rem", paddingBottom: "0.75rem", borderBottom: "1px solid var(--border)" }}>
-          <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "var(--text-primary)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingTop: "0.75rem",
+            paddingBottom: "0.75rem",
+            borderBottom: "1px solid var(--border)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "var(--text-primary)",
+            }}
+          >
             Concordance Search (TM)
           </span>
-          <button onClick={onClose} style={{ fontSize: "0.875rem", paddingLeft: "0.5rem", paddingRight: "0.5rem", color: "var(--text-muted)", background: "transparent", border: "none", cursor: "pointer" }}>
+          <button
+            onClick={onClose}
+            style={{
+              fontSize: "0.875rem",
+              paddingLeft: "0.5rem",
+              paddingRight: "0.5rem",
+              color: "var(--text-muted)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
             Esc
           </button>
         </div>
 
         {/* Search Input */}
-        <div style={{ paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "0.75rem", paddingBottom: "0.75rem", borderBottom: "1px solid var(--border)" }}>
+        <div
+          style={{
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+            paddingTop: "0.75rem",
+            paddingBottom: "0.75rem",
+            borderBottom: "1px solid var(--border)",
+          }}
+        >
           <input
             ref={inputRef}
             type="text"
@@ -143,7 +203,10 @@ export default function ConcordanceModal({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Escape") onClose();
-              if (e.key === "Enter") { setPage(1); search(query, 1); }
+              if (e.key === "Enter") {
+                setPage(1);
+                search(query, 1);
+              }
             }}
             placeholder="Search in Translation Memory..."
             style={{
@@ -162,7 +225,13 @@ export default function ConcordanceModal({
             }}
           />
           {total > 0 && (
-            <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+            <div
+              style={{
+                marginTop: "0.25rem",
+                fontSize: "0.75rem",
+                color: "var(--text-muted)",
+              }}
+            >
               {total} result{total !== 1 ? "s" : ""} found
             </div>
           )}
@@ -171,48 +240,84 @@ export default function ConcordanceModal({
         {/* Results */}
         <div style={{ maxHeight: "20rem", overflowY: "auto" }}>
           {loading && (
-            <div style={{ paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "1.5rem", paddingBottom: "1.5rem", textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+            <div
+              style={{
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+                paddingTop: "1.5rem",
+                paddingBottom: "1.5rem",
+                textAlign: "center",
+                fontSize: "0.75rem",
+                color: "var(--text-muted)",
+              }}
+            >
               Searching...
             </div>
           )}
 
           {!loading && results.length === 0 && query.length >= 2 && (
-            <div style={{ paddingLeft: "1rem", paddingRight: "1rem", paddingTop: "1.5rem", paddingBottom: "1.5rem", textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+            <div
+              style={{
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+                paddingTop: "1.5rem",
+                paddingBottom: "1.5rem",
+                textAlign: "center",
+                fontSize: "0.75rem",
+                color: "var(--text-muted)",
+              }}
+            >
               No matches found
             </div>
           )}
 
-          {!loading && results.map((r) => (
-            <div
-              key={r.id}
-              style={{
-                paddingLeft: "1rem",
-                paddingRight: "1rem",
-                paddingTop: "0.75rem",
-                paddingBottom: "0.75rem",
-                fontSize: "0.75rem",
-                transition: "background-color 0.2s",
-                cursor: "pointer",
-                borderBottom: "1px solid var(--border)",
-                background: "transparent",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-              onClick={() => onApply?.(r.targetText)}
-            >
-              <div style={{ marginBottom: "0.25rem", color: "var(--text-secondary)" }}>
-                <span style={{ fontWeight: 500, color: "var(--text-muted)" }}>SRC: </span>
-                <HighlightText text={r.sourceText} query={query} />
+          {!loading &&
+            results.map((r) => (
+              <div
+                key={r.id}
+                style={{
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                  paddingTop: "0.75rem",
+                  paddingBottom: "0.75rem",
+                  fontSize: "0.75rem",
+                  transition: "background-color 0.2s",
+                  cursor: "pointer",
+                  borderBottom: "1px solid var(--border)",
+                  background: "transparent",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "var(--bg-hover)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
+                onClick={() => onApply?.(r.targetText)}
+              >
+                <div
+                  style={{
+                    marginBottom: "0.25rem",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <span style={{ fontWeight: 500, color: "var(--text-muted)" }}>
+                    SRC:{" "}
+                  </span>
+                  <HighlightText text={r.sourceText} query={query} />
+                </div>
+                <div style={{ color: "var(--text-primary)" }}>
+                  <span style={{ fontWeight: 500, color: "var(--text-muted)" }}>
+                    TGT:{" "}
+                  </span>
+                  <HighlightText text={r.targetText} query={query} />
+                </div>
+                <div
+                  style={{ marginTop: "0.25rem", color: "var(--text-muted)" }}
+                >
+                  {r.srcLang}→{r.tgtLang} · used {r.usageCount}×
+                </div>
               </div>
-              <div style={{ color: "var(--text-primary)" }}>
-                <span style={{ fontWeight: 500, color: "var(--text-muted)" }}>TGT: </span>
-                <HighlightText text={r.targetText} query={query} />
-              </div>
-              <div style={{ marginTop: "0.25rem", color: "var(--text-muted)" }}>
-                {r.srcLang}→{r.tgtLang} · used {r.usageCount}×
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
 
         {/* Pagination */}
@@ -249,7 +354,9 @@ export default function ConcordanceModal({
             >
               ← Prev
             </button>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+            <span
+              style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}
+            >
               Page {page} of {totalPages}
             </span>
             <button
@@ -262,7 +369,8 @@ export default function ConcordanceModal({
                 paddingTop: "0.25rem",
                 paddingBottom: "0.25rem",
                 borderRadius: "0.25rem",
-                color: page >= totalPages ? "var(--text-muted)" : "var(--accent)",
+                color:
+                  page >= totalPages ? "var(--text-muted)" : "var(--accent)",
                 opacity: page >= totalPages ? 0.5 : 1,
                 background: "transparent",
                 border: "none",

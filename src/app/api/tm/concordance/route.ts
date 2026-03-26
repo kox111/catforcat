@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -9,24 +8,15 @@ import { prisma } from "@/lib/prisma";
  * Returns matches with the search term highlighted in context.
  */
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const { query, srcLang, tgtLang, page = 1, pageSize = 10 } = await req.json();
 
   if (!query || query.trim().length < 2) {
     return NextResponse.json(
       { error: "Search query must be at least 2 characters" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -45,7 +35,7 @@ export async function POST(req: NextRequest) {
   const matches = allEntries.filter(
     (e) =>
       e.sourceText.toLowerCase().includes(queryLower) ||
-      e.targetText.toLowerCase().includes(queryLower)
+      e.targetText.toLowerCase().includes(queryLower),
   );
 
   const total = matches.length;

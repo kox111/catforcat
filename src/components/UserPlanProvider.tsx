@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { useSession } from "next-auth/react";
 
 interface UserPlanContextValue {
@@ -8,13 +14,20 @@ interface UserPlanContextValue {
   loading: boolean;
 }
 
-const UserPlanContext = createContext<UserPlanContextValue>({ plan: "free", loading: true });
+const UserPlanContext = createContext<UserPlanContextValue>({
+  plan: "free",
+  loading: true,
+});
 
 export function useUserPlan() {
   return useContext(UserPlanContext);
 }
 
-export default function UserPlanProvider({ children }: { children: ReactNode }) {
+export default function UserPlanProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const { data: session } = useSession();
   const [plan, setPlan] = useState("free");
   const [loading, setLoading] = useState(true);

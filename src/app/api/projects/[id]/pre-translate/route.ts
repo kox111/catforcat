@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { fuzzyMatch } from "@/lib/fuzzy-match";
 
@@ -22,16 +21,14 @@ import { fuzzyMatch } from "@/lib/fuzzy-match";
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id: projectId } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user: authUser, error } = await getAuthenticatedUser();
+  if (error) return error;
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: authUser.id },
     select: {
       id: true,
       plan: true,
@@ -58,7 +55,7 @@ export async function POST(
 
   // Get empty segments (no target text or status is "empty")
   const emptySegments = project.segments.filter(
-    (s) => s.targetText.trim() === "" || s.status === "empty"
+    (s) => s.targetText.trim() === "" || s.status === "empty",
   );
 
   if (emptySegments.length === 0) {
@@ -118,8 +115,8 @@ export async function POST(
         prisma.segment.update({
           where: { id: r.segmentId },
           data: { targetText: r.targetText, status: "draft" },
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -179,7 +176,7 @@ export async function POST(
         project.tgtLang,
         provider,
         project.segments,
-        seg.position
+        seg.position,
       );
 
       // Save to DB
@@ -238,8 +235,15 @@ export async function POST(
 // ─────────────────────────────────────────────
 
 const DEEPL_LANG_MAP: Record<string, string> = {
-  en: "EN", es: "ES", fr: "FR", de: "DE",
-  pt: "PT-BR", it: "IT", zh: "ZH", ja: "JA", ko: "KO",
+  en: "EN",
+  es: "ES",
+  fr: "FR",
+  de: "DE",
+  pt: "PT-BR",
+  it: "IT",
+  zh: "ZH",
+  ja: "JA",
+  ko: "KO",
 };
 
 async function translateSegment(
@@ -248,7 +252,7 @@ async function translateSegment(
   tgtLang: string,
   provider: "google" | "deepl",
   allSegments: Array<{ position: number; sourceText: string }>,
-  position: number
+  position: number,
 ): Promise<string> {
   // Build context from adjacent segments
   const prevSeg = allSegments.find((s) => s.position === position - 1);
@@ -264,7 +268,7 @@ async function translateWithGoogle(
   text: string,
   srcLang: string,
   tgtLang: string,
-  contextPrev?: string
+  contextPrev?: string,
 ): Promise<string> {
   const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
   if (!apiKey) throw new Error("Google Translate API key not configured");
@@ -302,7 +306,7 @@ async function translateWithGoogle(
 async function translateWithDeepL(
   text: string,
   srcLang: string,
-  tgtLang: string
+  tgtLang: string,
 ): Promise<string> {
   const apiKey = process.env.DEEPL_API_KEY;
   if (!apiKey) throw new Error("DeepL API key not configured");

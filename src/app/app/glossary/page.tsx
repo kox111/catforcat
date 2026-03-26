@@ -25,8 +25,15 @@ const LANG_OPTIONS = [
 ];
 
 const LANG_LABELS: Record<string, string> = {
-  en: "EN", es: "ES", fr: "FR", de: "DE", pt: "PT",
-  it: "IT", zh: "ZH", ja: "JA", ko: "KO",
+  en: "EN",
+  es: "ES",
+  fr: "FR",
+  de: "DE",
+  pt: "PT",
+  it: "IT",
+  zh: "ZH",
+  ja: "JA",
+  ko: "KO",
 };
 
 export default function GlossaryPage() {
@@ -49,7 +56,9 @@ export default function GlossaryPage() {
   const csvFileInputRef = useRef<HTMLInputElement>(null);
   // G1: Import from project
   const [showProjectImport, setShowProjectImport] = useState(false);
-  const [projects, setProjects] = useState<{ id: string; name: string; srcLang: string; tgtLang: string }[]>([]);
+  const [projects, setProjects] = useState<
+    { id: string; name: string; srcLang: string; tgtLang: string }[]
+  >([]);
   const [importingFromProject, setImportingFromProject] = useState(false);
 
   const handleImportCSV = async (file: File) => {
@@ -58,10 +67,15 @@ export default function GlossaryPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/glossary/import", { method: "POST", body: formData });
+      const res = await fetch("/api/glossary/import", {
+        method: "POST",
+        body: formData,
+      });
       const data = await res.json();
       if (res.ok) {
-        setImportResult(`Imported ${data.imported} terms (${data.skipped} duplicates skipped)`);
+        setImportResult(
+          `Imported ${data.imported} terms (${data.skipped} duplicates skipped)`,
+        );
         fetchTerms();
       } else {
         setImportResult(`Error: ${data.error}`);
@@ -146,8 +160,17 @@ export default function GlossaryPage() {
   useEffect(() => {
     if (showProjectImport && projects.length === 0) {
       fetch("/api/projects")
-        .then((r) => r.ok ? r.json() : [])
-        .then((data: { id: string; name: string; srcLang: string; tgtLang: string }[]) => setProjects(data))
+        .then((r) => (r.ok ? r.json() : []))
+        .then(
+          (
+            data: {
+              id: string;
+              name: string;
+              srcLang: string;
+              tgtLang: string;
+            }[],
+          ) => setProjects(data),
+        )
         .catch(() => {});
     }
   }, [showProjectImport, projects.length]);
@@ -163,7 +186,9 @@ export default function GlossaryPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setImportResult(`Imported ${data.imported} terms from project (${data.skipped} duplicates skipped)`);
+        setImportResult(
+          `Imported ${data.imported} terms from project (${data.skipped} duplicates skipped)`,
+        );
         setShowProjectImport(false);
         fetchTerms();
       } else {
@@ -183,10 +208,16 @@ export default function GlossaryPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto" style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+    <div
+      className="p-6 max-w-5xl mx-auto"
+      style={{ flex: 1, minHeight: 0, overflowY: "auto" }}
+    >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
+          <h1
+            className="text-xl font-semibold"
+            style={{ color: "var(--text-primary)" }}
+          >
             Glossary
           </h1>
           <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
@@ -199,8 +230,12 @@ export default function GlossaryPage() {
             onClick={() => setShowProjectImport((v) => !v)}
             className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
             style={{
-              background: showProjectImport ? "var(--accent-soft)" : "var(--bg-card)",
-              color: showProjectImport ? "var(--text-primary)" : "var(--text-secondary)",
+              background: showProjectImport
+                ? "var(--accent-soft)"
+                : "var(--bg-card)",
+              color: showProjectImport
+                ? "var(--text-primary)"
+                : "var(--text-secondary)",
               border: "0.5px solid var(--border)",
             }}
           >
@@ -272,7 +307,9 @@ export default function GlossaryPage() {
             className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
             style={{
               background: showAddForm ? "var(--bg-card)" : "var(--accent-soft)",
-              color: showAddForm ? "var(--text-secondary)" : "var(--text-primary)",
+              color: showAddForm
+                ? "var(--text-secondary)"
+                : "var(--text-primary)",
               border: "0.5px solid var(--border)",
             }}
           >
@@ -295,7 +332,10 @@ export default function GlossaryPage() {
         >
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>
+              <label
+                className="text-xs mb-1 block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Source Term
               </label>
               <input
@@ -309,7 +349,10 @@ export default function GlossaryPage() {
               />
             </div>
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>
+              <label
+                className="text-xs mb-1 block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Target Term
               </label>
               <input
@@ -325,7 +368,10 @@ export default function GlossaryPage() {
           </div>
           <div className="grid grid-cols-3 gap-3 mb-3">
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>
+              <label
+                className="text-xs mb-1 block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Source Language
               </label>
               <select
@@ -335,12 +381,17 @@ export default function GlossaryPage() {
                 style={inputStyle}
               >
                 {LANG_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>
+              <label
+                className="text-xs mb-1 block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Target Language
               </label>
               <select
@@ -350,12 +401,17 @@ export default function GlossaryPage() {
                 style={inputStyle}
               >
                 {LANG_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>
+              <label
+                className="text-xs mb-1 block"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Note (optional)
               </label>
               <input
@@ -372,7 +428,11 @@ export default function GlossaryPage() {
             type="submit"
             disabled={submitting}
             className="px-4 py-1.5 rounded text-sm font-medium"
-            style={{ background: "var(--accent-soft)", color: "var(--text-primary)", border: "0.5px solid var(--border)" }}
+            style={{
+              background: "var(--accent-soft)",
+              color: "var(--text-primary)",
+              border: "0.5px solid var(--border)",
+            }}
           >
             {submitting ? "Adding..." : "Add Term"}
           </button>
@@ -390,12 +450,21 @@ export default function GlossaryPage() {
             paddingBottom: "8px",
             borderRadius: "6px",
             fontSize: "12px",
-            background: importResult.startsWith("Error") ? "var(--red-soft)" : "var(--accent-soft)",
-            color: importResult.startsWith("Error") ? "var(--red-text)" : "var(--text-primary)",
+            background: importResult.startsWith("Error")
+              ? "var(--red-soft)"
+              : "var(--accent-soft)",
+            color: importResult.startsWith("Error")
+              ? "var(--red-text)"
+              : "var(--text-primary)",
           }}
         >
           {importResult}
-          <button onClick={() => setImportResult(null)} style={{ marginLeft: "8px", fontWeight: "bold" }}>×</button>
+          <button
+            onClick={() => setImportResult(null)}
+            style={{ marginLeft: "8px", fontWeight: "bold" }}
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -410,11 +479,16 @@ export default function GlossaryPage() {
             border: "1px solid var(--border)",
           }}
         >
-          <h3 className="text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>
+          <h3
+            className="text-sm font-medium mb-2"
+            style={{ color: "var(--text-primary)" }}
+          >
             Select a project to extract terms from:
           </h3>
           {projects.length === 0 ? (
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Loading projects...</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              Loading projects...
+            </p>
           ) : (
             <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
               {projects.map((p) => (
@@ -429,16 +503,25 @@ export default function GlossaryPage() {
                     border: "1px solid var(--border)",
                     opacity: importingFromProject ? 0.6 : 1,
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.borderColor = "var(--accent)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.borderColor = "var(--border)")
+                  }
                 >
-                  {p.name} <span style={{ color: "var(--text-muted)" }}>({p.srcLang}→{p.tgtLang})</span>
+                  {p.name}{" "}
+                  <span style={{ color: "var(--text-muted)" }}>
+                    ({p.srcLang}→{p.tgtLang})
+                  </span>
                 </button>
               ))}
             </div>
           )}
           {importingFromProject && (
-            <p className="text-xs mt-2" style={{ color: "var(--accent)" }}>Analyzing project...</p>
+            <p className="text-xs mt-2" style={{ color: "var(--accent)" }}>
+              Analyzing project...
+            </p>
           )}
         </div>
       )}
@@ -452,18 +535,26 @@ export default function GlossaryPage() {
           placeholder="Search glossary..."
           className="w-full px-3 py-2 rounded text-sm outline-none"
           style={inputStyle}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
+          onFocus={(e) =>
+            (e.currentTarget.style.borderColor = "var(--border-focus)")
+          }
           onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
         />
       </div>
 
       {/* Terms list */}
       {loading ? (
-        <div className="text-sm py-8 text-center" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="text-sm py-8 text-center"
+          style={{ color: "var(--text-muted)" }}
+        >
           Loading...
         </div>
       ) : terms.length === 0 ? (
-        <div className="text-sm py-8 text-center" style={{ color: "var(--text-muted)" }}>
+        <div
+          className="text-sm py-8 text-center"
+          style={{ color: "var(--text-muted)" }}
+        >
           {searchQuery
             ? "No matching terms found"
             : "Your glossary is empty. Add terms to ensure consistent translations."}
@@ -489,11 +580,15 @@ export default function GlossaryPage() {
                       border: "1px solid var(--border)",
                     }}
                   >
-                    {LANG_LABELS[term.srcLang] || term.srcLang} → {LANG_LABELS[term.tgtLang] || term.tgtLang}
+                    {LANG_LABELS[term.srcLang] || term.srcLang} →{" "}
+                    {LANG_LABELS[term.tgtLang] || term.tgtLang}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {term.sourceTerm}
                   </span>
                   <span style={{ color: "var(--text-muted)" }}>→</span>
@@ -502,7 +597,10 @@ export default function GlossaryPage() {
                   </span>
                 </div>
                 {term.note && (
-                  <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                  <div
+                    className="text-xs mt-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     {term.note}
                   </div>
                 )}
@@ -511,7 +609,10 @@ export default function GlossaryPage() {
                 onClick={() => handleDelete(term.id)}
                 disabled={deleting === term.id}
                 className="text-xs px-2 py-1 rounded transition-colors shrink-0"
-                style={{ color: "var(--text-muted)", border: "1px solid transparent" }}
+                style={{
+                  color: "var(--text-muted)",
+                  border: "1px solid transparent",
+                }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = "var(--red)";
                   e.currentTarget.style.borderColor = "var(--red)";

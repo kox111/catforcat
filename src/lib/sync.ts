@@ -30,7 +30,11 @@ export function onOnlineChange(cb: OnlineCallback): () => void {
 function _notify(online: boolean) {
   _isOnline = online;
   for (const cb of _listeners) {
-    try { cb(online); } catch { /* ignore */ }
+    try {
+      cb(online);
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -95,7 +99,10 @@ export async function enqueueSync(
 }
 
 /** Process all pending sync entries (FIFO). Called on reconnection. */
-export async function processSyncQueue(): Promise<{ processed: number; errors: number }> {
+export async function processSyncQueue(): Promise<{
+  processed: number;
+  errors: number;
+}> {
   const entries = await db.syncQueue.orderBy("timestamp").toArray();
   let processed = 0;
   let errors = 0;
@@ -130,7 +137,13 @@ async function syncEntryToServer(entry: SyncQueueEntry): Promise<void> {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          segments: [{ id: entry.recordId, targetText: payload.targetText, status: payload.status }],
+          segments: [
+            {
+              id: entry.recordId,
+              targetText: payload.targetText,
+              status: payload.status,
+            },
+          ],
         }),
       });
       if (!res.ok) throw new Error(`Segment sync failed: ${res.status}`);
@@ -145,7 +158,9 @@ async function syncEntryToServer(entry: SyncQueueEntry): Promise<void> {
         });
         if (!res.ok) throw new Error(`TM sync failed: ${res.status}`);
       } else if (entry.action === "delete") {
-        const res = await fetch(`/api/tm?id=${entry.recordId}`, { method: "DELETE" });
+        const res = await fetch(`/api/tm?id=${entry.recordId}`, {
+          method: "DELETE",
+        });
         if (!res.ok) throw new Error(`TM delete sync failed: ${res.status}`);
       }
       break;
@@ -159,8 +174,11 @@ async function syncEntryToServer(entry: SyncQueueEntry): Promise<void> {
         });
         if (!res.ok) throw new Error(`Glossary sync failed: ${res.status}`);
       } else if (entry.action === "delete") {
-        const res = await fetch(`/api/glossary?id=${entry.recordId}`, { method: "DELETE" });
-        if (!res.ok) throw new Error(`Glossary delete sync failed: ${res.status}`);
+        const res = await fetch(`/api/glossary?id=${entry.recordId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok)
+          throw new Error(`Glossary delete sync failed: ${res.status}`);
       }
       break;
     }
@@ -199,9 +217,7 @@ export async function mirrorSegments(
     metadata?: string;
   }>,
 ): Promise<void> {
-  await db.segments.bulkPut(
-    segments.map((s) => ({ ...s, projectId })),
-  );
+  await db.segments.bulkPut(segments.map((s) => ({ ...s, projectId })));
 }
 
 /** Mirror a TM entry to IndexedDB */

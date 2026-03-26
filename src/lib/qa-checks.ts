@@ -58,7 +58,7 @@ function checkEmptyConfirmed(seg: QASegment): QAIssue | null {
 /** Warning: Source contains glossary term but target doesn't have its translation */
 function checkGlossaryViolation(
   seg: QASegment,
-  glossaryTerms: GlossaryTermForQA[]
+  glossaryTerms: GlossaryTermForQA[],
 ): QAIssue[] {
   if (!seg.targetText.trim() || glossaryTerms.length === 0) return [];
 
@@ -255,7 +255,9 @@ function checkLeadingTrailingSpaces(seg: QASegment): QAIssue | null {
   const hasTrailing = seg.targetText !== seg.targetText.trimEnd();
 
   if (hasLeading || hasTrailing) {
-    const where = [hasLeading && "leading", hasTrailing && "trailing"].filter(Boolean).join(" and ");
+    const where = [hasLeading && "leading", hasTrailing && "trailing"]
+      .filter(Boolean)
+      .join(" and ");
     return {
       segmentId: seg.id,
       segmentPosition: seg.position,
@@ -277,8 +279,10 @@ function checkCapitalization(seg: QASegment): QAIssue | null {
   // Only check if source starts with a letter
   if (!/[A-Za-zÀ-ÿ]/.test(srcFirst)) return null;
 
-  const srcIsUpper = srcFirst === srcFirst.toUpperCase() && srcFirst !== srcFirst.toLowerCase();
-  const tgtIsUpper = tgtFirst === tgtFirst.toUpperCase() && tgtFirst !== tgtFirst.toLowerCase();
+  const srcIsUpper =
+    srcFirst === srcFirst.toUpperCase() && srcFirst !== srcFirst.toLowerCase();
+  const tgtIsUpper =
+    tgtFirst === tgtFirst.toUpperCase() && tgtFirst !== tgtFirst.toLowerCase();
 
   if (srcIsUpper && !tgtIsUpper) {
     return {
@@ -296,14 +300,21 @@ function checkCapitalization(seg: QASegment): QAIssue | null {
 function checkBracketMismatch(seg: QASegment): QAIssue | null {
   if (!seg.targetText.trim()) return null;
 
-  const pairs: [string, string][] = [["(", ")"], ["[", "]"]];
+  const pairs: [string, string][] = [
+    ["(", ")"],
+    ["[", "]"],
+  ];
   const mismatches: string[] = [];
 
   for (const [open, close] of pairs) {
-    const srcOpen = (seg.sourceText.match(new RegExp(`\\${open}`, "g")) || []).length;
-    const srcClose = (seg.sourceText.match(new RegExp(`\\${close}`, "g")) || []).length;
-    const tgtOpen = (seg.targetText.match(new RegExp(`\\${open}`, "g")) || []).length;
-    const tgtClose = (seg.targetText.match(new RegExp(`\\${close}`, "g")) || []).length;
+    const srcOpen = (seg.sourceText.match(new RegExp(`\\${open}`, "g")) || [])
+      .length;
+    const srcClose = (seg.sourceText.match(new RegExp(`\\${close}`, "g")) || [])
+      .length;
+    const tgtOpen = (seg.targetText.match(new RegExp(`\\${open}`, "g")) || [])
+      .length;
+    const tgtClose = (seg.targetText.match(new RegExp(`\\${close}`, "g")) || [])
+      .length;
 
     if (srcOpen !== tgtOpen || srcClose !== tgtClose) {
       mismatches.push(`${open}${close}`);
@@ -347,10 +358,7 @@ function checkURLPreservation(seg: QASegment): QAIssue | null {
 /**
  * Check word list rules: searches for forbidden terms in target text (case-insensitive)
  */
-function checkWordList(
-  seg: QASegment,
-  rules: QARuleForQA[]
-): QAIssue[] {
+function checkWordList(seg: QASegment, rules: QARuleForQA[]): QAIssue[] {
   if (!seg.targetText.trim()) return [];
 
   const issues: QAIssue[] = [];
@@ -378,10 +386,7 @@ function checkWordList(
 /**
  * Check regex rules: applies regex patterns to target text
  */
-function checkRegex(
-  seg: QASegment,
-  rules: QARuleForQA[]
-): QAIssue[] {
+function checkRegex(seg: QASegment, rules: QARuleForQA[]): QAIssue[] {
   if (!seg.targetText.trim()) return [];
 
   const issues: QAIssue[] = [];
@@ -431,7 +436,9 @@ export function checkInconsistencies(segments: QASegment[]): QAIssue[] {
   for (const [, segs] of bySource) {
     if (segs.length < 2) continue;
 
-    const uniqueTargets = new Set(segs.map((s) => s.targetText.trim().toLowerCase()));
+    const uniqueTargets = new Set(
+      segs.map((s) => s.targetText.trim().toLowerCase()),
+    );
     if (uniqueTargets.size > 1) {
       // Mark all but the first occurrence
       for (let i = 1; i < segs.length; i++) {
@@ -460,7 +467,7 @@ export function checkInconsistencies(segments: QASegment[]): QAIssue[] {
 export function runQAChecksForSegment(
   seg: QASegment,
   glossaryTerms: GlossaryTermForQA[] = [],
-  qaRules: QARuleForQA[] = []
+  qaRules: QARuleForQA[] = [],
 ): QAIssue[] {
   const issues: QAIssue[] = [];
 
@@ -512,7 +519,7 @@ export function runQAChecksForSegment(
 export function runQABatch(
   segments: QASegment[],
   glossaryTerms: GlossaryTermForQA[] = [],
-  qaRules: QARuleForQA[] = []
+  qaRules: QARuleForQA[] = [],
 ): QAIssue[] {
   const allIssues: QAIssue[] = [];
 

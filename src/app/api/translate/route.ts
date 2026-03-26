@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
 
@@ -49,8 +48,15 @@ const AI_LIMITS: Record<string, number> = { free: 50, pro: 1000 };
 // DeepL uses slightly different language codes
 // ─────────────────────────────────────────────
 const DEEPL_LANG_MAP: Record<string, string> = {
-  en: "EN", es: "ES", fr: "FR", de: "DE",
-  pt: "PT-BR", it: "IT", zh: "ZH", ja: "JA", ko: "KO",
+  en: "EN",
+  es: "ES",
+  fr: "FR",
+  de: "DE",
+  pt: "PT-BR",
+  it: "IT",
+  zh: "ZH",
+  ja: "JA",
+  ko: "KO",
 };
 
 // ─────────────────────────────────────────────
@@ -77,13 +83,11 @@ interface TranslateRequestBody {
 // Main handler
 // ─────────────────────────────────────────────
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user: authUser, error } = await getAuthenticatedUser();
+  if (error) return error;
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  const userData = await prisma.user.findUnique({
+    where: { id: authUser.id },
     select: {
       id: true,
       plan: true,
@@ -92,32 +96,32 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  if (!user) {
+  if (!userData) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   // Rate limit check (per-minute)
-  if (!checkRateLimit(user.id)) {
+  if (!checkRateLimit(userData.id)) {
     return NextResponse.json(
       { error: "Rate limit exceeded. Maximum 30 requests per minute." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
   // Monthly AI request limit check
-  const plan = user.plan;
+  const plan = userData.plan;
   const monthlyLimit = AI_LIMITS[plan] || AI_LIMITS.free;
   const now = new Date();
 
   // Reset counter if new month
-  let currentUsed = user.aiRequestsUsed;
+  let currentUsed = userData.aiRequestsUsed;
   if (
-    user.aiRequestsResetAt.getMonth() !== now.getMonth() ||
-    user.aiRequestsResetAt.getFullYear() !== now.getFullYear()
+    userData.aiRequestsResetAt.getMonth() !== now.getMonth() ||
+    userData.aiRequestsResetAt.getFullYear() !== now.getFullYear()
   ) {
     currentUsed = 0;
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userData.id },
       data: { aiRequestsUsed: 0, aiRequestsResetAt: now },
     });
   }
@@ -131,7 +135,7 @@ export async function POST(req: NextRequest) {
             : "Limit resets next month."
         }`,
       },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -142,14 +146,14 @@ export async function POST(req: NextRequest) {
   if (!segment || !srcLang || !tgtLang) {
     return NextResponse.json(
       { error: "segment, srcLang, and tgtLang are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   // Privacy enforcement — check project privacy level
   if (projectId) {
     const project = await prisma.project.findFirst({
-      where: { id: projectId, userId: user.id },
+      where: { id: projectId, userId: userData.id },
       select: { privacyLevel: true },
     });
     if (project) {
@@ -157,7 +161,7 @@ export async function POST(req: NextRequest) {
       if (!privacy.aiEnabled) {
         return NextResponse.json(
           { error: "AI translation disabled for this privacy level" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -170,7 +174,7 @@ export async function POST(req: NextRequest) {
   if (projectId && (!glossaryTerms || glossaryTerms.length === 0)) {
     const dbTerms = await prisma.glossaryTerm.findMany({
       where: {
-        userId: user.id,
+        userId: userData.id,
         srcLang,
         tgtLang,
       },
@@ -181,7 +185,7 @@ export async function POST(req: NextRequest) {
       // Filter to only terms that actually appear in the segment text
       const segmentLower = segment.toLowerCase();
       const matching = dbTerms.filter((t) =>
-        segmentLower.includes(t.sourceTerm.toLowerCase())
+        segmentLower.includes(t.sourceTerm.toLowerCase()),
       );
 
       if (matching.length > 0) {
@@ -205,14 +209,25 @@ export async function POST(req: NextRequest) {
     let translation: string;
 
     if (provider === "deepl") {
-      translation = await translateWithDeepL(segment, srcLang, tgtLang, glossaryTerms);
+      translation = await translateWithDeepL(
+        segment,
+        srcLang,
+        tgtLang,
+        glossaryTerms,
+      );
     } else {
-      translation = await translateWithGoogle(segment, srcLang, tgtLang, glossaryTerms, context);
+      translation = await translateWithGoogle(
+        segment,
+        srcLang,
+        tgtLang,
+        glossaryTerms,
+        context,
+      );
     }
 
     // Increment monthly counter
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userData.id },
       data: { aiRequestsUsed: { increment: 1 } },
     });
 
@@ -223,9 +238,9 @@ export async function POST(req: NextRequest) {
       matchedTerms: matchedTermsCount,
       usage: { used: currentUsed + 1, limit: monthlyLimit },
     });
-  } catch (error) {
-    console.error("Translation error:", error);
-    const message = error instanceof Error ? error.message : "Translation failed";
+  } catch (err) {
+    console.error("Translation error:", err);
+    const message = err instanceof Error ? err.message : "Translation failed";
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }
@@ -239,7 +254,7 @@ async function translateWithGoogle(
   srcLang: string,
   tgtLang: string,
   glossaryTerms?: GlossaryTerm[],
-  context?: { previousSegment?: string; nextSegment?: string }
+  context?: { previousSegment?: string; nextSegment?: string },
 ): Promise<string> {
   const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
   if (!apiKey) {
@@ -297,7 +312,10 @@ async function translateWithGoogle(
   }
 
   for (const [placeholder, target] of termMap) {
-    translation = translation.replace(new RegExp(escapeRegex(placeholder), "gi"), target);
+    translation = translation.replace(
+      new RegExp(escapeRegex(placeholder), "gi"),
+      target,
+    );
   }
 
   translation = decodeHtmlEntities(translation);
@@ -312,7 +330,7 @@ async function translateWithDeepL(
   text: string,
   srcLang: string,
   tgtLang: string,
-  glossaryTerms?: GlossaryTerm[]
+  glossaryTerms?: GlossaryTerm[],
 ): Promise<string> {
   const apiKey = process.env.DEEPL_API_KEY;
   if (!apiKey) {

@@ -83,7 +83,11 @@ export interface TMMatch {
  * - If TM entry domain differs from current project domain → -5%
  * - If TM entry has no domain but project does → -3%
  */
-function applyPenalty(score: number, entryDomain: string | null | undefined, currentDomain?: string): number {
+function applyPenalty(
+  score: number,
+  entryDomain: string | null | undefined,
+  currentDomain?: string,
+): number {
   if (!currentDomain) return score;
   if (!entryDomain) return Math.max(0, score - 3);
   if (entryDomain.toLowerCase() !== currentDomain.toLowerCase()) {
@@ -97,7 +101,7 @@ export function fuzzyMatch(
   tmEntries: TMEntry[],
   threshold: number = 50,
   maxResults: number = 5,
-  currentDomain?: string
+  currentDomain?: string,
 ): TMMatch[] {
   const normalizedSource = normalizeText(source);
   const sourceLen = normalizedSource.length;
