@@ -299,6 +299,29 @@ export default function LandingPage() {
           >
             Privacy
           </button>
+          <span
+            style={{ color: "var(--text-muted)", fontSize: 12, opacity: 0.5 }}
+          >
+            ·
+          </span>
+          <Link
+            href="/changelog"
+            style={{
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: 12,
+              fontWeight: 400,
+              color: "var(--text-muted)",
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.textDecoration = "underline")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.textDecoration = "none")
+            }
+          >
+            Changelog
+          </Link>
         </footer>
       </div>
     </>
