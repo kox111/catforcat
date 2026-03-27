@@ -84,19 +84,19 @@ export default function GlossaryPanel({
   }
 
   return (
-    <div style={{ padding: "10px 12px" }}>
+    <div style={{ padding: "10px 14px" }}>
       {/* Header */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 6,
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 600,
           color: "var(--text-secondary)",
-          marginBottom: 8,
+          marginBottom: 10,
           textTransform: "uppercase",
-          letterSpacing: "0.5px",
+          letterSpacing: "0.06em",
         }}
       >
         <BookOpen size={12} />
@@ -109,8 +109,22 @@ export default function GlossaryPanel({
               textTransform: "none",
               letterSpacing: 0,
               marginLeft: 4,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
             }}
           >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                border: "1.5px solid var(--accent)",
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                display: "inline-block",
+                animation: "spin 1s linear infinite",
+              }}
+            />
             Checking...
           </span>
         )}
@@ -152,22 +166,25 @@ export default function GlossaryPanel({
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              padding: "5px 10px",
-              borderRadius: 20,
+              padding: "6px 12px",
+              borderRadius: 8,
               fontSize: 12,
               fontFamily: "inherit",
               background: "var(--purple-soft)",
-              border: "1px solid transparent",
+              border: "0.5px solid var(--glass-border)",
               cursor: "pointer",
-              transition: "all 150ms",
+              transition: "all 180ms ease-out",
+              boxShadow: "var(--btn-depth)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "var(--purple)";
-              e.currentTarget.style.boxShadow = "var(--shadow-sm)";
+              e.currentTarget.style.boxShadow = "var(--btn-depth-hover), 0 0 12px var(--purple-soft)";
+              e.currentTarget.style.transform = "translateY(-1px)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "transparent";
-              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.borderColor = "var(--glass-border)";
+              e.currentTarget.style.boxShadow = "var(--btn-depth)";
+              e.currentTarget.style.transform = "none";
             }}
             title={match.note || `Click to insert "${match.targetTerm}"`}
           >

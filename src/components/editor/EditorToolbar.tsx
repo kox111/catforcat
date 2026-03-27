@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Settings, LogOut, Star } from "lucide-react";
+import { ChevronDown, Settings, LogOut, Star, FileText } from "lucide-react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
 import SaveIndicator from "@/components/editor/SaveIndicator";
@@ -457,11 +457,12 @@ export default function EditorToolbar({
                   right: 0,
                   width: 220,
                   background: "var(--bg-panel)",
-                  border: "0.5px solid var(--border)",
+                  backdropFilter: "blur(16px) saturate(140%)",
+                  border: "0.5px solid var(--glass-border)",
                   borderRadius: "var(--radius)",
                   zIndex: 40,
-                  boxShadow: "var(--shadow-md)",
-                  animation: "topBarDropdownIn 0.15s ease",
+                  boxShadow: "var(--shadow-md), var(--panel-glow)",
+                  animation: "fadeSlideIn 150ms ease-out",
                   overflow: "hidden",
                 }}
               >
@@ -562,6 +563,37 @@ export default function EditorToolbar({
                     style={{ color: "var(--text-secondary)" }}
                   />
                   <span>Settings</span>
+                </Link>
+
+                {/* Changelog */}
+                <Link
+                  href="/changelog"
+                  onClick={() => setAvatarOpen(false)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "7px 14px",
+                    fontSize: 13,
+                    textDecoration: "none",
+                    color: "var(--text-primary)",
+                    background: "transparent",
+                    transition: "background 150ms",
+                    cursor: "pointer",
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--bg-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
+                >
+                  <FileText
+                    size={13}
+                    style={{ color: "var(--text-secondary)" }}
+                  />
+                  <span>Changelog</span>
                 </Link>
 
                 {/* Theme picker */}

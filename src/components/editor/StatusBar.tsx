@@ -25,18 +25,6 @@ export default function StatusBar({
   onProviderClick,
   onShortcutsClick,
 }: StatusBarProps) {
-  const pillStyle: React.CSSProperties = {
-    background: "var(--bg-hover)",
-    border: "0.5px solid var(--border)",
-    borderRadius: 10,
-    padding: "2px 8px",
-    fontSize: 9,
-    color: "var(--text-muted)",
-    fontFamily: "'JetBrains Mono', monospace",
-    cursor: "pointer",
-    transition: "color 150ms, border-color 150ms",
-  };
-
   return (
     <div
       style={{
@@ -45,12 +33,12 @@ export default function StatusBar({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 12px",
+        padding: "0 14px",
         background: "var(--status-bar)",
         borderTop: "0.5px solid var(--border)",
         fontSize: 10,
         fontFamily: "'JetBrains Mono', monospace",
-        color: "var(--text-muted)",
+        color: "var(--text-secondary)",
         userSelect: "none",
         flexShrink: 0,
       }}
@@ -63,25 +51,30 @@ export default function StatusBar({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 4,
-            padding: "2px 8px",
-            borderRadius: 10,
-            background: "var(--bg-hover)",
-            border: "0.5px solid var(--border)",
+            gap: 5,
+            padding: "2px 10px",
+            borderRadius: 6,
+            background: "var(--glass-bg)",
+            border: "0.5px solid var(--glass-border)",
             cursor: "pointer",
             fontSize: 10,
-            color: "var(--text-muted)",
+            color: "var(--text-secondary)",
             fontFamily: "'Inter', system-ui, sans-serif",
-            transition: "border-color 150ms, color 150ms",
-            marginRight: 8,
+            transition: "all 180ms ease-out",
+            marginRight: 10,
+            boxShadow: "var(--btn-depth)",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "var(--accent)";
-            e.currentTarget.style.color = "var(--text-secondary)";
+            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.boxShadow = "var(--btn-glow-hover)";
+            e.currentTarget.style.transform = "translateY(-1px)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "var(--border)";
-            e.currentTarget.style.color = "var(--text-muted)";
+            e.currentTarget.style.borderColor = "var(--glass-border)";
+            e.currentTarget.style.color = "var(--text-secondary)";
+            e.currentTarget.style.boxShadow = "var(--btn-depth)";
+            e.currentTarget.style.transform = "none";
           }}
           title="Keyboard shortcuts (Ctrl+/)"
         >
@@ -89,40 +82,50 @@ export default function StatusBar({
           <span>Shortcuts</span>
         </button>
 
-        <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+        <span style={{ margin: "0 6px", opacity: 0.4 }}>·</span>
 
         <button
           onClick={onGoToClick}
           style={{
             background: "none",
             border: "none",
-            color: "var(--text-muted)",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             padding: 0,
             fontFamily: "inherit",
             fontSize: "inherit",
-            transition: "color 200ms",
+            transition: "color 180ms ease-out",
           }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.color = "var(--text-primary)")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--text-muted)")
+            (e.currentTarget.style.color = "var(--text-secondary)")
           }
           title="Go to segment"
         >
           Seg {activeSegmentPosition}/{totalSegments}
         </button>
-        <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+        <span style={{ margin: "0 6px", opacity: 0.4 }}>·</span>
         <span>{activeSegmentWordCount} words</span>
-        <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
+        <span style={{ margin: "0 6px", opacity: 0.4 }}>·</span>
         <span>{totalWordCount} total</span>
 
         {/* Focus mode badge */}
         {focusMode && (
           <>
-            <span style={{ margin: "0 6px", opacity: 0.5 }}>·</span>
-            <span style={{ color: "var(--accent)", fontWeight: 500 }}>
+            <span style={{ margin: "0 6px", opacity: 0.4 }}>·</span>
+            <span
+              style={{
+                color: "var(--accent)",
+                fontWeight: 600,
+                fontSize: 9,
+                padding: "1px 6px",
+                borderRadius: 4,
+                background: "var(--accent-soft)",
+                border: "0.5px solid var(--accent)",
+              }}
+            >
               Focus
             </span>
           </>
@@ -133,13 +136,30 @@ export default function StatusBar({
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button
           onClick={onProviderClick}
-          style={pillStyle}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--text-primary)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--text-muted)")
-          }
+          style={{
+            background: "var(--glass-bg)",
+            border: "0.5px solid var(--glass-border)",
+            borderRadius: 6,
+            padding: "2px 10px",
+            fontSize: 9,
+            color: "var(--text-secondary)",
+            fontFamily: "'JetBrains Mono', monospace",
+            cursor: "pointer",
+            transition: "all 180ms ease-out",
+            boxShadow: "var(--btn-depth)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.borderColor = "var(--accent)";
+            e.currentTarget.style.boxShadow = "var(--btn-glow-hover)";
+            e.currentTarget.style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-secondary)";
+            e.currentTarget.style.borderColor = "var(--glass-border)";
+            e.currentTarget.style.boxShadow = "var(--btn-depth)";
+            e.currentTarget.style.transform = "none";
+          }}
           title="Change translation provider"
         >
           {translationProvider}

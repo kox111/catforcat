@@ -9,7 +9,7 @@ import {
   Sparkles,
   FileCheck,
   BarChart3,
-  FolderOutput,
+  Download,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -45,20 +45,23 @@ function SidebarTooltip({
     <div
       style={{
         position: "absolute",
-        left: "calc(100% + 8px)",
+        left: "calc(100% + 10px)",
         top: "50%",
         transform: "translateY(-50%)",
         background: "var(--bg-panel)",
-        border: "0.5px solid var(--border)",
-        borderRadius: 6,
-        padding: "4px 10px",
-        boxShadow: "var(--shadow-md)",
+        border: "0.5px solid var(--glass-border)",
+        borderRadius: 8,
+        padding: "5px 12px",
+        boxShadow: "var(--shadow-md), var(--panel-glow)",
         whiteSpace: "nowrap",
         zIndex: 50,
         fontFamily: "'Inter', system-ui, sans-serif",
         fontSize: 11,
+        fontWeight: 450,
         color: "var(--text-primary)",
         pointerEvents: "none",
+        animation: "fadeSlideIn 120ms ease-out",
+        backdropFilter: "blur(8px)",
       }}
     >
       {label}
@@ -84,6 +87,7 @@ export default function EditorSidebar({
 }: EditorSidebarProps) {
   const [expanded, setExpanded] = useState(true);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [windowWidth, setWindowWidth] = useState(1440);
 
   useEffect(() => {
@@ -111,54 +115,19 @@ export default function EditorSidebar({
     windowWidth >= 1440 ? expanded : expanded && windowWidth >= 1440;
   const sidebarWidth = isExpanded ? 200 : 44;
 
-  const pillStyle = (
-    active?: boolean,
-    special?: boolean,
-  ): React.CSSProperties => ({
-    display: "flex",
-    alignItems: "center",
-    gap: isExpanded ? 6 : 0,
-    padding: isExpanded ? "5px 12px" : "5px 0",
-    borderRadius: 20,
-    border: special
-      ? "0.5px solid var(--amber-soft)"
-      : active
-        ? "0.5px solid var(--accent)"
-        : "0.5px solid var(--border)",
-    background: special
-      ? "linear-gradient(135deg, var(--amber-soft), transparent)"
-      : active
-        ? "var(--accent-soft)"
-        : "transparent",
-    cursor: "pointer",
-    fontFamily: "'Inter', system-ui, sans-serif",
-    fontSize: 12,
-    color: special
-      ? "var(--amber-text)"
-      : active
-        ? "var(--text-primary)"
-        : "var(--text-muted)",
-    transition: "border-color 150ms, color 150ms, background 150ms",
-    marginBottom: 4,
-    width: isExpanded ? "fit-content" : 32,
-    height: isExpanded ? "auto" : 32,
-    justifyContent: isExpanded ? "flex-start" : "center",
-    position: "relative" as const,
-  });
-
   const items = [
     {
       group: "search",
       buttons: [
         {
           id: "concordance",
-          icon: <TextSearch size={13} />,
+          icon: <TextSearch size={14} />,
           label: "Translations",
           onClick: onConcordanceOpen,
         },
         {
           id: "search",
-          icon: <Search size={13} />,
+          icon: <Search size={14} />,
           label: "Find & replace",
           onClick: onSearchOpen,
         },
@@ -169,29 +138,16 @@ export default function EditorSidebar({
       buttons: [
         {
           id: "glossary",
-          icon: <Book size={13} />,
+          icon: <Book size={14} />,
           label: "Glossary",
           onClick: () => onPanelToggle?.("glossary"),
           active: activePanel === "glossary",
         },
         {
           id: "notes",
-          icon: <StickyNote size={13} />,
+          icon: <StickyNote size={14} />,
           label: "Notes",
           onClick: onNotesOpen,
-        },
-      ],
-    },
-    {
-      group: "translate",
-      buttons: [
-        {
-          id: "pretranslate",
-          icon: <Sparkles size={13} />,
-          label: "Pre-translate all",
-          onClick: () => onPreTranslate?.("full"),
-          special: true,
-          disabled: preTranslating,
         },
       ],
     },
@@ -200,20 +156,97 @@ export default function EditorSidebar({
       buttons: [
         {
           id: "qa",
-          icon: <FileCheck size={13} />,
+          icon: <FileCheck size={14} />,
           label: "QA",
           onClick: onRunQA,
           disabled: qaRunning,
         },
         {
           id: "analysis",
-          icon: <BarChart3 size={13} />,
+          icon: <BarChart3 size={14} />,
           label: "Analysis",
           onClick: onAnalysis,
         },
       ],
     },
+    {
+      group: "translate",
+      buttons: [
+        {
+          id: "pretranslate",
+          icon: <Sparkles size={14} />,
+          label: "Pre-translate all",
+          onClick: () => onPreTranslate?.("full"),
+          special: true,
+          disabled: preTranslating,
+        },
+      ],
+    },
   ];
+
+  const getBtnStyle = (
+    btn: { active?: boolean; special?: boolean; disabled?: boolean; id: string },
+  ): React.CSSProperties => {
+    const isHovered = hoveredItem === btn.id;
+    const isPressed = pressedItem === btn.id;
+    const isActive = btn.active;
+    const isSpecial = btn.special;
+
+    return {
+      display: "flex",
+      alignItems: "center",
+      gap: isExpanded ? 8 : 0,
+      padding: isExpanded ? "6px 12px" : "6px 0",
+      borderRadius: 8,
+      border: isSpecial
+        ? "0.5px solid var(--amber-soft)"
+        : isActive
+          ? "0.5px solid var(--accent)"
+          : isHovered
+            ? "0.5px solid var(--glass-border)"
+            : "0.5px solid transparent",
+      background: isSpecial
+        ? isHovered
+          ? "linear-gradient(135deg, var(--amber-soft), transparent)"
+          : "var(--glass-bg)"
+        : isActive
+          ? "var(--glass-bg-hover)"
+          : isHovered
+            ? "var(--glass-bg)"
+            : "transparent",
+      cursor: btn.disabled ? "not-allowed" : "pointer",
+      fontFamily: "'Inter', system-ui, sans-serif",
+      fontSize: 12,
+      fontWeight: isActive ? 500 : 400,
+      color: isSpecial
+        ? "var(--amber-text)"
+        : isActive
+          ? "var(--text-primary)"
+          : isHovered
+            ? "var(--text-primary)"
+            : "var(--text-secondary)",
+      transition: "all 180ms ease-out",
+      marginBottom: 3,
+      width: isExpanded ? "100%" : 34,
+      height: isExpanded ? "auto" : 34,
+      justifyContent: isExpanded ? "flex-start" : "center",
+      position: "relative" as const,
+      boxShadow: isSpecial && isHovered
+        ? "0 0 14px var(--amber-soft), var(--btn-depth)"
+        : isActive
+          ? "var(--btn-depth-hover)"
+          : isHovered
+            ? "var(--btn-glow-hover)"
+            : "none",
+      transform: isPressed
+        ? "scale(0.96)"
+        : isHovered
+          ? "translateY(-0.5px)"
+          : "none",
+      opacity: btn.disabled ? 0.45 : 1,
+      pointerEvents: btn.disabled ? "none" : "auto",
+    };
+  };
 
   return (
     <div
@@ -225,7 +258,7 @@ export default function EditorSidebar({
         borderRight: "0.5px solid var(--border)",
         display: "flex",
         flexDirection: "column",
-        padding: isExpanded ? "12px 10px" : "12px 6px",
+        padding: isExpanded ? "12px 10px" : "12px 5px",
         overflowY: "auto",
         overflowX: "hidden",
         flexShrink: 0,
@@ -251,17 +284,21 @@ export default function EditorSidebar({
           justifyContent: "center",
           cursor: "pointer",
           zIndex: 10,
-          boxShadow: "var(--shadow-sm)",
-          transition: "background 150ms",
+          boxShadow: "var(--btn-depth)",
+          transition: "all 180ms ease-out",
           color: "var(--text-secondary)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "var(--bg-hover)";
+          e.currentTarget.style.background = "var(--glass-bg-hover)";
           e.currentTarget.style.borderColor = "var(--accent)";
+          e.currentTarget.style.boxShadow = "var(--btn-depth-hover)";
+          e.currentTarget.style.transform = "scale(1.1)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = "var(--bg-card)";
           e.currentTarget.style.borderColor = "var(--border)";
+          e.currentTarget.style.boxShadow = "var(--btn-depth)";
+          e.currentTarget.style.transform = "scale(1)";
         }}
       >
         {isExpanded ? (
@@ -278,15 +315,14 @@ export default function EditorSidebar({
           {isExpanded && (
             <div
               style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
+                fontFamily: "'Inter', system-ui, sans-serif",
                 fontSize: 9,
-                fontStyle: "italic",
-                fontWeight: 400,
+                fontWeight: 600,
                 color: "var(--text-muted)",
-                letterSpacing: "0.06em",
-                textTransform: "lowercase",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
                 marginBottom: 6,
-                marginTop: gi === 0 ? 0 : 16,
+                marginTop: gi === 0 ? 0 : 18,
                 paddingLeft: 4,
                 transition: "opacity 150ms ease",
               }}
@@ -299,10 +335,11 @@ export default function EditorSidebar({
           {!isExpanded && gi > 0 && (
             <div
               style={{
-                width: 24,
+                width: 20,
                 height: 0.5,
                 background: "var(--border)",
-                margin: "8px auto",
+                margin: "10px auto",
+                opacity: 0.6,
               }}
             />
           )}
@@ -314,16 +351,13 @@ export default function EditorSidebar({
               onClick={btn.onClick}
               disabled={"disabled" in btn ? btn.disabled : false}
               onMouseEnter={() => setHoveredItem(btn.id)}
-              onMouseLeave={() => setHoveredItem(null)}
-              style={{
-                ...pillStyle(
-                  "active" in btn ? btn.active : false,
-                  "special" in btn ? btn.special : false,
-                ),
-                opacity: "disabled" in btn && btn.disabled ? 0.5 : 1,
-                pointerEvents:
-                  "disabled" in btn && btn.disabled ? "none" : "auto",
+              onMouseLeave={() => {
+                setHoveredItem(null);
+                setPressedItem(null);
               }}
+              onMouseDown={() => setPressedItem(btn.id)}
+              onMouseUp={() => setPressedItem(null)}
+              style={getBtnStyle(btn)}
             >
               {btn.icon}
               {isExpanded && (
@@ -356,15 +390,14 @@ export default function EditorSidebar({
         <>
           <div
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Inter', system-ui, sans-serif",
               fontSize: 9,
-              fontStyle: "italic",
-              fontWeight: 400,
+              fontWeight: 600,
               color: "var(--text-muted)",
-              letterSpacing: "0.06em",
-              textTransform: "lowercase",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
               marginBottom: 6,
-              marginTop: 16,
+              marginTop: 18,
               paddingLeft: 4,
             }}
           >
@@ -383,22 +416,27 @@ export default function EditorSidebar({
               }
               style={{
                 padding: "4px 10px",
-                borderRadius: 20,
+                borderRadius: 8,
                 border: "0.5px solid var(--border)",
-                background: "transparent",
+                background: "var(--glass-bg)",
                 color: "var(--text-secondary)",
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: 10,
                 cursor: "pointer",
-                transition: "border-color 150ms, color 150ms",
+                transition: "all 180ms ease-out",
+                boxShadow: "var(--btn-depth)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "var(--accent)";
                 e.currentTarget.style.color = "var(--text-primary)";
+                e.currentTarget.style.boxShadow = "var(--btn-depth-hover)";
+                e.currentTarget.style.transform = "translateY(-1px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "var(--border)";
                 e.currentTarget.style.color = "var(--text-secondary)";
+                e.currentTarget.style.boxShadow = "var(--btn-depth)";
+                e.currentTarget.style.transform = "none";
               }}
             >
               A−
@@ -409,10 +447,12 @@ export default function EditorSidebar({
                 fontSize: 11,
                 color: "var(--text-muted)",
                 padding: "4px 8px",
-                borderRadius: 20,
+                borderRadius: 8,
                 border: "0.5px solid var(--border)",
+                background: "var(--glass-bg)",
                 minWidth: 16,
                 textAlign: "center",
+                boxShadow: "var(--btn-depth)",
               }}
             >
               {editorFontSize}
@@ -423,22 +463,27 @@ export default function EditorSidebar({
               }
               style={{
                 padding: "4px 10px",
-                borderRadius: 20,
+                borderRadius: 8,
                 border: "0.5px solid var(--border)",
-                background: "transparent",
+                background: "var(--glass-bg)",
                 color: "var(--text-secondary)",
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: 10,
                 cursor: "pointer",
-                transition: "border-color 150ms, color 150ms",
+                transition: "all 180ms ease-out",
+                boxShadow: "var(--btn-depth)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "var(--accent)";
                 e.currentTarget.style.color = "var(--text-primary)";
+                e.currentTarget.style.boxShadow = "var(--btn-depth-hover)";
+                e.currentTarget.style.transform = "translateY(-1px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "var(--border)";
                 e.currentTarget.style.color = "var(--text-secondary)";
+                e.currentTarget.style.boxShadow = "var(--btn-depth)";
+                e.currentTarget.style.transform = "none";
               }}
             >
               A+
@@ -447,43 +492,75 @@ export default function EditorSidebar({
         </>
       )}
 
-      {/* Export */}
+      {/* Export — action button */}
       {isExpanded ? (
         <button
           onClick={onExportOpen}
           onMouseEnter={() => setHoveredItem("export")}
-          onMouseLeave={() => setHoveredItem(null)}
+          onMouseLeave={() => {
+            setHoveredItem(null);
+            setPressedItem(null);
+          }}
+          onMouseDown={() => setPressedItem("export")}
+          onMouseUp={() => setPressedItem(null)}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 6,
-            padding: "5px 12px",
-            borderRadius: 20,
-            border: "0.5px solid var(--border)",
-            background: "transparent",
-            color: "var(--text-muted)",
+            gap: 8,
+            padding: "6px 12px",
+            borderRadius: 8,
+            border: "0.5px solid var(--action-border)",
+            background:
+              hoveredItem === "export"
+                ? "var(--action-gradient)"
+                : "var(--glass-bg)",
+            color:
+              hoveredItem === "export"
+                ? "var(--green-text)"
+                : "var(--text-secondary)",
             cursor: "pointer",
             fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: 12,
-            marginTop: 8,
-            transition: "border-color 150ms, color 150ms",
-            width: "fit-content",
+            fontWeight: 450,
+            marginTop: 10,
+            transition: "all 180ms ease-out",
+            width: "100%",
+            boxShadow:
+              hoveredItem === "export"
+                ? "var(--action-glow), var(--btn-depth)"
+                : "var(--btn-depth)",
+            transform:
+              pressedItem === "export"
+                ? "scale(0.97)"
+                : hoveredItem === "export"
+                  ? "translateY(-1px)"
+                  : "none",
           }}
         >
-          <FolderOutput size={12} />
+          <Download size={13} />
           Export
         </button>
       ) : (
         <button
           onClick={onExportOpen}
           onMouseEnter={() => setHoveredItem("export")}
-          onMouseLeave={() => setHoveredItem(null)}
+          onMouseLeave={() => {
+            setHoveredItem(null);
+            setPressedItem(null);
+          }}
+          onMouseDown={() => setPressedItem("export")}
+          onMouseUp={() => setPressedItem(null)}
           style={{
-            ...pillStyle(),
-            marginTop: 8,
+            ...getBtnStyle({ id: "export" }),
+            marginTop: 10,
+            border: "0.5px solid var(--action-border)",
+            color:
+              hoveredItem === "export"
+                ? "var(--green-text)"
+                : "var(--text-secondary)",
           }}
         >
-          <FolderOutput size={13} />
+          <Download size={14} />
           {!isExpanded && (
             <SidebarTooltip label="Export" visible={hoveredItem === "export"} />
           )}

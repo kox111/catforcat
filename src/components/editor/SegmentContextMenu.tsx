@@ -64,7 +64,7 @@ const EMOJI_TO_LUCIDE: Record<string, LucideIcon> = {
   "📊": Info,
 };
 
-function renderIcon(icon: string | LucideIcon, danger?: boolean) {
+function renderIcon(icon: string | LucideIcon) {
   if (typeof icon !== "string") {
     const IconComponent = icon;
     return <IconComponent size={14} />;
@@ -169,13 +169,16 @@ export default function SegmentContextMenu({
         minWidth: 240,
         padding: "6px 0",
         background: "var(--bg-card)",
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius)",
-        boxShadow: "var(--shadow-md)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        border: "0.5px solid var(--glass-border)",
+        borderRadius: 10,
+        boxShadow: visible
+          ? "var(--shadow-md), var(--panel-glow)"
+          : "var(--shadow-md)",
         opacity: visible ? 1 : 0,
-        transform: visible ? "scale(1)" : "scale(0.95)",
+        transform: visible ? "scale(1) translateY(0)" : "scale(0.95) translateY(-4px)",
         transformOrigin: "top left",
-        transition: "opacity 100ms ease-out, transform 100ms ease-out",
+        transition: "opacity 120ms ease-out, transform 120ms ease-out, box-shadow 200ms ease",
       }}
     >
       {items.map((entry, i) => {
@@ -184,9 +187,10 @@ export default function SegmentContextMenu({
             <div
               key={`sep-${i}`}
               style={{
-                height: 1,
-                margin: "4px 10px",
+                height: 0.5,
+                margin: "5px 12px",
                 background: "var(--border)",
+                opacity: 0.6,
               }}
             />
           );
@@ -212,32 +216,38 @@ export default function SegmentContextMenu({
             style={{
               width: "100%",
               textAlign: "left",
-              padding: "7px 12px 7px 10px",
+              padding: "8px 14px 8px 12px",
               fontSize: 13,
               display: "flex",
               alignItems: "center",
               gap: 10,
-              background: isFocused ? "var(--bg-hover)" : "transparent",
+              background: isFocused ? "var(--glass-bg)" : "transparent",
               color: item.disabled
                 ? "var(--text-muted)"
                 : item.danger
                   ? "var(--red)"
-                  : "var(--text-primary)",
-              opacity: item.disabled ? 0.45 : 1,
+                  : isFocused
+                    ? "var(--text-primary)"
+                    : "var(--text-primary)",
+              opacity: item.disabled ? 0.4 : 1,
               cursor: item.disabled ? "not-allowed" : "pointer",
               border: "none",
-              fontFamily: "inherit",
-              transition: "background 80ms ease",
+              fontFamily: "'Inter', system-ui, sans-serif",
+              transition: "all 100ms ease-out",
+              borderRadius: isFocused ? 0 : 0,
             }}
           >
             {/* Icon */}
             <span
               style={{
-                width: 20,
+                width: 22,
+                height: 22,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
+                borderRadius: 5,
+                background: isFocused ? "var(--glass-bg-hover)" : "transparent",
                 color: item.disabled
                   ? "var(--text-muted)"
                   : item.danger
@@ -245,10 +255,10 @@ export default function SegmentContextMenu({
                     : isFocused
                       ? "var(--accent)"
                       : "var(--text-secondary)",
-                transition: "color 80ms",
+                transition: "all 100ms ease-out",
               }}
             >
-              {renderIcon(item.icon, item.danger)}
+              {renderIcon(item.icon)}
             </span>
 
             {/* Label */}
@@ -258,11 +268,15 @@ export default function SegmentContextMenu({
             {item.shortcut && (
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 10,
                   fontFamily: "'JetBrains Mono', monospace",
                   color: "var(--text-muted)",
-                  marginLeft: 16,
+                  marginLeft: 12,
                   flexShrink: 0,
+                  padding: "1px 5px",
+                  borderRadius: 4,
+                  background: "var(--glass-bg)",
+                  border: "0.5px solid var(--glass-border)",
                 }}
               >
                 {item.shortcut}

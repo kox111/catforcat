@@ -9,7 +9,7 @@ import {
   StickyNote,
   FileCheck,
   BarChart3,
-  FolderOutput,
+  Download,
 } from "lucide-react";
 
 /* ─── Types ─── */
@@ -45,24 +45,26 @@ function Tooltip({
     <div
       style={{
         position: "absolute",
-        top: "calc(100% + 4px)",
+        top: "calc(100% + 6px)",
         left: "50%",
         transform: "translateX(-50%)",
         background: "var(--bg-panel)",
-        border: "0.5px solid var(--border)",
-        borderRadius: 6,
-        padding: "6px 10px",
-        boxShadow: "var(--shadow-md)",
+        border: "0.5px solid var(--glass-border)",
+        borderRadius: 8,
+        padding: "6px 12px",
+        boxShadow: "var(--shadow-md), var(--panel-glow)",
         zIndex: 50,
         whiteSpace: "nowrap",
         pointerEvents: "none",
+        animation: "fadeSlideIn 120ms ease-out",
+        backdropFilter: "blur(8px)",
       }}
     >
       <div
         style={{
           fontFamily: "'Inter', system-ui, sans-serif",
           fontSize: 12,
-          fontWeight: 400,
+          fontWeight: 450,
           color: "var(--text-primary)",
           lineHeight: 1.3,
         }}
@@ -85,7 +87,7 @@ function Tooltip({
   );
 }
 
-/* ─── Icon Button ─── */
+/* ─── Icon Button with depth & glow ─── */
 
 function IconBtn({
   icon,
@@ -103,6 +105,7 @@ function IconBtn({
   active?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [showTip, setShowTip] = useState(false);
 
@@ -113,6 +116,7 @@ function IconBtn({
 
   const onLeave = useCallback(() => {
     setHovered(false);
+    setPressed(false);
     setShowTip(false);
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
@@ -131,14 +135,18 @@ function IconBtn({
         disabled={disabled}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
+        onMouseDown={() => setPressed(true)}
+        onMouseUp={() => setPressed(false)}
         style={{
-          padding: "5px 7px",
-          borderRadius: 6,
-          border: "none",
+          padding: "5px 8px",
+          borderRadius: 7,
+          border: active
+            ? "0.5px solid var(--accent)"
+            : "0.5px solid transparent",
           background: active
-            ? "var(--accent-soft)"
+            ? "var(--glass-bg-hover)"
             : hovered
-              ? "var(--bg-hover)"
+              ? "var(--glass-bg)"
               : "transparent",
           color: active
             ? "var(--text-primary)"
@@ -152,7 +160,17 @@ function IconBtn({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          transition: "background 150ms, color 150ms",
+          transition: "all 180ms ease-out",
+          boxShadow: active
+            ? "var(--btn-depth-hover)"
+            : hovered
+              ? "var(--btn-glow-hover)"
+              : "none",
+          transform: pressed && !disabled
+            ? "scale(0.92)"
+            : hovered && !disabled
+              ? "translateY(-1px)"
+              : "none",
         }}
       >
         {icon}
@@ -169,10 +187,11 @@ function Sep() {
     <div
       style={{
         width: 0.5,
-        height: 16,
+        height: 18,
         background: "var(--border)",
-        margin: "0 6px",
+        margin: "0 8px",
         flexShrink: 0,
+        opacity: 0.6,
       }}
     />
   );
@@ -195,7 +214,9 @@ export default function EditorToolstrip({
   onFontSizeChange,
 }: EditorToolstripProps) {
   const [preHover, setPreHover] = useState(false);
+  const [prePressed, setPrePressed] = useState(false);
   const [exportHover, setExportHover] = useState(false);
+  const [exportPressed, setExportPressed] = useState(false);
   const [preTransTipShow, setPreTransTipShow] = useState(false);
   const [exportTipShow, setExportTipShow] = useState(false);
   const preTipTimer = useRef<NodeJS.Timeout | null>(null);
@@ -209,45 +230,70 @@ export default function EditorToolstrip({
     [],
   );
 
-  const fontBtnStyle = (
-    disabled: boolean,
-    hovered: boolean,
-  ): React.CSSProperties => ({
-    padding: "2px 6px",
-    borderRadius: 4,
-    border: "0.5px solid var(--border)",
-    background: "transparent",
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 10,
-    color: disabled
-      ? "var(--text-muted)"
-      : hovered
-        ? "var(--text-primary)"
-        : "var(--text-secondary)",
-    cursor: disabled ? "default" : "pointer",
-    opacity: disabled ? 0.4 : 1,
-    transition: "border-color 150ms, color 150ms",
-    borderColor: hovered && !disabled ? "var(--accent)" : "var(--border)",
-  });
-
   const [aMinusHover, setAMinusHover] = useState(false);
   const [aPlusHover, setAPlusHover] = useState(false);
 
   return (
     <div
       style={{
-        height: 32,
+        height: 36,
         flexShrink: 0,
         display: "flex",
         alignItems: "center",
-        padding: "0 12px",
-        gap: 2,
+        padding: "0 14px",
+        gap: 3,
         background: "var(--bg-panel)",
         borderBottom: "0.5px solid var(--border)",
         borderTop: "0.5px solid var(--border)",
       }}
     >
-      {/* ─── Group 1: translate ─── */}
+      {/* ─── Group 1: Search (most used) ─── */}
+      <IconBtn
+        icon={<Search size={14} />}
+        label="Find & replace"
+        shortcut="Ctrl+H"
+        onClick={onSearchOpen}
+      />
+      <IconBtn
+        icon={<TextSearch size={14} />}
+        label="Search translations"
+        shortcut="Ctrl+K"
+        onClick={onConcordanceOpen}
+      />
+
+      <Sep />
+
+      {/* ─── Group 2: Reference ─── */}
+      <IconBtn
+        icon={<Book size={14} />}
+        label="Glossary terms"
+        onClick={onGlossaryOpen}
+      />
+      <IconBtn
+        icon={<StickyNote size={14} />}
+        label="Segment notes"
+        onClick={onNotesOpen}
+      />
+
+      <Sep />
+
+      {/* ─── Group 3: Review ─── */}
+      <IconBtn
+        icon={<FileCheck size={14} />}
+        label="QA check"
+        shortcut="Ctrl+Shift+Q"
+        onClick={onRunQA}
+        disabled={qaRunning}
+      />
+      <IconBtn
+        icon={<BarChart3 size={14} />}
+        label="Project analysis"
+        onClick={onAnalysis}
+      />
+
+      <Sep />
+
+      {/* ─── Group 4: Pre-translate ─── */}
       <div style={{ position: "relative" }}>
         <button
           onClick={() => onPreTranslate?.("full")}
@@ -261,25 +307,39 @@ export default function EditorToolstrip({
           }}
           onMouseLeave={() => {
             setPreHover(false);
+            setPrePressed(false);
             setPreTransTipShow(false);
             if (preTipTimer.current) clearTimeout(preTipTimer.current);
           }}
+          onMouseDown={() => setPrePressed(true)}
+          onMouseUp={() => setPrePressed(false)}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 5,
-            padding: "4px 10px",
-            borderRadius: 6,
-            border: "none",
+            gap: 6,
+            padding: "4px 12px",
+            borderRadius: 7,
+            border: "0.5px solid var(--amber-soft)",
             background:
-              preHover && !preTranslating ? "var(--bg-hover)" : "transparent",
+              preHover && !preTranslating
+                ? "linear-gradient(135deg, var(--amber-soft), transparent)"
+                : "var(--glass-bg)",
             color: preTranslating ? "var(--text-muted)" : "var(--amber-text)",
             cursor: preTranslating ? "not-allowed" : "pointer",
             opacity: preTranslating ? 0.4 : 1,
             fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: 11,
-            fontWeight: 400,
-            transition: "background 150ms, color 150ms",
+            fontWeight: 450,
+            transition: "all 180ms ease-out",
+            boxShadow:
+              preHover && !preTranslating
+                ? "0 0 14px var(--amber-soft), var(--btn-depth)"
+                : "var(--btn-depth)",
+            transform: prePressed && !preTranslating
+              ? "scale(0.96)"
+              : preHover && !preTranslating
+                ? "translateY(-1px)"
+                : "none",
           }}
         >
           <Sparkles size={13} />
@@ -292,62 +352,32 @@ export default function EditorToolstrip({
         />
       </div>
 
-      <Sep />
-
-      {/* ─── Group 2: search ─── */}
-      <IconBtn
-        icon={<TextSearch size={13} />}
-        label="Search translations"
-        shortcut="Ctrl+K"
-        onClick={onConcordanceOpen}
-      />
-      <IconBtn
-        icon={<Search size={13} />}
-        label="Find & replace"
-        shortcut="Ctrl+H"
-        onClick={onSearchOpen}
-      />
-
-      <Sep />
-
-      {/* ─── Group 3: reference ─── */}
-      <IconBtn
-        icon={<Book size={13} />}
-        label="Glossary terms"
-        onClick={onGlossaryOpen}
-      />
-      <IconBtn
-        icon={<StickyNote size={13} />}
-        label="Segment notes"
-        onClick={onNotesOpen}
-      />
-
-      <Sep />
-
-      {/* ─── Group 4: review ─── */}
-      <IconBtn
-        icon={<FileCheck size={13} />}
-        label="QA check"
-        shortcut="Ctrl+Shift+Q"
-        onClick={onRunQA}
-        disabled={qaRunning}
-      />
-      <IconBtn
-        icon={<BarChart3 size={13} />}
-        label="Project analysis"
-        onClick={onAnalysis}
-      />
-
       {/* ─── Spacer ─── */}
       <div style={{ flex: 1 }} />
 
-      {/* ─── Group 5: view (font size) ─── */}
+      {/* ─── Group 5: View (font size) ─── */}
       <button
         onClick={() => onFontSizeChange?.(Math.max(10, editorFontSize - 2))}
         disabled={editorFontSize <= 10}
         onMouseEnter={() => setAMinusHover(true)}
         onMouseLeave={() => setAMinusHover(false)}
-        style={fontBtnStyle(editorFontSize <= 10, aMinusHover)}
+        style={{
+          padding: "3px 7px",
+          borderRadius: 6,
+          border: `0.5px solid ${aMinusHover && editorFontSize > 10 ? "var(--accent)" : "var(--border)"}`,
+          background: aMinusHover && editorFontSize > 10 ? "var(--glass-bg)" : "transparent",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 10,
+          color: editorFontSize <= 10
+            ? "var(--text-muted)"
+            : aMinusHover
+              ? "var(--text-primary)"
+              : "var(--text-secondary)",
+          cursor: editorFontSize <= 10 ? "default" : "pointer",
+          opacity: editorFontSize <= 10 ? 0.4 : 1,
+          transition: "all 150ms ease-out",
+          boxShadow: aMinusHover && editorFontSize > 10 ? "var(--btn-glow-hover)" : "none",
+        }}
         title="Decrease font size"
       >
         A−
@@ -369,7 +399,23 @@ export default function EditorToolstrip({
         disabled={editorFontSize >= 24}
         onMouseEnter={() => setAPlusHover(true)}
         onMouseLeave={() => setAPlusHover(false)}
-        style={fontBtnStyle(editorFontSize >= 24, aPlusHover)}
+        style={{
+          padding: "3px 7px",
+          borderRadius: 6,
+          border: `0.5px solid ${aPlusHover && editorFontSize < 24 ? "var(--accent)" : "var(--border)"}`,
+          background: aPlusHover && editorFontSize < 24 ? "var(--glass-bg)" : "transparent",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 10,
+          color: editorFontSize >= 24
+            ? "var(--text-muted)"
+            : aPlusHover
+              ? "var(--text-primary)"
+              : "var(--text-secondary)",
+          cursor: editorFontSize >= 24 ? "default" : "pointer",
+          opacity: editorFontSize >= 24 ? 0.4 : 1,
+          transition: "all 150ms ease-out",
+          boxShadow: aPlusHover && editorFontSize < 24 ? "var(--btn-glow-hover)" : "none",
+        }}
         title="Increase font size"
       >
         A+
@@ -377,7 +423,7 @@ export default function EditorToolstrip({
 
       <Sep />
 
-      {/* ─── Group 6: export ─── */}
+      {/* ─── Group 6: Export — real action button ─── */}
       <div style={{ position: "relative" }}>
         <button
           onClick={onExportOpen}
@@ -390,29 +436,41 @@ export default function EditorToolstrip({
           }}
           onMouseLeave={() => {
             setExportHover(false);
+            setExportPressed(false);
             setExportTipShow(false);
             if (exportTipTimer.current) clearTimeout(exportTipTimer.current);
           }}
+          onMouseDown={() => setExportPressed(true)}
+          onMouseUp={() => setExportPressed(false)}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 5,
-            padding: "4px 10px",
-            borderRadius: 6,
-            border: "0.5px solid var(--border)",
-            background: "transparent",
+            gap: 6,
+            padding: "4px 12px",
+            borderRadius: 7,
+            border: "0.5px solid var(--action-border)",
+            background: exportHover
+              ? "var(--action-gradient)"
+              : "var(--glass-bg)",
             color: exportHover
-              ? "var(--text-primary)"
+              ? "var(--green-text)"
               : "var(--text-secondary)",
             cursor: "pointer",
             fontFamily: "'Inter', system-ui, sans-serif",
             fontSize: 11,
-            fontWeight: 400,
-            transition: "background 150ms, border-color 150ms, color 150ms",
-            borderColor: exportHover ? "var(--accent)" : "var(--border)",
+            fontWeight: 450,
+            transition: "all 180ms ease-out",
+            boxShadow: exportHover
+              ? "var(--action-glow), var(--btn-depth)"
+              : "var(--btn-depth)",
+            transform: exportPressed
+              ? "scale(0.96)"
+              : exportHover
+                ? "translateY(-1px)"
+                : "none",
           }}
         >
-          <FolderOutput size={12} />
+          <Download size={12} />
           <span>Export</span>
         </button>
         <Tooltip label="Export project" visible={exportTipShow} />
