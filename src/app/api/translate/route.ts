@@ -202,8 +202,9 @@ export async function POST(req: NextRequest) {
     matchedTermsCount = glossaryTerms.length;
   }
 
-  // Provider determined by plan: free → Google, pro → DeepL
-  const provider = plan === "pro" ? "deepl" : "google";
+  // Provider determined by plan: pro → DeepL (if configured), otherwise Google
+  const deeplAvailable = !!process.env.DEEPL_API_KEY;
+  const provider = plan === "pro" && deeplAvailable ? "deepl" : "google";
 
   try {
     let translation: string;

@@ -158,7 +158,9 @@ export async function POST(
   const availableQuota = monthlyLimit - currentUsed;
   const segmentsToTranslate = remainingForApi.slice(0, availableQuota);
 
-  const provider = user.plan === "pro" ? "deepl" : "google";
+  // Pro → DeepL if configured, otherwise Google as fallback
+  const deeplAvailable = !!process.env.DEEPL_API_KEY;
+  const provider = user.plan === "pro" && deeplAvailable ? "deepl" : "google";
   const apiResults: Array<{
     segmentId: string;
     targetText: string;
