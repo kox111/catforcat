@@ -488,44 +488,6 @@ export default function SegmentRow({
           lang={tgtLang || undefined}
         />
 
-        {/* AI Button — floating pill */}
-        {isActive && onRequestAI && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRequestAI();
-            }}
-            disabled={aiLoading}
-            style={{
-              position: "absolute",
-              top: 14,
-              right: 16,
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              padding: "4px 10px",
-              borderRadius: 20,
-              background: aiLoading ? "var(--bg-hover)" : "var(--accent-soft)",
-              color: aiLoading ? "var(--text-muted)" : "var(--text-primary)",
-              border: "0.5px solid var(--border)",
-              fontSize: 11,
-              fontWeight: 500,
-              cursor: aiLoading ? "not-allowed" : "pointer",
-              opacity: aiLoading ? 0.5 : 1,
-              transition: "opacity 200ms, background 200ms",
-              fontFamily: "inherit",
-            }}
-            title={
-              aiLoading
-                ? "AI is generating..."
-                : "AI Suggest (Ctrl+Shift+Enter)"
-            }
-          >
-            <Sparkles size={11} />
-            {aiLoading ? "..." : "AI"}
-          </button>
-        )}
-
         {/* B.1 — Accept / Reject buttons in review mode */}
         {reviewMode &&
           isActive &&

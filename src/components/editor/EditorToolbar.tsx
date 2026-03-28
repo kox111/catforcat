@@ -251,6 +251,25 @@ export default function EditorToolbar({
 
         <span
           style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 8,
+            fontWeight: 600,
+            letterSpacing: "0.05em",
+            color: "var(--text-muted)",
+            background: "var(--glass-bg)",
+            border: "0.5px solid var(--border)",
+            borderRadius: 4,
+            padding: "1px 4px",
+            marginLeft: 6,
+            flexShrink: 0,
+            lineHeight: 1.4,
+          }}
+        >
+          BETA
+        </span>
+
+        <span
+          style={{
             color: "var(--text-muted)",
             fontSize: 13,
             margin: "0 8px",

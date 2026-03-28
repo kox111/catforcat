@@ -1641,7 +1641,6 @@ export default function EditorPage({
                     requestAISuggestion();
                 }
               },
-              shortcut: "Ctrl+Shift+Enter",
             },
             {
               label: "Copy source",
@@ -1649,7 +1648,6 @@ export default function EditorPage({
               action: () => {
                 if (seg) copySourceToTarget(seg.id);
               },
-              shortcut: "Ctrl+I",
             },
             {
               label: isConfirmedSeg ? "Confirmed" : "Confirm segment",
@@ -1658,7 +1656,6 @@ export default function EditorPage({
                 if (seg) confirmSegment(seg.id);
               },
               disabled: isConfirmedSeg || !seg,
-              shortcut: "Ctrl+Enter",
             },
             { type: "separator" },
             {
@@ -1670,7 +1667,6 @@ export default function EditorPage({
                   setConcordanceOpen(true);
                 }
               },
-              shortcut: "Ctrl+K",
             },
             {
               label: "Search in Glossary",
