@@ -70,13 +70,20 @@ export function initSyncListener(): () => void {
 /** Fetch-based connectivity check */
 async function checkConnectivity(): Promise<boolean> {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch("/api/auth/session", {
-      method: "HEAD",
+      method: "GET",
       cache: "no-store",
+      signal: controller.signal,
     });
-    return res.ok || res.status === 401; // 401 = server is reachable
+    clearTimeout(timeout);
+    // Any HTTP response means server is reachable
+    return res.ok || res.status === 401 || res.status === 403 || res.status === 405;
   } catch {
-    return false;
+    // Network error or abort — assume online if navigator says so
+    // (navigator.onLine is more reliable for initial state)
+    return typeof navigator !== "undefined" ? navigator.onLine : true;
   }
 }
 

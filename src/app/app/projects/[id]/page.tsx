@@ -275,11 +275,6 @@ export default function EditorPage({
     async (mode: "tm-only" | "full") => {
       if (!project || preTranslateProgress?.running) return;
 
-      if (!checkOnline()) {
-        setAiError("Pre-translate unavailable — you are offline");
-        return;
-      }
-
       const emptyCount = segments.filter(
         (s) => s.targetText.trim() === "" || s.status === "empty",
       ).length;
@@ -351,11 +346,6 @@ export default function EditorPage({
   // Request AI translation suggestion
   const requestAISuggestion = useCallback(async () => {
     if (!activeSegmentId || !project || aiLoading) return;
-
-    if (!checkOnline()) {
-      setAiError("AI unavailable — you are offline");
-      return;
-    }
 
     const seg = segments.find((s) => s.id === activeSegmentId);
     if (!seg) return;
@@ -1759,8 +1749,6 @@ export default function EditorPage({
       >
         {/* Sidebar */}
         <EditorSidebar
-          onPreTranslate={online ? handlePreTranslate : undefined}
-          preTranslating={!!preTranslateProgress?.running}
           onAnalysis={() => setAnalysisOpen(true)}
           onRunQA={handleRunQA}
           qaRunning={qaRunning}
@@ -1783,7 +1771,6 @@ export default function EditorPage({
               });
             }
           }}
-          onExportOpen={() => setExportDropdownOpen(true)}
           editorFontSize={editorFontSize}
           onFontSizeChange={(size) => {
             setEditorFontSize(size);

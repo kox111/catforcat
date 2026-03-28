@@ -6,27 +6,22 @@ import {
   Search,
   Book,
   StickyNote,
-  Sparkles,
   FileCheck,
   BarChart3,
-  Download,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
 
 interface EditorSidebarProps {
-  onPreTranslate?: (mode: "tm-only" | "full") => void;
   onSearchOpen?: () => void;
   onConcordanceOpen?: () => void;
   onGlossaryOpen?: () => void;
   onNotesOpen?: () => void;
   onRunQA?: () => void;
   onAnalysis?: () => void;
-  onExportOpen?: () => void;
   editorFontSize?: number;
   onFontSizeChange?: (size: number) => void;
   qaRunning?: boolean;
-  preTranslating?: boolean;
   activePanel?: string | null;
   onPanelToggle?: (panel: string) => void;
 }
@@ -70,18 +65,15 @@ function SidebarTooltip({
 }
 
 export default function EditorSidebar({
-  onPreTranslate,
   onSearchOpen,
   onConcordanceOpen,
   onGlossaryOpen,
   onNotesOpen,
   onRunQA,
   onAnalysis,
-  onExportOpen,
   editorFontSize = 13,
   onFontSizeChange,
   qaRunning,
-  preTranslating,
   activePanel,
   onPanelToggle,
 }: EditorSidebarProps) {
@@ -166,19 +158,6 @@ export default function EditorSidebar({
           icon: <BarChart3 size={14} />,
           label: "Analysis",
           onClick: onAnalysis,
-        },
-      ],
-    },
-    {
-      group: "translate",
-      buttons: [
-        {
-          id: "pretranslate",
-          icon: <Sparkles size={14} />,
-          label: "Pre-translate all",
-          onClick: () => onPreTranslate?.("full"),
-          special: true,
-          disabled: preTranslating,
         },
       ],
     },
@@ -492,80 +471,6 @@ export default function EditorSidebar({
         </>
       )}
 
-      {/* Export — action button */}
-      {isExpanded ? (
-        <button
-          onClick={onExportOpen}
-          onMouseEnter={() => setHoveredItem("export")}
-          onMouseLeave={() => {
-            setHoveredItem(null);
-            setPressedItem(null);
-          }}
-          onMouseDown={() => setPressedItem("export")}
-          onMouseUp={() => setPressedItem(null)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "6px 12px",
-            borderRadius: 8,
-            border: "0.5px solid var(--action-border)",
-            background:
-              hoveredItem === "export"
-                ? "var(--action-gradient)"
-                : "var(--glass-bg)",
-            color:
-              hoveredItem === "export"
-                ? "var(--green-text)"
-                : "var(--text-secondary)",
-            cursor: "pointer",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: 12,
-            fontWeight: 450,
-            marginTop: 10,
-            transition: "all 180ms ease-out",
-            width: "100%",
-            boxShadow:
-              hoveredItem === "export"
-                ? "var(--action-glow), var(--btn-depth)"
-                : "var(--btn-depth)",
-            transform:
-              pressedItem === "export"
-                ? "scale(0.97)"
-                : hoveredItem === "export"
-                  ? "translateY(-1px)"
-                  : "none",
-          }}
-        >
-          <Download size={13} />
-          Export
-        </button>
-      ) : (
-        <button
-          onClick={onExportOpen}
-          onMouseEnter={() => setHoveredItem("export")}
-          onMouseLeave={() => {
-            setHoveredItem(null);
-            setPressedItem(null);
-          }}
-          onMouseDown={() => setPressedItem("export")}
-          onMouseUp={() => setPressedItem(null)}
-          style={{
-            ...getBtnStyle({ id: "export" }),
-            marginTop: 10,
-            border: "0.5px solid var(--action-border)",
-            color:
-              hoveredItem === "export"
-                ? "var(--green-text)"
-                : "var(--text-secondary)",
-          }}
-        >
-          <Download size={14} />
-          {!isExpanded && (
-            <SidebarTooltip label="Export" visible={hoveredItem === "export"} />
-          )}
-        </button>
-      )}
     </div>
   );
 }
