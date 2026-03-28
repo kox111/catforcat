@@ -67,25 +67,12 @@ export async function POST(req: NextRequest) {
       paragraphs = extractParagraphsFromHtml(result.value);
       fileFormat = "docx";
 
-    // ─── PDF (pdfjs-dist — pure JS, no native deps) ───
+    // ─── PDF (unpdf — pure JS, works in all runtimes) ───
     } else if (ext === "pdf") {
-      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const doc = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
-
-      const pageTexts: string[] = [];
-      for (let i = 1; i <= doc.numPages; i++) {
-        const page = await doc.getPage(i);
-        const content = await page.getTextContent();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items = content.items as any[];
-        const text = items
-          .filter((item) => typeof item.str === "string")
-          .map((item) => item.str as string)
-          .join(" ");
-        if (text.trim()) pageTexts.push(text.trim());
-      }
-      const extractedText = pageTexts.join("\n\n");
+      const { extractText: extractPdfText } = await import("unpdf");
+      const data = new Uint8Array(await file.arrayBuffer());
+      const result = await extractPdfText(data);
+      const extractedText = result.text.join("\n\n");
 
       // Post-process: join broken lines from PDF extraction
       const lines = extractedText.split("\n");
