@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Pencil,
   CheckCircle2,
@@ -158,7 +159,7 @@ export default function SegmentContextMenu({
     };
   }, [onClose, items, focusedIndex]);
 
-  return (
+  const menu = (
     <div
       ref={menuRef}
       style={{
@@ -288,4 +289,11 @@ export default function SegmentContextMenu({
       })}
     </div>
   );
+
+  // Render via portal to escape any CSS transform containers (ViewScaleContainer)
+  // so position:fixed uses viewport coordinates correctly
+  if (typeof document !== "undefined") {
+    return createPortal(menu, document.body);
+  }
+  return menu;
 }
