@@ -166,7 +166,8 @@ export default function SegmentContextMenu({
         left: x,
         top: y,
         zIndex: 200,
-        minWidth: 240,
+        minWidth: 180,
+        maxWidth: 260,
         padding: "6px 0",
         background: "var(--bg-card)",
         backdropFilter: "blur(16px) saturate(140%)",
@@ -216,8 +217,8 @@ export default function SegmentContextMenu({
             style={{
               width: "100%",
               textAlign: "left",
-              padding: "8px 14px 8px 12px",
-              fontSize: 13,
+              padding: "6px 12px 6px 10px",
+              fontSize: 12,
               display: "flex",
               alignItems: "center",
               gap: 10,
@@ -268,10 +269,10 @@ export default function SegmentContextMenu({
             {item.shortcut && (
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 9,
                   fontFamily: "'JetBrains Mono', monospace",
                   color: "var(--text-muted)",
-                  marginLeft: 12,
+                  marginLeft: 8,
                   flexShrink: 0,
                   padding: "1px 5px",
                   borderRadius: 4,

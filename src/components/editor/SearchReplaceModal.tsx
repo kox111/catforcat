@@ -194,13 +194,15 @@ export default function SearchReplaceModal({
       style={{
         position: "fixed",
         top: "3rem",
-        right: "1rem",
+        left: "60px",
         zIndex: 50,
-        borderRadius: "0.5rem",
-        boxShadow: "var(--shadow-md)",
-        width: "24rem",
+        borderRadius: "var(--radius)",
+        boxShadow: "var(--shadow-md), var(--panel-glow)",
+        width: "22rem",
         background: "var(--bg-panel)",
-        border: "1px solid var(--border)",
+        border: "0.5px solid var(--glass-border)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        animation: "fadeSlideIn 150ms ease-out",
       }}
       onKeyDown={handleKeyDown}
     >
