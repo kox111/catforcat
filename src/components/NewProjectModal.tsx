@@ -104,6 +104,12 @@ const ACCEPTED_EXTENSIONS = [
   ".txt",
   ".docx",
   ".pdf",
+  ".csv",
+  ".html",
+  ".htm",
+  ".xlsx",
+  ".pptx",
+  ".xml",
   ".xlf",
   ".xliff",
   ".json",
@@ -975,7 +981,7 @@ export default function NewProjectModal({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".txt,.docx,.pdf,.xlf,.xliff,.json,.srt,.po,.md"
+                    accept=".txt,.docx,.pdf,.csv,.html,.htm,.xlsx,.pptx,.xml,.xlf,.xliff,.json,.srt,.po,.md"
                     onChange={handleFileSelect}
                     style={{ display: "none" }}
                   />
@@ -1022,7 +1028,7 @@ export default function NewProjectModal({
                         Drag & drop a file here, or click to browse
                       </div>
                       <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
-                        Supported: .txt, .docx, .pdf, .xlf, .json, .srt, .po,
+                        Supported: .txt, .docx, .pdf, .csv, .html, .xlsx, .pptx, .xml, .xlf, .json, .srt, .po,
                         .md
                       </div>
                     </div>
