@@ -34,7 +34,7 @@ export const PLANS = {
       segmentsPerProject: 500,
       tmEntries: 1000,
       glossaryTerms: 200,
-      aiRequestsPerMonth: 50,
+      aiRequestsPerMonth: 5000,
       importFormats: [
         "txt",
         "docx",
@@ -68,7 +68,7 @@ export const PLANS = {
       segmentsPerProject: Infinity,
       tmEntries: Infinity,
       glossaryTerms: Infinity,
-      aiRequestsPerMonth: 1000,
+      aiRequestsPerMonth: 999999999,
       importFormats: [
         "txt",
         "docx",

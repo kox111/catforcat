@@ -35,12 +35,11 @@ export async function GET() {
     aiRequestsUsed = 0;
   }
 
-  const aiLimit = userData.plan === "pro" ? 1000 : 50;
+  const aiLimit = userData.plan === "pro" ? 999999999 : 5000;
 
   return NextResponse.json({
     plan: userData.plan,
-    translationProvider:
-      userData.plan === "pro" ? "DeepL Pro" : "Google Translate",
+    translationProvider: "Google Translate",
     aiRequestsUsed,
     aiRequestsLimit: aiLimit,
     hasSubscription: !!userData.stripeSubscriptionId,

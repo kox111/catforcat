@@ -14,7 +14,7 @@ import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
  * Both API keys are in .env server-side only.
  *
  * Rate limited to 30 requests/minute per user.
- * Monthly AI request limits: Free = 50/month, Pro = 1000/month.
+ * Monthly AI request limits: Free = 500/month, Pro = unlimited.
  */
 
 // ─────────────────────────────────────────────
@@ -42,7 +42,7 @@ function checkRateLimit(userId: string): boolean {
 // ─────────────────────────────────────────────
 // Plan limits for AI requests per month
 // ─────────────────────────────────────────────
-const AI_LIMITS: Record<string, number> = { free: 50, pro: 1000 };
+const AI_LIMITS: Record<string, number> = { free: 5000, pro: 999999999 };
 
 // ─────────────────────────────────────────────
 // DeepL uses slightly different language codes

@@ -139,7 +139,7 @@ export async function POST(
 
   // ── PASS 2: API Translation (uses AI quota) ──
   // Check monthly limits
-  const AI_LIMITS: Record<string, number> = { free: 50, pro: 1000 };
+  const AI_LIMITS: Record<string, number> = { free: 5000, pro: 999999999 };
   const monthlyLimit = AI_LIMITS[user.plan] || AI_LIMITS.free;
   const now = new Date();
 

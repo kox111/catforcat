@@ -332,7 +332,7 @@ export default function SettingsPage() {
                   </strong>{" "}
                   ($10/month). Translations powered by{" "}
                   <strong style={{ color: "var(--text-primary)" }}>
-                    DeepL Pro
+                    Google Translate
                   </strong>
                   .
                 </p>
@@ -367,7 +367,7 @@ export default function SettingsPage() {
                   <strong style={{ color: "var(--text-primary)" }}>
                     Google Translate
                   </strong>
-                  . Upgrade to Pro for DeepL Pro quality and higher limits.
+                  . Upgrade to Pro for unlimited translations and more.
                 </p>
 
                 {/* Feature comparison */}
@@ -386,10 +386,10 @@ export default function SettingsPage() {
                     <div style={{ color: "var(--accent)" }}>Pro ($10/mo)</div>
                   </div>
                   {[
-                    ["Translation engine", "Google", "DeepL Pro"],
+                    ["Translation engine", "Google Translate", "Google Translate"],
                     ["Projects", "3 active", "Unlimited"],
                     ["Segments/project", "500", "Unlimited"],
-                    ["AI suggestions", "50/month", "1,000/month"],
+                    ["AI suggestions", "5,000/month", "Unlimited"],
                     ["TM entries", "1,000", "Unlimited"],
                     ["Import formats", "All formats", "All formats"],
                     ["Export formats", "All formats", "All formats"],
@@ -449,7 +449,9 @@ export default function SettingsPage() {
                 </span>
                 <span style={{ color: "var(--text-muted)" }}>
                   {settings?.aiRequestsUsed || 0} /{" "}
-                  {settings?.aiRequestsLimit || 0}
+                  {(settings?.aiRequestsLimit || 0) >= 999999
+                    ? "Unlimited"
+                    : settings?.aiRequestsLimit?.toLocaleString() || 0}
                 </span>
               </div>
               <div
