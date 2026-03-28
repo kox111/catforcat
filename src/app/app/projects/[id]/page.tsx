@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEditorStore } from "@/lib/store";
 import EditorToolbar from "@/components/editor/EditorToolbar";
-import EditorToolstrip from "@/components/editor/EditorToolstrip";
 import EditorSidebar from "@/components/editor/EditorSidebar";
 import StatusBar from "@/components/editor/StatusBar";
 import SegmentRow from "@/components/editor/SegmentRow";
@@ -40,6 +39,16 @@ import {
   enqueueSync,
   isOnline as checkOnline,
 } from "@/lib/sync";
+import {
+  Sparkles,
+  CopyCheck,
+  CheckCircle2,
+  TextSearch,
+  BookOpen,
+  Scissors,
+  Merge,
+  Trash2,
+} from "lucide-react";
 import { findPropagations } from "@/lib/auto-propagate";
 import type {
   SegmentFilter,
@@ -1233,6 +1242,17 @@ export default function EditorPage({
         onToast={setGeneralToast}
         exportOpen={exportDropdownOpen}
         onExportOpenChange={setExportDropdownOpen}
+        onPreTranslate={handlePreTranslate}
+        preTranslating={!!preTranslateProgress?.running}
+        editorFontSize={editorFontSize}
+        onFontSizeChange={(size) => {
+          setEditorFontSize(size);
+          try {
+            localStorage.setItem("tp-editor-font-size", String(size));
+          } catch {
+            /* ignore */
+          }
+        }}
       />
 
       {/* ─── Session recovery banner ─── */}
@@ -1612,71 +1632,38 @@ export default function EditorPage({
           const isConfirmedSeg = seg?.status === "confirmed";
           const entries: ContextMenuEntry[] = [
             {
-              label: isConfirmedSeg ? "Confirmed" : "Confirm segment",
-              icon: "✅",
+              label: "Translate with AI",
+              icon: Sparkles,
               action: () => {
-                if (seg) confirmSegment(seg.id);
+                if (seg) {
+                  setActiveSegment(seg.id);
+                  if (typeof requestAISuggestion === "function")
+                    requestAISuggestion();
+                }
               },
-              disabled: isConfirmedSeg || !seg,
-              shortcut: "Ctrl+Enter",
+              shortcut: "Ctrl+Shift+Enter",
             },
             {
-              label: "Copy source → target",
-              icon: "📋",
+              label: "Copy source",
+              icon: CopyCheck,
               action: () => {
                 if (seg) copySourceToTarget(seg.id);
               },
               shortcut: "Ctrl+I",
             },
             {
-              label: "Pre-translate this segment",
-              icon: "🔄",
+              label: isConfirmedSeg ? "Confirmed" : "Confirm segment",
+              icon: CheckCircle2,
               action: () => {
-                if (seg && online) {
-                  setActiveSegment(seg.id);
-                  if (typeof requestAISuggestion === "function")
-                    requestAISuggestion();
-                }
+                if (seg) confirmSegment(seg.id);
               },
-              disabled: !online,
-              shortcut: "Ctrl+Shift+Enter",
+              disabled: isConfirmedSeg || !seg,
+              shortcut: "Ctrl+Enter",
             },
             { type: "separator" },
             {
-              label: "Split segment",
-              icon: "✂",
-              action: () => handleSplitSegment(contextMenu.segmentId),
-              disabled: !seg || seg.sourceText.split(" ").length < 2,
-            },
-            {
-              label: "Merge with next",
-              icon: "⊕",
-              action: () => handleMergeSegment(contextMenu.segmentId),
-              disabled: !hasNext,
-            },
-            { type: "separator" },
-            {
-              label: "Add/Edit note",
-              icon: "📝",
-              action: () => {
-                if (seg) {
-                  let comment = "";
-                  try {
-                    comment = JSON.parse(seg.metadata || "{}").comment || "";
-                  } catch {
-                    /* ignore */
-                  }
-                  setNoteModal({
-                    segmentId: seg.id,
-                    position: seg.position,
-                    note: comment,
-                  });
-                }
-              },
-            },
-            {
-              label: "Concordance search",
-              icon: "🔍",
+              label: "Search in TM",
+              icon: TextSearch,
               action: () => {
                 if (seg) {
                   setActiveSegment(seg.id);
@@ -1685,24 +1672,39 @@ export default function EditorPage({
               },
               shortcut: "Ctrl+K",
             },
+            {
+              label: "Search in Glossary",
+              icon: BookOpen,
+              action: () => {
+                if (seg) {
+                  setActiveSegment(seg.id);
+                  setBottomTab("glossary");
+                  setBottomPanelCollapsed(false);
+                }
+              },
+            },
+            { type: "separator" },
+            {
+              label: "Split segment",
+              icon: Scissors,
+              action: () => handleSplitSegment(contextMenu.segmentId),
+              disabled: !seg || seg.sourceText.split(" ").length < 2,
+            },
+            {
+              label: "Merge with next",
+              icon: Merge,
+              action: () => handleMergeSegment(contextMenu.segmentId),
+              disabled: !hasNext,
+            },
             { type: "separator" },
             {
               label: "Clear target",
-              icon: "🗑",
+              icon: Trash2,
               action: () => {
                 if (seg) applyTranslation(seg.id, "");
               },
               danger: true,
               disabled: !seg || seg.targetText.trim() === "",
-            },
-            { type: "separator" },
-            {
-              label: seg
-                ? `Seg ${seg.position} · ${seg.sourceText.split(/\s+/).filter(Boolean).length} words · ${seg.status}`
-                : "Segment info",
-              icon: "📊",
-              action: () => {},
-              disabled: true,
             },
           ];
           return (
@@ -1714,28 +1716,6 @@ export default function EditorPage({
             />
           );
         })()}
-
-      {/* ═══ Horizontal Toolbar ═══ */}
-      <EditorToolstrip
-        onPreTranslate={online ? handlePreTranslate : undefined}
-        preTranslating={!!preTranslateProgress?.running}
-        onAnalysis={() => setAnalysisOpen(true)}
-        onRunQA={handleRunQA}
-        qaRunning={qaRunning}
-        onSearchOpen={() => setSearchOpen(true)}
-        onConcordanceOpen={() => setConcordanceOpen(true)}
-        onGlossaryOpen={() => setBottomTab("glossary")}
-        onExportOpen={() => setExportDropdownOpen(true)}
-        editorFontSize={editorFontSize}
-        onFontSizeChange={(size) => {
-          setEditorFontSize(size);
-          try {
-            localStorage.setItem("tp-editor-font-size", String(size));
-          } catch {
-            /* ignore */
-          }
-        }}
-      />
 
       {/* ═══ MAIN LAYOUT: Sidebar + Content ═══ */}
       <div
@@ -1754,7 +1734,6 @@ export default function EditorPage({
           qaRunning={qaRunning}
           onSearchOpen={() => setSearchOpen(true)}
           onConcordanceOpen={() => setConcordanceOpen(true)}
-          onGlossaryOpen={() => setBottomTab("glossary")}
           onNotesOpen={() => {
             const seg = segments.find((s) => s.id === activeSegmentId);
             if (seg) {
@@ -1769,15 +1748,6 @@ export default function EditorPage({
                 position: seg.position,
                 note: comment,
               });
-            }
-          }}
-          editorFontSize={editorFontSize}
-          onFontSizeChange={(size) => {
-            setEditorFontSize(size);
-            try {
-              localStorage.setItem("tp-editor-font-size", String(size));
-            } catch {
-              /* ignore */
             }
           }}
           activePanel={bottomPanelCollapsed ? null : bottomTab}
