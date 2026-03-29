@@ -50,6 +50,7 @@ import {
   Scissors,
   Merge,
   Trash2,
+  BookPlus,
 } from "lucide-react";
 import { findPropagations } from "@/lib/auto-propagate";
 import type {
@@ -157,6 +158,10 @@ export default function EditorPage({
   const [focusMode, setFocusMode] = useState(false);
   // Bottom panel tab state
   const [bottomTab, setBottomTab] = useState<"tm" | "glossary">("tm");
+  // Add to glossary modal
+  const [addGlossaryModal, setAddGlossaryModal] = useState<{
+    sourceTerm: string;
+  } | null>(null);
   // Export dropdown (controlled from sidebar)
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
   // Bottom panel collapse/resize
@@ -1626,6 +1631,173 @@ export default function EditorPage({
         />
       )}
 
+      {/* ─── Add to Glossary Modal ─── */}
+      {addGlossaryModal && project && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "var(--overlay)",
+          }}
+          onClick={() => setAddGlossaryModal(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: 360,
+              background: "var(--bg-panel)",
+              border: "0.5px solid var(--glass-border)",
+              borderRadius: "var(--radius)",
+              padding: 20,
+              boxShadow: "var(--shadow-md)",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-ui-family)",
+                marginBottom: 14,
+              }}
+            >
+              Add to Glossary
+            </h3>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const sourceTerm = (form.elements.namedItem("sourceTerm") as HTMLInputElement).value.trim();
+                const targetTerm = (form.elements.namedItem("targetTerm") as HTMLInputElement).value.trim();
+                if (!sourceTerm || !targetTerm) return;
+                try {
+                  await fetch("/api/glossary", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      sourceTerm,
+                      targetTerm,
+                      srcLang: project.srcLang,
+                      tgtLang: project.tgtLang,
+                    }),
+                  });
+                  setAddGlossaryModal(null);
+                  // Refresh glossary
+                  const res = await fetch(
+                    `/api/glossary?srcLang=${project.srcLang}&tgtLang=${project.tgtLang}`
+                  );
+                  if (res.ok) {
+                    const terms = await res.json();
+                    setAllGlossarySourceTerms(terms.map((t: { sourceTerm: string }) => t.sourceTerm.toLowerCase()));
+                  }
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              <div style={{ marginBottom: 10 }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 11,
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-ui-family)",
+                    marginBottom: 4,
+                  }}
+                >
+                  Source term ({project.srcLang})
+                </label>
+                <input
+                  name="sourceTerm"
+                  defaultValue={addGlossaryModal.sourceTerm}
+                  autoFocus
+                  style={{
+                    width: "100%",
+                    padding: "7px 10px",
+                    fontSize: 13,
+                    fontFamily: "var(--font-ui-family)",
+                    background: "var(--bg-deep)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--radius-sm)",
+                    color: "var(--text-primary)",
+                    outline: "none",
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                />
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 11,
+                    color: "var(--text-secondary)",
+                    fontFamily: "var(--font-ui-family)",
+                    marginBottom: 4,
+                  }}
+                >
+                  Target term ({project.tgtLang})
+                </label>
+                <input
+                  name="targetTerm"
+                  style={{
+                    width: "100%",
+                    padding: "7px 10px",
+                    fontSize: 13,
+                    fontFamily: "var(--font-ui-family)",
+                    background: "var(--bg-deep)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--radius-sm)",
+                    color: "var(--text-primary)",
+                    outline: "none",
+                  }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                />
+              </div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  onClick={() => setAddGlossaryModal(null)}
+                  style={{
+                    padding: "6px 14px",
+                    fontSize: 12,
+                    fontFamily: "var(--font-ui-family)",
+                    background: "transparent",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--radius-sm)",
+                    color: "var(--text-secondary)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: "6px 14px",
+                    fontSize: 12,
+                    fontFamily: "var(--font-ui-family)",
+                    background: "var(--accent)",
+                    border: "none",
+                    borderRadius: "var(--radius-sm)",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontWeight: 500,
+                  }}
+                >
+                  Add term
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ─── Context Menu ─── */}
       {contextMenu &&
         (() => {
@@ -1680,6 +1852,18 @@ export default function EditorPage({
                   setActiveSegment(seg.id);
                   setBottomTab("glossary");
                   setBottomPanelCollapsed(false);
+                }
+              },
+            },
+            {
+              label: "Add to Glossary",
+              icon: BookPlus,
+              action: () => {
+                if (seg) {
+                  const selection = window.getSelection()?.toString().trim();
+                  setAddGlossaryModal({
+                    sourceTerm: selection || seg.sourceText.slice(0, 100),
+                  });
                 }
               },
             },
