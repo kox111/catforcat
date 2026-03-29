@@ -192,6 +192,7 @@ function ProjectsContent() {
             e.currentTarget.style.background = "var(--accent-soft)";
             e.currentTarget.style.borderColor = "var(--border)";
           }}
+          data-tour="new-project"
         >
           + New Project
         </button>
@@ -300,10 +301,11 @@ function ProjectsContent() {
             gap: 16,
           }}
         >
-          {projects.map((project) => (
+          {projects.map((project, idx) => (
             <Link
               key={project.id}
               href={`/app/projects/${project.id}`}
+              data-tour={idx === 0 ? "first-project" : undefined}
               style={{
                 display: "block",
                 borderRadius: "var(--radius)",

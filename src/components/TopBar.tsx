@@ -406,7 +406,7 @@ export default function TopBar() {
           )}
 
           {/* Avatar with gradient ring */}
-          <div ref={avatarRef} style={{ position: "relative" }}>
+          <div ref={avatarRef} style={{ position: "relative" }} data-tour="avatar">
             <div
               onClick={() => {
                 setAvatarOpen(!avatarOpen);

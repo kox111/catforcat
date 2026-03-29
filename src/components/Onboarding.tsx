@@ -1,34 +1,479 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
-import { Globe, Lock, Shield } from "lucide-react";
 
-const THEME_DOTS: { id: Theme; color: string; border: string }[] = [
-  { id: "dark", color: "#202124", border: "0.5px solid #3C3C3F" },
+/* ─── Tour step definitions ─── */
+interface TourStep {
+  target: string; // data-tour attribute value
+  title: string;
+  description: string;
+  position: "bottom" | "top" | "left" | "right";
+  action?: "click" | "next"; // "click" = user must click the element
+}
+
+const TOUR_STEPS: TourStep[] = [
   {
-    id: "sakura",
-    color: "#EFC4CC",
-    border: "0.5px solid #ffffff4d",
+    target: "__welcome__",
+    title: "Welcome to catforcat.",
+    description: "Let me show you around. This will take 15 seconds.",
+    position: "bottom",
   },
-  { id: "light", color: "#F7F6F3", border: "0.5px solid #ECEAE5" },
-  { id: "linen", color: "#C4AA90", border: "0.5px solid #B09878" },
+  {
+    target: "new-project",
+    title: "Create a project",
+    description:
+      "Upload a file or paste text to start translating. We support DOCX, PDF, XLIFF, SDLXLIFF, and 15+ formats.",
+    position: "bottom",
+  },
+  {
+    target: "first-project",
+    title: "Your projects",
+    description:
+      "Each card shows your progress. Click any project to open the editor.",
+    position: "top",
+  },
+  {
+    target: "avatar",
+    title: "You're all set",
+    description:
+      "Settings, theme, and account live here. Now go translate something.",
+    position: "left",
+  },
 ];
 
+const THEME_DOTS: { id: Theme; color: string; border: string }[] = [
+  { id: "dark", color: "#202124", border: "1px solid #3C3C3F" },
+  { id: "sakura", color: "#EFC4CC", border: "1px solid #ffffff4d" },
+  { id: "light", color: "#F7F6F3", border: "1px solid #ECEAE5" },
+  { id: "linen", color: "#C4AA90", border: "1px solid #B09878" },
+];
+
+/* ─── Spotlight cutout overlay ─── */
+function SpotlightOverlay({
+  rect,
+  onClick,
+}: {
+  rect: DOMRect | null;
+  onClick: () => void;
+}) {
+  const pad = 8;
+  const radius = 12;
+
+  // If no rect (welcome step), full dark overlay
+  if (!rect) {
+    return (
+      <div
+        onClick={onClick}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9998,
+          background: "rgba(0, 0, 0, 0.75)",
+          transition: "all 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+          cursor: "pointer",
+        }}
+      />
+    );
+  }
+
+  const x = rect.left - pad;
+  const y = rect.top - pad;
+  const w = rect.width + pad * 2;
+  const h = rect.height + pad * 2;
+
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9998,
+        cursor: "pointer",
+      }}
+    >
+      <svg
+        width="100%"
+        height="100%"
+        style={{ position: "absolute", inset: 0 }}
+      >
+        <defs>
+          <mask id="spotlight-mask">
+            <rect width="100%" height="100%" fill="white" />
+            <rect
+              x={x}
+              y={y}
+              width={w}
+              height={h}
+              rx={radius}
+              fill="black"
+              style={{
+                transition: "all 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            />
+          </mask>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          fill="rgba(0, 0, 0, 0.75)"
+          mask="url(#spotlight-mask)"
+        />
+      </svg>
+      {/* Glow ring around spotlight */}
+      <div
+        style={{
+          position: "absolute",
+          left: x - 2,
+          top: y - 2,
+          width: w + 4,
+          height: h + 4,
+          borderRadius: radius + 2,
+          border: "1px solid var(--accent)",
+          boxShadow: "0 0 20px rgba(164, 119, 100, 0.3), 0 0 40px rgba(164, 119, 100, 0.1)",
+          transition: "all 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+          pointerEvents: "none",
+          animation: "spotlightPulse 2s ease-in-out infinite",
+        }}
+      />
+    </div>
+  );
+}
+
+/* ─── Tooltip with arrow ─── */
+function TourTooltip({
+  step,
+  currentStep,
+  totalSteps,
+  rect,
+  onNext,
+  onSkip,
+  isThemeStep,
+}: {
+  step: TourStep;
+  currentStep: number;
+  totalSteps: number;
+  rect: DOMRect | null;
+  onNext: () => void;
+  onSkip: () => void;
+  isThemeStep: boolean;
+}) {
+  const { theme, setTheme } = useTheme();
+  const [typedTitle, setTypedTitle] = useState("");
+  const [typedDesc, setTypedDesc] = useState("");
+  const [showContent, setShowContent] = useState(false);
+
+  // Typewriter effect
+  useEffect(() => {
+    setTypedTitle("");
+    setTypedDesc("");
+    setShowContent(false);
+
+    let titleIdx = 0;
+    let descIdx = 0;
+    const title = step.title;
+    const desc = step.description;
+
+    const titleTimer = setInterval(() => {
+      titleIdx++;
+      setTypedTitle(title.slice(0, titleIdx));
+      if (titleIdx >= title.length) {
+        clearInterval(titleTimer);
+        setShowContent(true);
+        // Start description typewriter
+        const descTimer = setInterval(() => {
+          descIdx++;
+          setTypedDesc(desc.slice(0, descIdx));
+          if (descIdx >= desc.length) clearInterval(descTimer);
+        }, 12);
+      }
+    }, 30);
+
+    return () => clearInterval(titleTimer);
+  }, [step.title, step.description]);
+
+  // Position tooltip relative to target
+  let tooltipStyle: React.CSSProperties = {
+    position: "fixed",
+    zIndex: 9999,
+    background: "var(--bg-panel)",
+    border: "1px solid var(--border)",
+    borderRadius: 16,
+    padding: "24px 28px",
+    maxWidth: 360,
+    width: "90vw",
+    boxShadow:
+      "0 8px 32px rgba(0,0,0,0.3), 0 20px 60px rgba(0,0,0,0.15)",
+    animation: "tourSlideIn 400ms cubic-bezier(0.4, 0, 0.2, 1)",
+  };
+
+  if (!rect) {
+    // Center for welcome step
+    tooltipStyle = {
+      ...tooltipStyle,
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+    };
+  } else {
+    const gap = 16;
+    switch (step.position) {
+      case "bottom":
+        tooltipStyle.top = rect.bottom + gap;
+        tooltipStyle.left = Math.max(16, rect.left + rect.width / 2 - 180);
+        break;
+      case "top":
+        tooltipStyle.bottom = window.innerHeight - rect.top + gap;
+        tooltipStyle.left = Math.max(16, rect.left + rect.width / 2 - 180);
+        break;
+      case "left":
+        tooltipStyle.top = rect.top + rect.height / 2 - 80;
+        tooltipStyle.right = window.innerWidth - rect.left + gap;
+        break;
+      case "right":
+        tooltipStyle.top = rect.top + rect.height / 2 - 80;
+        tooltipStyle.left = rect.right + gap;
+        break;
+    }
+  }
+
+  return (
+    <div style={tooltipStyle} onClick={(e) => e.stopPropagation()}>
+      {/* Step counter */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-editor-family)",
+            fontSize: 10,
+            color: "var(--text-muted)",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {currentStep + 1} / {totalSteps}
+        </span>
+        <button
+          onClick={onSkip}
+          style={{
+            background: "none",
+            border: "none",
+            color: "var(--text-muted)",
+            fontSize: 11,
+            cursor: "pointer",
+            fontFamily: "var(--font-ui-family)",
+            padding: "2px 6px",
+            borderRadius: 4,
+            transition: "color 150ms",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--text-secondary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-muted)")
+          }
+        >
+          Skip tour
+        </button>
+      </div>
+
+      {/* Title with typewriter */}
+      <h3
+        style={{
+          fontFamily: "var(--font-display-family)",
+          fontSize: currentStep === 0 ? 24 : 18,
+          fontWeight: 400,
+          color: "var(--text-primary)",
+          marginBottom: 8,
+          minHeight: currentStep === 0 ? 32 : 24,
+        }}
+      >
+        {typedTitle}
+        <span
+          style={{
+            display: "inline-block",
+            width: 2,
+            height: currentStep === 0 ? 20 : 16,
+            background: "var(--accent)",
+            marginLeft: 2,
+            animation: "cursorBlink 800ms ease-in-out infinite",
+            verticalAlign: "text-bottom",
+            opacity: typedDesc.length >= step.description.length ? 0 : 1,
+            transition: "opacity 300ms",
+          }}
+        />
+      </h3>
+
+      {/* Description with typewriter */}
+      <p
+        style={{
+          fontFamily: "var(--font-ui-family)",
+          fontSize: 13,
+          color: "var(--text-secondary)",
+          lineHeight: 1.6,
+          marginBottom: 20,
+          minHeight: 40,
+        }}
+      >
+        {typedDesc}
+      </p>
+
+      {/* Theme picker on last step */}
+      {isThemeStep && showContent && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 10,
+            marginBottom: 20,
+            animation: "tourFadeIn 300ms ease-out",
+          }}
+        >
+          {THEME_DOTS.map((t) => (
+            <div
+              key={t.id}
+              onClick={() => setTheme(t.id)}
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: "50%",
+                background: t.color,
+                border: t.border,
+                cursor: "pointer",
+                boxShadow:
+                  theme === t.id
+                    ? "0 0 0 2px var(--bg-panel), 0 0 0 4px var(--accent)"
+                    : "none",
+                transition: "all 200ms",
+                transform: theme === t.id ? "scale(1.15)" : "scale(1)",
+              }}
+              title={t.id.charAt(0).toUpperCase() + t.id.slice(1)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Next button */}
+      {showContent && (
+        <div style={{ animation: "tourFadeIn 300ms ease-out" }}>
+          <button
+            onClick={onNext}
+            style={{
+              width: "100%",
+              padding: "10px 0",
+              borderRadius: 9999,
+              background: "var(--accent)",
+              border: "none",
+              color: "var(--btn-primary-text, #fff)",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              fontFamily: "var(--font-ui-family)",
+              transition: "all 150ms",
+              boxShadow: "var(--btn-primary-shadow)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow =
+                "var(--btn-primary-shadow-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "var(--btn-primary-shadow)";
+            }}
+          >
+            {currentStep === totalSteps - 1
+              ? "Start translating"
+              : currentStep === 0
+                ? "Show me around"
+                : "Next"}
+          </button>
+        </div>
+      )}
+
+      {/* Progress dots */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 6,
+          marginTop: 16,
+        }}
+      >
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              width: i === currentStep ? 16 : 6,
+              height: 6,
+              borderRadius: 3,
+              background:
+                i === currentStep ? "var(--accent)" : "var(--border)",
+              transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main Tour Component ─── */
 export default function Onboarding() {
   const [show, setShow] = useState(false);
   const [step, setStep] = useState(0);
-  const { theme, setTheme } = useTheme();
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     try {
       if (!localStorage.getItem("catforcat-onboarded")) {
-        setShow(true);
+        // Small delay so DOM elements are ready
+        setTimeout(() => setShow(true), 500);
       }
     } catch {
       /* ignore */
     }
   }, []);
+
+  // Find and track target element position
+  const updateTargetRect = useCallback(() => {
+    const currentStep = TOUR_STEPS[step];
+    if (!currentStep || currentStep.target === "__welcome__") {
+      setTargetRect(null);
+      return;
+    }
+
+    const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
+    if (el) {
+      setTargetRect(el.getBoundingClientRect());
+    } else {
+      setTargetRect(null);
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (!show) return;
+    updateTargetRect();
+
+    // Track on scroll/resize
+    const onUpdate = () => {
+      rafRef.current = requestAnimationFrame(updateTargetRect);
+    };
+    window.addEventListener("scroll", onUpdate, true);
+    window.addEventListener("resize", onUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", onUpdate, true);
+      window.removeEventListener("resize", onUpdate);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [show, step, updateTargetRect]);
 
   if (!show) return null;
 
@@ -42,315 +487,46 @@ export default function Onboarding() {
   };
 
   const next = () => {
-    if (step < 3) setStep(step + 1);
-    else finish();
+    if (step < TOUR_STEPS.length - 1) {
+      setStep(step + 1);
+    } else {
+      finish();
+    }
   };
 
-  const dotStyle = (active: boolean): React.CSSProperties => ({
-    width: 6,
-    height: 6,
-    borderRadius: "50%",
-    background: active ? "var(--accent)" : "var(--border)",
-    transition: "background 200ms",
-  });
-
-  const btnStyle: React.CSSProperties = {
-    padding: "10px 28px",
-    borderRadius: 24,
-    background: "var(--btn-bg)",
-    border: "1px solid var(--btn-border)",
-    color: "var(--text-primary)",
-    fontSize: 14,
-    fontWeight: 500,
-    cursor: "pointer",
-    fontFamily: "var(--font-ui-family)",
-    transition: "background 150ms",
-  };
+  const currentTourStep = TOUR_STEPS[step];
+  const isLastStep = step === TOUR_STEPS.length - 1;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0, 0, 0, 0.7)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <div
-        style={{
-          background: "var(--bg-panel)",
-          border: "1px solid var(--border)",
-          borderRadius: 16,
-          padding: 40,
-          maxWidth: 480,
-          width: "90%",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 20px 60px rgba(0,0,0,0.2)",
-          textAlign: "center",
-        }}
-      >
-        {/* Step 1: Welcome */}
-        {step === 0 && (
-          <>
-            <h2
-              style={{
-                fontFamily: "var(--font-display-family)",
-                fontSize: 22,
-                fontWeight: 400,
-                color: "var(--text-primary)",
-                marginBottom: 12,
-              }}
-            >
-              Welcome to catforcat.
-            </h2>
-            <p
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 13,
-                color: "var(--text-secondary)",
-                marginBottom: 28,
-                lineHeight: 1.6,
-              }}
-            >
-              Let&apos;s show you around. It takes 30 seconds.
-            </p>
-            <button
-              onClick={next}
-              style={btnStyle}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg-hover)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg)")
-              }
-            >
-              Let&apos;s go
-            </button>
-          </>
-        )}
-
-        {/* Step 2: Your workspace */}
-        {step === 1 && (
-          <>
-            <h2
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 18,
-                fontWeight: 500,
-                color: "var(--text-primary)",
-                marginBottom: 12,
-              }}
-            >
-              Your workspace
-            </h2>
-            <p
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 13,
-                color: "var(--text-secondary)",
-                marginBottom: 28,
-                lineHeight: 1.6,
-              }}
-            >
-              Create projects, import files, and start translating. Your editor
-              has all the tools you need on the left sidebar.
-            </p>
-            <button
-              onClick={next}
-              style={btnStyle}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg-hover)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg)")
-              }
-            >
-              Next
-            </button>
-          </>
-        )}
-
-        {/* Step 3: Privacy */}
-        {step === 2 && (
-          <>
-            <h2
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 18,
-                fontWeight: 500,
-                color: "var(--text-primary)",
-                marginBottom: 12,
-              }}
-            >
-              Privacy is yours to control
-            </h2>
-            <p
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 13,
-                color: "var(--text-secondary)",
-                marginBottom: 20,
-                lineHeight: 1.6,
-              }}
-            >
-              Every project has a privacy level. Standard uses all features.
-              Private keeps data off public TMs. Confidential means zero
-              external calls.
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 24,
-                marginBottom: 28,
-              }}
-            >
-              {[
-                { icon: Globe, label: "Standard" },
-                { icon: Lock, label: "Private" },
-                { icon: Shield, label: "Confidential" },
-              ].map(({ icon: Icon, label }) => (
-                <div
-                  key={label}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: "var(--accent-soft)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "var(--accent)",
-                    }}
-                  >
-                    <Icon size={18} />
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      color: "var(--text-secondary)",
-                      fontFamily: "var(--font-ui-family)",
-                    }}
-                  >
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={next}
-              style={btnStyle}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg-hover)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg)")
-              }
-            >
-              Next
-            </button>
-          </>
-        )}
-
-        {/* Step 4: Make it yours */}
-        {step === 3 && (
-          <>
-            <h2
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 18,
-                fontWeight: 500,
-                color: "var(--text-primary)",
-                marginBottom: 12,
-              }}
-            >
-              Make it yours
-            </h2>
-            <p
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 13,
-                color: "var(--text-secondary)",
-                marginBottom: 20,
-                lineHeight: 1.6,
-              }}
-            >
-              Choose your theme and adjust your view size anytime.
-            </p>
-
-            {/* Functional theme dots */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 8,
-                marginBottom: 28,
-              }}
-            >
-              {THEME_DOTS.map((t) => (
-                <div
-                  key={t.id}
-                  onClick={() => setTheme(t.id)}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: "50%",
-                    background: t.color,
-                    border: t.border,
-                    cursor: "pointer",
-                    boxShadow:
-                      theme === t.id
-                        ? "0 0 0 2px var(--bg-panel), 0 0 0 4px var(--accent)"
-                        : "none",
-                    transition: "box-shadow 150ms",
-                  }}
-                  title={t.id.charAt(0).toUpperCase() + t.id.slice(1)}
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={finish}
-              style={btnStyle}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg-hover)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "var(--btn-bg)")
-              }
-            >
-              Start translating
-            </button>
-          </>
-        )}
-
-        {/* Progress dots */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 6,
-            marginTop: 20,
-          }}
-        >
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} style={dotStyle(i === step)} />
-          ))}
-        </div>
-      </div>
-    </div>
+    <>
+      <style>{`
+        @keyframes spotlightPulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+        @keyframes tourSlideIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes tourFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes cursorBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}</style>
+      <SpotlightOverlay rect={targetRect} onClick={next} />
+      <TourTooltip
+        step={currentTourStep}
+        currentStep={step}
+        totalSteps={TOUR_STEPS.length}
+        rect={targetRect}
+        onNext={next}
+        onSkip={finish}
+        isThemeStep={isLastStep}
+      />
+    </>
   );
 }
