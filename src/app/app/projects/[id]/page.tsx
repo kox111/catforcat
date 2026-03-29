@@ -443,6 +443,7 @@ export default function EditorPage({
           segment: seg.sourceText,
           srcLang: project.srcLang,
           tgtLang: project.tgtLang,
+          projectId: project.id,
           glossaryTerms: glossaryForRequest,
           context: {
             previousSegment: prevSeg?.sourceText || "",

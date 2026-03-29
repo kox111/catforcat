@@ -233,7 +233,7 @@ function TourTooltip({
         tooltipStyle.left = clampLeft(rect.left + rect.width / 2 - tooltipW / 2);
         break;
       case "left":
-        tooltipStyle.top = Math.max(margin, rect.top + rect.height / 2 - 80);
+        tooltipStyle.top = Math.max(margin, Math.min(rect.top + rect.height / 2 - 80, window.innerHeight - 220));
         tooltipStyle.right = window.innerWidth - rect.left + gap;
         break;
       case "right":
