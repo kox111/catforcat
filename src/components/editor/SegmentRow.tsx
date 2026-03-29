@@ -176,12 +176,13 @@ function AIScoreBadge({
             transform: "translateX(-50%)",
             marginBottom: 6,
             padding: "6px 10px",
-            borderRadius: 6,
+            borderRadius: "var(--radius-sm)",
             background: "var(--bg-panel)",
             border: "0.5px solid var(--border)",
             boxShadow: "var(--shadow-md)",
             fontSize: 11,
             color: "var(--text-secondary)",
+            fontFamily: "var(--font-ui-family)",
             whiteSpace: "nowrap",
             maxWidth: 250,
             zIndex: 50,
@@ -498,7 +499,7 @@ export default function SegmentRow({
                   fontSize: 10,
                   fontWeight: 500,
                   cursor: "pointer",
-                  fontFamily: "inherit",
+                  fontFamily: "var(--font-ui-family)",
                 }}
               >
                 <Check size={10} /> Accept
@@ -520,7 +521,7 @@ export default function SegmentRow({
                   fontSize: 10,
                   fontWeight: 500,
                   cursor: "pointer",
-                  fontFamily: "inherit",
+                  fontFamily: "var(--font-ui-family)",
                 }}
               >
                 ✕ Reject

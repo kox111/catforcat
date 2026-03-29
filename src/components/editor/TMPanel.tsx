@@ -70,12 +70,13 @@ export default function TMPanel({
     return (
       <div
         style={{
-          padding: "16px",
+          padding: "16px 14px",
           display: "flex",
           alignItems: "center",
           gap: 8,
           fontSize: 12,
           color: "var(--text-muted)",
+          fontFamily: "var(--font-ui-family)",
         }}
       >
         <Database size={14} />
@@ -151,6 +152,7 @@ export default function TMPanel({
             fontSize: 12,
             color: "var(--text-muted)",
             fontStyle: "italic",
+            fontFamily: "var(--font-ui-family)",
           }}
         >
           No matches found
@@ -182,7 +184,7 @@ export default function TMPanel({
                   : "0.5px solid var(--glass-border)",
                 cursor: "pointer",
                 transition: "all 180ms ease-out",
-                fontFamily: "inherit",
+                fontFamily: "var(--font-ui-family)",
                 position: "relative",
                 boxShadow: "var(--btn-depth)",
               }}

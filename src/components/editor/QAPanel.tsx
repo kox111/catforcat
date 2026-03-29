@@ -32,7 +32,7 @@ export default function QAPanel({
       style={{
         display: "flex",
         flexDirection: "column",
-        borderTop: "1px solid var(--border)",
+        borderTop: "0.5px solid var(--border)",
         background: "var(--bg-panel)",
         maxHeight: "300px",
       }}
@@ -43,40 +43,36 @@ export default function QAPanel({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingLeft: "1rem",
-          paddingRight: "1rem",
-          paddingTop: "0.5rem",
-          paddingBottom: "0.5rem",
+          padding: "8px 16px",
           flexShrink: 0,
-          borderBottom: "1px solid var(--border)",
+          borderBottom: "0.5px solid var(--border)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: 12,
               fontWeight: 600,
               color: "var(--text-primary)",
+              fontFamily: "var(--font-ui-family)",
             }}
           >
             QA Results
           </span>
-          <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "var(--font-ui-family)" }}>
             {issues.length} {issues.length === 1 ? "issue" : "issues"}
           </span>
           {/* Summary badges */}
           {grouped.errors.length > 0 && (
             <span
               style={{
-                fontSize: "0.75rem",
-                paddingLeft: "0.375rem",
-                paddingRight: "0.375rem",
-                paddingTop: "0.125rem",
-                paddingBottom: "0.125rem",
-                borderRadius: "0.25rem",
+                fontSize: 10,
+                padding: "2px 6px",
+                borderRadius: 5,
                 fontWeight: 500,
                 background: SEVERITY_CONFIG.error.color,
                 color: "var(--bg-deep)",
+                fontFamily: "var(--font-editor-family)",
               }}
             >
               {grouped.errors.length} error
@@ -86,15 +82,13 @@ export default function QAPanel({
           {grouped.warnings.length > 0 && (
             <span
               style={{
-                fontSize: "0.75rem",
-                paddingLeft: "0.375rem",
-                paddingRight: "0.375rem",
-                paddingTop: "0.125rem",
-                paddingBottom: "0.125rem",
-                borderRadius: "0.25rem",
+                fontSize: 10,
+                padding: "2px 6px",
+                borderRadius: 5,
                 fontWeight: 500,
                 background: SEVERITY_CONFIG.warning.color,
                 color: "var(--text-primary)",
+                fontFamily: "var(--font-editor-family)",
               }}
             >
               {grouped.warnings.length} warning
@@ -104,22 +98,20 @@ export default function QAPanel({
           {grouped.infos.length > 0 && (
             <span
               style={{
-                fontSize: "0.75rem",
-                paddingLeft: "0.375rem",
-                paddingRight: "0.375rem",
-                paddingTop: "0.125rem",
-                paddingBottom: "0.125rem",
-                borderRadius: "0.25rem",
+                fontSize: 10,
+                padding: "2px 6px",
+                borderRadius: 5,
                 fontWeight: 500,
                 background: SEVERITY_CONFIG.info.color,
                 color: "var(--text-primary)",
+                fontFamily: "var(--font-editor-family)",
               }}
             >
               {grouped.infos.length} info
             </span>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {issues.length > 0 && (
             <button
               onClick={() => {
@@ -135,16 +127,15 @@ export default function QAPanel({
                 URL.revokeObjectURL(url);
               }}
               style={{
-                fontSize: "0.75rem",
-                paddingLeft: "0.5rem",
-                paddingRight: "0.5rem",
-                paddingTop: "0.25rem",
-                paddingBottom: "0.25rem",
-                borderRadius: "0.25rem",
+                fontSize: 11,
+                padding: "4px 8px",
+                borderRadius: 6,
                 color: "var(--accent)",
-                border: "1px solid var(--border)",
+                border: "0.5px solid var(--border)",
                 background: "transparent",
                 cursor: "pointer",
+                fontFamily: "var(--font-ui-family)",
+                transition: "background 150ms",
               }}
             >
               Export CSV
@@ -153,16 +144,14 @@ export default function QAPanel({
           <button
             onClick={onClose}
             style={{
-              fontSize: "0.75rem",
-              paddingLeft: "0.5rem",
-              paddingRight: "0.5rem",
-              paddingTop: "0.25rem",
-              paddingBottom: "0.25rem",
-              borderRadius: "0.25rem",
+              fontSize: 12,
+              padding: "4px 8px",
+              borderRadius: 6,
               color: "var(--text-muted)",
               background: "transparent",
               border: "none",
               cursor: "pointer",
+              fontFamily: "var(--font-ui-family)",
             }}
           >
             ×
@@ -175,19 +164,16 @@ export default function QAPanel({
         style={{
           overflowY: "auto",
           flex: 1,
-          paddingLeft: "0.5rem",
-          paddingRight: "0.5rem",
-          paddingTop: "0.25rem",
-          paddingBottom: "0.25rem",
+          padding: "4px 8px",
         }}
       >
         {issues.length === 0 ? (
           <div
             style={{
-              fontSize: "0.75rem",
-              paddingTop: "1rem",
-              paddingBottom: "1rem",
+              fontSize: 12,
+              padding: "16px 0",
               textAlign: "center",
+              fontFamily: "var(--font-ui-family)",
               color:
                 translatedCount === 0 ? "var(--text-muted)" : "var(--green)",
             }}
@@ -201,7 +187,7 @@ export default function QAPanel({
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "0.125rem",
+              gap: 2,
             }}
           >
             {/* Render errors first, then warnings, then info */}
@@ -215,20 +201,18 @@ export default function QAPanel({
                     style={{
                       width: "100%",
                       textAlign: "left",
-                      paddingLeft: "0.75rem",
-                      paddingRight: "0.75rem",
-                      paddingTop: "0.5rem",
-                      paddingBottom: "0.5rem",
-                      borderRadius: "0.25rem",
-                      fontSize: "0.75rem",
+                      padding: "8px 12px",
+                      borderRadius: 6,
+                      fontSize: 12,
                       display: "flex",
                       alignItems: "flex-start",
-                      gap: "0.5rem",
-                      transition: "background-color 0.2s",
+                      gap: 8,
+                      transition: "background 150ms",
                       color: "var(--text-primary)",
                       background: "transparent",
                       border: "none",
                       cursor: "pointer",
+                      fontFamily: "var(--font-ui-family)",
                     }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background = "var(--bg-card)")
@@ -240,7 +224,7 @@ export default function QAPanel({
                     <span
                       style={{
                         flexShrink: 0,
-                        marginTop: "0.125rem",
+                        marginTop: 2,
                         color: config.color,
                       }}
                     >

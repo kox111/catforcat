@@ -323,9 +323,9 @@ export default function GlossaryPage() {
         <form
           onSubmit={handleAdd}
           style={{
-            marginBottom: "24px",
-            padding: "16px",
-            borderRadius: "6px",
+            marginBottom: 24,
+            padding: 16,
+            borderRadius: "var(--radius-sm)",
             background: "var(--bg-card)",
             border: "1px solid var(--border)",
           }}
@@ -443,13 +443,10 @@ export default function GlossaryPage() {
       {importResult && (
         <div
           style={{
-            marginBottom: "16px",
-            paddingLeft: "16px",
-            paddingRight: "16px",
-            paddingTop: "8px",
-            paddingBottom: "8px",
-            borderRadius: "6px",
-            fontSize: "12px",
+            marginBottom: 16,
+            padding: "8px 16px",
+            borderRadius: "var(--radius-sm)",
+            fontSize: 12,
             background: importResult.startsWith("Error")
               ? "var(--red-soft)"
               : "var(--accent-soft)",
@@ -461,7 +458,7 @@ export default function GlossaryPage() {
           {importResult}
           <button
             onClick={() => setImportResult(null)}
-            style={{ marginLeft: "8px", fontWeight: "bold" }}
+            style={{ marginLeft: 8, fontWeight: 600, background: "none", border: "none", color: "inherit", cursor: "pointer", fontFamily: "var(--font-ui-family)" }}
           >
             ×
           </button>
@@ -472,9 +469,9 @@ export default function GlossaryPage() {
       {showProjectImport && (
         <div
           style={{
-            marginBottom: "16px",
-            padding: "16px",
-            borderRadius: "6px",
+            marginBottom: 16,
+            padding: 16,
+            borderRadius: "var(--radius-sm)",
             background: "var(--bg-card)",
             border: "1px solid var(--border)",
           }}

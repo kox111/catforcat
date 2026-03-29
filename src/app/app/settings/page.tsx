@@ -187,9 +187,9 @@ export default function SettingsPage() {
           {/* Profile Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                       border: "1px solid var(--btn-border)",
                       color: "var(--text-secondary)",
                       cursor: "pointer",
-                      fontFamily: "inherit",
+                      fontFamily: "var(--font-ui-family)",
                       transition: "background 150ms",
                     }}
                   >
@@ -274,7 +274,7 @@ export default function SettingsPage() {
                         border: "1px solid var(--border)",
                         color: "var(--text-muted)",
                         cursor: "pointer",
-                        fontFamily: "inherit",
+                        fontFamily: "var(--font-ui-family)",
                         transition: "background 150ms",
                       }}
                     >
@@ -296,9 +296,9 @@ export default function SettingsPage() {
           {/* Plan Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -377,9 +377,9 @@ export default function SettingsPage() {
                 {/* Feature comparison */}
                 <div
                   style={{
-                    borderRadius: "8px",
-                    padding: "16px",
-                    marginBottom: "16px",
+                    borderRadius: "var(--radius-sm)",
+                    padding: 16,
+                    marginBottom: 16,
                     background: "var(--bg-deep)",
                     border: "1px solid var(--border)",
                   }}
@@ -432,9 +432,9 @@ export default function SettingsPage() {
           {/* Usage Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -485,9 +485,9 @@ export default function SettingsPage() {
           {/* Appearance Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -611,9 +611,9 @@ export default function SettingsPage() {
           {/* Break Reminder Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -685,9 +685,9 @@ export default function SettingsPage() {
           {/* Display Scale Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -765,9 +765,9 @@ export default function SettingsPage() {
           {/* Security Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
-              marginBottom: "24px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
+              marginBottom: 24,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}
@@ -787,8 +787,8 @@ export default function SettingsPage() {
           {/* Account Section */}
           <section
             style={{
-              borderRadius: "8px",
-              padding: "20px",
+              borderRadius: "var(--radius-sm)",
+              padding: 20,
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
             }}

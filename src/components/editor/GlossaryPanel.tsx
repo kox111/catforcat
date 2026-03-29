@@ -69,12 +69,13 @@ export default function GlossaryPanel({
     return (
       <div
         style={{
-          padding: "16px",
+          padding: "16px 14px",
           display: "flex",
           alignItems: "center",
           gap: 8,
           fontSize: 12,
           color: "var(--text-muted)",
+          fontFamily: "var(--font-ui-family)",
         }}
       >
         <BookOpen size={14} />
@@ -150,6 +151,7 @@ export default function GlossaryPanel({
             fontSize: 12,
             color: "var(--text-muted)",
             fontStyle: "italic",
+            fontFamily: "var(--font-ui-family)",
           }}
         >
           No glossary terms in this segment
@@ -169,7 +171,7 @@ export default function GlossaryPanel({
               padding: "6px 12px",
               borderRadius: 8,
               fontSize: 12,
-              fontFamily: "inherit",
+              fontFamily: "var(--font-ui-family)",
               background: "var(--purple-soft)",
               border: "0.5px solid var(--glass-border)",
               cursor: "pointer",
