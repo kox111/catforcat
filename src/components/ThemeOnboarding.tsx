@@ -111,7 +111,7 @@ export default function ThemeOnboarding() {
       >
         <h2
           style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
+            fontFamily: "var(--font-display-family)",
             fontSize: 22,
             fontWeight: 400,
             color: "var(--text-primary)",
@@ -122,7 +122,7 @@ export default function ThemeOnboarding() {
         </h2>
         <p
           style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             fontSize: 13,
             fontWeight: 400,
             color: "var(--text-secondary)",
@@ -177,7 +177,7 @@ export default function ThemeOnboarding() {
                   >
                     <span
                       style={{
-                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontFamily: "var(--font-display-family)",
                         fontSize: 7,
                         color: t.toolbarText,
                       }}
@@ -186,7 +186,7 @@ export default function ThemeOnboarding() {
                     </span>
                     <span
                       style={{
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "var(--font-editor-family)",
                         fontSize: 5,
                         color: t.lineMuted,
                       }}
@@ -227,7 +227,7 @@ export default function ThemeOnboarding() {
                     style={{
                       fontSize: 10,
                       fontWeight: 500,
-                      fontFamily: "'Inter', system-ui, sans-serif",
+                      fontFamily: "var(--font-ui-family)",
                       color: t.labelText,
                     }}
                   >
@@ -250,7 +250,7 @@ export default function ThemeOnboarding() {
               padding: "10px 32px",
               fontSize: 13,
               fontWeight: 500,
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               backdropFilter: "blur(4px)",
               cursor: "pointer",
               transition: "background 150ms, border-color 150ms",

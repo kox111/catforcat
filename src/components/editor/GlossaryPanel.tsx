@@ -136,7 +136,7 @@ export default function GlossaryPanel({
               textTransform: "none",
               letterSpacing: 0,
               marginLeft: 4,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-editor-family)",
             }}
           >
             ({matches.length})

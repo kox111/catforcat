@@ -176,7 +176,7 @@ function ProjectsContent() {
             borderRadius: 22,
             fontSize: 13,
             fontWeight: 500,
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             background: "var(--accent-soft)",
             color: "var(--text-primary)",
             border: "0.5px solid var(--border)",

@@ -99,7 +99,7 @@ export default function QARulesManager({
     padding: "6px 10px",
     fontSize: 12,
     outline: "none",
-    fontFamily: tab === "regex" ? "'JetBrains Mono', monospace" : "inherit",
+    fontFamily: tab === "regex" ? "var(--font-editor-family)" : "inherit",
   };
 
   return (
@@ -272,7 +272,7 @@ export default function QARulesManager({
                         color: "var(--text-primary)",
                         fontFamily:
                           tab === "regex"
-                            ? "'JetBrains Mono', monospace"
+                            ? "var(--font-editor-family)"
                             : "inherit",
                         overflow: "hidden",
                         textOverflow: "ellipsis",

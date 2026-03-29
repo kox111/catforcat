@@ -245,7 +245,7 @@ function LanguagePicker({
                 outline: "none",
                 fontSize: 12,
                 color: "var(--text-primary)",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
               }}
             />
           </div>
@@ -278,7 +278,7 @@ function LanguagePicker({
                     padding: "3px 8px",
                     borderRadius: 12,
                     fontSize: 9,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-editor-family)",
                     fontWeight: 500,
                     border: isSelected
                       ? `0.5px solid rgba(${gradientColors[0]}, 0.15)`
@@ -306,7 +306,7 @@ function LanguagePicker({
               <div key={group}>
                 <div
                   style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontFamily: "var(--font-display-family)",
                     fontSize: 9,
                     fontStyle: "italic",
                     color: "var(--text-muted)",
@@ -341,7 +341,7 @@ function LanguagePicker({
                           ? `2px solid ${accentColor}`
                           : "2px solid transparent",
                         cursor: "pointer",
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         transition: "background 150ms",
                         textAlign: "left",
                       }}
@@ -362,7 +362,7 @@ function LanguagePicker({
                       <span
                         style={{
                           fontSize: 9,
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: "var(--font-editor-family)",
                           color: isSelected ? accentColor : "var(--text-muted)",
                         }}
                       >
@@ -602,7 +602,7 @@ export default function NewProjectModal({
           {/* Title */}
           <h2
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 22,
               fontWeight: 400,
               fontStyle: "italic",
@@ -615,7 +615,7 @@ export default function NewProjectModal({
           </h2>
           <p
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 9,
               color: "var(--text-muted)",
               margin: 0,
@@ -645,7 +645,7 @@ export default function NewProjectModal({
             <label
               style={{
                 display: "block",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 10,
                 fontWeight: 500,
                 textTransform: "uppercase",
@@ -666,7 +666,7 @@ export default function NewProjectModal({
                 padding: "10px 14px",
                 borderRadius: 10,
                 fontSize: 13,
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 background: "var(--bg-card)",
                 border: "0.5px solid var(--border)",
                 color: "var(--text-primary)",
@@ -686,7 +686,7 @@ export default function NewProjectModal({
             <label
               style={{
                 display: "block",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 10,
                 fontWeight: 500,
                 textTransform: "uppercase",
@@ -750,7 +750,7 @@ export default function NewProjectModal({
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
                     color: "var(--text-muted)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                     marginBottom: 2,
                   }}
                 >
@@ -760,7 +760,7 @@ export default function NewProjectModal({
                   style={{
                     fontSize: 14,
                     color: "var(--text-primary)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                   }}
                 >
                   {srcEntry?.name || "Select"}
@@ -768,7 +768,7 @@ export default function NewProjectModal({
                 <div
                   style={{
                     fontSize: 10,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-editor-family)",
                     color: accentColor,
                     marginTop: 2,
                   }}
@@ -838,7 +838,7 @@ export default function NewProjectModal({
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
                     color: "var(--text-muted)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                     marginBottom: 2,
                   }}
                 >
@@ -848,7 +848,7 @@ export default function NewProjectModal({
                   style={{
                     fontSize: 14,
                     color: "var(--text-primary)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                   }}
                 >
                   {tgtEntry?.name || "Select"}
@@ -856,7 +856,7 @@ export default function NewProjectModal({
                 <div
                   style={{
                     fontSize: 10,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-editor-family)",
                     color: accentColor,
                     marginTop: 2,
                   }}
@@ -886,7 +886,7 @@ export default function NewProjectModal({
                       padding: "6px 16px",
                       borderRadius: 22,
                       fontSize: 12,
-                      fontFamily: "'Inter', system-ui, sans-serif",
+                      fontFamily: "var(--font-ui-family)",
                       fontWeight: 500,
                       border: active
                         ? `0.5px solid rgba(${hexToRgb(gradientColors[0])}, 0.25)`
@@ -931,7 +931,7 @@ export default function NewProjectModal({
                     padding: "12px 14px",
                     borderRadius: 12,
                     fontSize: 12,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-editor-family)",
                     lineHeight: 1.6,
                     background: "var(--bg-sidebar)",
                     border: "0.5px dashed var(--border)",
@@ -1070,7 +1070,7 @@ export default function NewProjectModal({
                           <span
                             style={{
                               color: "var(--text-muted)",
-                              fontFamily: "'JetBrains Mono', monospace",
+                              fontFamily: "var(--font-editor-family)",
                               flexShrink: 0,
                               width: 20,
                               textAlign: "right",
@@ -1121,7 +1121,7 @@ export default function NewProjectModal({
                 textAlign: "center",
                 fontSize: 13,
                 fontWeight: 500,
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 background: `linear-gradient(135deg, rgba(${hexToRgb(gradientColors[0])}, 0.08), rgba(${hexToRgb(gradientColors[1])}, 0.08))`,
                 border: `0.5px solid rgba(${hexToRgb(gradientColors[0])}, 0.2)`,
                 color: "var(--text-primary)",

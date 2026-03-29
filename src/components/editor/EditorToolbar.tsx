@@ -234,7 +234,7 @@ export default function EditorToolbar({
           href="/app/projects"
           style={{
             textDecoration: "none",
-            fontFamily: "'Playfair Display', Georgia, serif",
+            fontFamily: "var(--font-display-family)",
             fontSize: 14,
             fontWeight: 400,
             color: "var(--brand-wordmark)",
@@ -251,7 +251,7 @@ export default function EditorToolbar({
 
         <span
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-editor-family)",
             fontSize: 8,
             fontWeight: 600,
             letterSpacing: "0.05em",
@@ -282,7 +282,7 @@ export default function EditorToolbar({
 
         <span
           style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             fontSize: 13,
             color: "var(--text-primary)",
             maxWidth: 200,
@@ -296,7 +296,7 @@ export default function EditorToolbar({
 
         <span
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-editor-family)",
             fontSize: 11,
             color: "var(--text-secondary)",
             background: "var(--bg-card)",
@@ -339,7 +339,7 @@ export default function EditorToolbar({
               color: preTranslating ? "var(--text-muted)" : "var(--amber-text)",
               cursor: preTranslating ? "not-allowed" : "pointer",
               opacity: preTranslating ? 0.5 : 1,
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 11,
               fontWeight: 450,
               transition: "all 180ms ease-out",
@@ -362,7 +362,7 @@ export default function EditorToolbar({
                 gap: 4,
                 fontSize: 10,
                 color: "var(--accent)",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-editor-family)",
               }}
             >
               <span
@@ -384,7 +384,7 @@ export default function EditorToolbar({
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-editor-family)",
                 fontSize: 11,
                 color: "var(--text-muted)",
               }}
@@ -437,7 +437,7 @@ export default function EditorToolbar({
                 borderRadius: 5,
                 border: `0.5px solid ${aMinusHover && editorFontSize > 10 ? "var(--accent)" : "var(--border)"}`,
                 background: aMinusHover && editorFontSize > 10 ? "var(--glass-bg)" : "transparent",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-editor-family)",
                 fontSize: 10,
                 color: editorFontSize <= 10 ? "var(--text-muted)" : aMinusHover ? "var(--text-primary)" : "var(--text-secondary)",
                 cursor: editorFontSize <= 10 ? "default" : "pointer",
@@ -449,7 +449,7 @@ export default function EditorToolbar({
             </button>
             <span
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-editor-family)",
                 fontSize: 10,
                 color: "var(--text-muted)",
                 padding: "0 2px",
@@ -469,7 +469,7 @@ export default function EditorToolbar({
                 borderRadius: 5,
                 border: `0.5px solid ${aPlusHover && editorFontSize < 24 ? "var(--accent)" : "var(--border)"}`,
                 background: aPlusHover && editorFontSize < 24 ? "var(--glass-bg)" : "transparent",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--font-editor-family)",
                 fontSize: 10,
                 color: editorFontSize >= 24 ? "var(--text-muted)" : aPlusHover ? "var(--text-primary)" : "var(--text-secondary)",
                 cursor: editorFontSize >= 24 ? "default" : "pointer",
@@ -503,7 +503,7 @@ export default function EditorToolbar({
               background: exportHover ? "var(--action-gradient)" : "var(--glass-bg)",
               color: exportHover ? "var(--green-text)" : "var(--text-secondary)",
               cursor: "pointer",
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 11,
               fontWeight: 450,
               transition: "all 180ms ease-out",
@@ -548,7 +548,7 @@ export default function EditorToolbar({
                     background: "transparent",
                     border: "none",
                     cursor: exporting ? "wait" : "pointer",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                     transition: "background 120ms",
                     textAlign: "left",
                   }}
@@ -592,7 +592,7 @@ export default function EditorToolbar({
               padding: "1px 4px",
               borderRadius: 6,
               background: ring.gradient,
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 7,
               fontWeight: 500,
               letterSpacing: "0.03em",
@@ -632,7 +632,7 @@ export default function EditorToolbar({
                 fontSize: 11,
                 fontWeight: 500,
                 color: "var(--text-primary)",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
               }}
             >
               {userInitials}
@@ -669,16 +669,16 @@ export default function EditorToolbar({
                   <div style={{
                     width: "100%", height: "100%", borderRadius: "50%", background: ring.bg,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 9, fontWeight: 500, color: "var(--text-primary)", fontFamily: "'Inter', system-ui, sans-serif",
+                    fontSize: 9, fontWeight: 500, color: "var(--text-primary)", fontFamily: "var(--font-ui-family)",
                   }}>
                     {userInitials}
                   </div>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", fontFamily: "'Inter', system-ui, sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", fontFamily: "var(--font-ui-family)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {userName || session?.user?.email || "User"}
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'Inter', system-ui, sans-serif" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "var(--font-ui-family)" }}>
                     {isPro ? "Pro plan" : "Free plan"}
                   </div>
                 </div>
@@ -688,7 +688,7 @@ export default function EditorToolbar({
 
               {/* Settings */}
               <Link href="/app/settings" onClick={() => setAvatarOpen(false)}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, textDecoration: "none", color: "var(--text-primary)", background: "transparent", transition: "background 150ms", cursor: "pointer", fontFamily: "'Inter', system-ui, sans-serif" }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, textDecoration: "none", color: "var(--text-primary)", background: "transparent", transition: "background 150ms", cursor: "pointer", fontFamily: "var(--font-ui-family)" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
@@ -698,7 +698,7 @@ export default function EditorToolbar({
 
               {/* Changelog */}
               <Link href="/changelog" onClick={() => setAvatarOpen(false)}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, textDecoration: "none", color: "var(--text-primary)", background: "transparent", transition: "background 150ms", cursor: "pointer", fontFamily: "'Inter', system-ui, sans-serif" }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, textDecoration: "none", color: "var(--text-primary)", background: "transparent", transition: "background 150ms", cursor: "pointer", fontFamily: "var(--font-ui-family)" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
@@ -707,7 +707,7 @@ export default function EditorToolbar({
               </Link>
 
               {/* Theme picker */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 14px", fontFamily: "'Inter', system-ui, sans-serif" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 14px", fontFamily: "var(--font-ui-family)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
@@ -730,7 +730,7 @@ export default function EditorToolbar({
               {!isPro && (
                 <>
                   <button onClick={() => { setAvatarOpen(false); router.push("/app/settings"); }}
-                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, color: "var(--accent)", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontFamily: "'Inter', system-ui, sans-serif", transition: "background 150ms" }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, color: "var(--accent)", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontFamily: "var(--font-ui-family)", transition: "background 150ms" }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
@@ -743,7 +743,7 @@ export default function EditorToolbar({
 
               {/* Sign out */}
               <button onClick={() => signOut({ callbackUrl: "/login" })}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, width: "100%", textAlign: "left", color: "var(--text-muted)", background: "transparent", border: "none", fontFamily: "'Inter', system-ui, sans-serif", transition: "background 150ms", cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, width: "100%", textAlign: "left", color: "var(--text-muted)", background: "transparent", border: "none", fontFamily: "var(--font-ui-family)", transition: "background 150ms", cursor: "pointer" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >

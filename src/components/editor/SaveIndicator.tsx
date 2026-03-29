@@ -161,7 +161,7 @@ export default function SaveIndicator({
         {phase === "error" ? (
           <span
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               color: "var(--red-text)",
               whiteSpace: "nowrap",
@@ -195,7 +195,7 @@ export default function SaveIndicator({
             >
               <span
                 style={{
-                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontFamily: "var(--font-ui-family)",
                   fontSize: 12,
                   color: "var(--text-muted)",
                 }}
@@ -233,7 +233,7 @@ export default function SaveIndicator({
             >
               <span
                 style={{
-                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontFamily: "var(--font-ui-family)",
                   fontSize: 12,
                   color: "var(--green-text)",
                 }}

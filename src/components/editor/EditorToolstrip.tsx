@@ -62,7 +62,7 @@ function Tooltip({
     >
       <div
         style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
+          fontFamily: "var(--font-ui-family)",
           fontSize: 12,
           fontWeight: 450,
           color: "var(--text-primary)",
@@ -74,7 +74,7 @@ function Tooltip({
       {shortcut && (
         <div
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-editor-family)",
             fontSize: 9,
             color: "var(--text-muted)",
             marginTop: 2,
@@ -327,7 +327,7 @@ export default function EditorToolstrip({
             color: preTranslating ? "var(--text-muted)" : "var(--amber-text)",
             cursor: preTranslating ? "not-allowed" : "pointer",
             opacity: preTranslating ? 0.4 : 1,
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             fontSize: 11,
             fontWeight: 450,
             transition: "all 180ms ease-out",
@@ -366,7 +366,7 @@ export default function EditorToolstrip({
           borderRadius: 6,
           border: `0.5px solid ${aMinusHover && editorFontSize > 10 ? "var(--accent)" : "var(--border)"}`,
           background: aMinusHover && editorFontSize > 10 ? "var(--glass-bg)" : "transparent",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-editor-family)",
           fontSize: 10,
           color: editorFontSize <= 10
             ? "var(--text-muted)"
@@ -384,7 +384,7 @@ export default function EditorToolstrip({
       </button>
       <span
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-editor-family)",
           fontSize: 10,
           color: "var(--text-muted)",
           padding: "0 3px",
@@ -404,7 +404,7 @@ export default function EditorToolstrip({
           borderRadius: 6,
           border: `0.5px solid ${aPlusHover && editorFontSize < 24 ? "var(--accent)" : "var(--border)"}`,
           background: aPlusHover && editorFontSize < 24 ? "var(--glass-bg)" : "transparent",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-editor-family)",
           fontSize: 10,
           color: editorFontSize >= 24
             ? "var(--text-muted)"
@@ -456,7 +456,7 @@ export default function EditorToolstrip({
               ? "var(--green-text)"
               : "var(--text-secondary)",
             cursor: "pointer",
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             fontSize: 11,
             fontWeight: 450,
             transition: "all 180ms ease-out",

@@ -1,19 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { DM_Sans, JetBrains_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import ThemeProvider from "@/components/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["400", "500", "600"],
+});
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 });
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400"],
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-display",
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -55,7 +60,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrains.variable} ${playfair.variable} antialiased`}
+        className={`${dmSans.variable} ${jetbrains.variable} ${cormorant.variable} antialiased`}
         suppressHydrationWarning
       >
         <ServiceWorkerRegister />

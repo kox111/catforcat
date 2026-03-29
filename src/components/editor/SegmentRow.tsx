@@ -161,7 +161,7 @@ function AIScoreBadge({
           justifyContent: "center",
           fontSize: 8,
           fontWeight: 500,
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-editor-family)",
           cursor: reason ? "help" : "default",
         }}
       >
@@ -302,7 +302,7 @@ export default function SegmentRow({
       >
         <span
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "var(--font-editor-family)",
             fontSize: 10,
             color: "var(--text-muted)",
             opacity: isActive ? 1 : 0.6,
@@ -465,7 +465,7 @@ export default function SegmentRow({
               ? "1px solid var(--border)"
               : "1px solid transparent",
             minHeight: 36,
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             fontSize: `${fontSize}px`,
             lineHeight: "1.7",
             letterSpacing: "0.01em",

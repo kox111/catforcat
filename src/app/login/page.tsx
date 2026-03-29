@@ -91,7 +91,7 @@ export default function LoginPage() {
         >
           <h1
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 22,
               fontWeight: 400,
               letterSpacing: "0.03em",
@@ -236,7 +236,7 @@ export default function LoginPage() {
                 cursor: loading || (needs2FA && totpCode.length !== 6) ? "not-allowed" : "pointer",
                 opacity: loading || (needs2FA && totpCode.length !== 6) ? 0.6 : 1,
                 transition: "background 150ms",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
               }}
             >
               {loading ? "Signing in..." : needs2FA ? "Verify & Sign In" : "Sign In"}
@@ -260,7 +260,7 @@ export default function LoginPage() {
                   border: "1px solid var(--border)",
                   color: "var(--text-muted)",
                   cursor: "pointer",
-                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontFamily: "var(--font-ui-family)",
                 }}
               >
                 Back to login

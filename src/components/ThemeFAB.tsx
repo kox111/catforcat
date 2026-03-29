@@ -61,7 +61,7 @@ export default function ThemeFAB() {
             style={{
               fontSize: 10,
               fontWeight: 500,
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               color: "var(--text-primary)",
               marginBottom: 8,
             }}
@@ -86,7 +86,7 @@ export default function ThemeFAB() {
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
-                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontFamily: "var(--font-ui-family)",
                 }}
               >
                 <div

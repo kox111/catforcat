@@ -137,7 +137,7 @@ export default function TMPanel({
               textTransform: "none",
               letterSpacing: 0,
               marginLeft: 4,
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-editor-family)",
             }}
           >
             ({matches.length})
@@ -224,7 +224,7 @@ export default function TMPanel({
                     borderRadius: 5,
                     color: "var(--text-primary)",
                     background: color,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-editor-family)",
                     boxShadow: `0 0 8px ${color}`,
                   }}
                 >
@@ -244,7 +244,7 @@ export default function TMPanel({
                   style={{
                     marginLeft: "auto",
                     fontSize: 9,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "var(--font-editor-family)",
                     color: "var(--text-muted)",
                     padding: "1px 5px",
                     borderRadius: 4,

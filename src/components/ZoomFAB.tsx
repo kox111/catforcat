@@ -241,7 +241,7 @@ export default function ZoomFAB() {
                   padding: "5px 14px",
                   borderRadius: 6,
                   fontSize: 11,
-                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontFamily: "var(--font-ui-family)",
                   fontWeight: isActive ? 500 : 400,
                   color: isActive
                     ? "var(--text-primary)"

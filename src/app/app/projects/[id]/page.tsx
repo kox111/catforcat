@@ -1779,7 +1779,7 @@ export default function EditorPage({
               alignItems: "center",
               padding: "4px 16px 4px 52px",
               fontSize: 9,
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
               userSelect: "none",
               background: "transparent",

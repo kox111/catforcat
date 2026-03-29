@@ -187,7 +187,7 @@ export default function TranslationProviderPopover({
           <span>Monthly usage</span>
           <span
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-editor-family)",
               fontWeight: 500,
             }}
           >

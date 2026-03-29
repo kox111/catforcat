@@ -99,7 +99,7 @@ export default function LandingPage() {
             href="/"
             className="landing-wordmark"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontWeight: 400,
               color: "var(--brand-wordmark)",
               letterSpacing: "0.03em",
@@ -118,7 +118,7 @@ export default function LandingPage() {
               href="/login"
               className="landing-login"
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontWeight: 400,
                 color: "var(--text-secondary)",
                 textDecoration: "none",
@@ -136,7 +136,7 @@ export default function LandingPage() {
               href="/register"
               className="landing-tryfree"
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontWeight: 500,
                 color: "var(--text-primary)",
                 background: "var(--btn-bg)",
@@ -176,7 +176,7 @@ export default function LandingPage() {
           <h1
             className="landing-headline"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontWeight: 400,
               color: "var(--text-primary)",
               letterSpacing: "0.01em",
@@ -188,7 +188,7 @@ export default function LandingPage() {
           <p
             className="landing-meow"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontWeight: 400,
               fontStyle: "italic",
               color: "var(--text-secondary)",
@@ -201,7 +201,7 @@ export default function LandingPage() {
             href="/register"
             className="landing-cta"
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
               color: "var(--text-primary)",
               background: "var(--btn-bg)",
@@ -236,7 +236,7 @@ export default function LandingPage() {
           <Link
             href="/"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
@@ -256,7 +256,7 @@ export default function LandingPage() {
           </span>
           <button
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
@@ -281,7 +281,7 @@ export default function LandingPage() {
           </span>
           <button
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
@@ -307,7 +307,7 @@ export default function LandingPage() {
           <Link
             href="/changelog"
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",

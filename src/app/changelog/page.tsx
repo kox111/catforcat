@@ -230,7 +230,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       </svg>
       <p
         style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
+          fontFamily: "var(--font-ui-family)",
           fontSize: 14,
           color: "var(--red-text)",
           marginBottom: 16,
@@ -241,7 +241,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       <button
         onClick={onRetry}
         style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
+          fontFamily: "var(--font-ui-family)",
           fontSize: 13,
           fontWeight: 500,
           color: "var(--text-primary)",
@@ -357,7 +357,7 @@ export default function ChangelogPage() {
           <Link
             href="/"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 20,
               fontWeight: 400,
               color: "var(--brand-wordmark)",
@@ -374,7 +374,7 @@ export default function ChangelogPage() {
           <Link
             href="/"
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontSize: 13,
               fontWeight: 400,
               color: "var(--text-secondary)",
@@ -414,7 +414,7 @@ export default function ChangelogPage() {
           <h1
             className="changelog-title"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontWeight: 400,
               color: "var(--text-primary)",
               letterSpacing: "0.01em",
@@ -425,7 +425,7 @@ export default function ChangelogPage() {
           <p
             className="changelog-subtitle"
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               fontWeight: 400,
               color: "var(--text-secondary)",
               lineHeight: 1.6,
@@ -475,7 +475,7 @@ export default function ChangelogPage() {
                     <time
                       className="version-date"
                       style={{
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         fontWeight: 400,
                         color: "var(--text-muted)",
                       }}
@@ -498,7 +498,7 @@ export default function ChangelogPage() {
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 6,
-                              fontFamily: "'Inter', system-ui, sans-serif",
+                              fontFamily: "var(--font-ui-family)",
                               fontWeight: 600,
                               letterSpacing: "0.04em",
                               textTransform: "uppercase",
@@ -528,7 +528,7 @@ export default function ChangelogPage() {
                                 key={item}
                                 className="category-item"
                                 style={{
-                                  fontFamily: "'Inter', system-ui, sans-serif",
+                                  fontFamily: "var(--font-ui-family)",
                                   fontWeight: 400,
                                   color: "var(--text-secondary)",
                                   lineHeight: 1.6,
@@ -566,7 +566,7 @@ export default function ChangelogPage() {
                 <p
                   style={{
                     textAlign: "center",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                     fontSize: 12,
                     color: "var(--text-muted)",
                     marginTop: 16,
@@ -584,7 +584,7 @@ export default function ChangelogPage() {
             <p
               style={{
                 textAlign: "center",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 14,
                 color: "var(--text-muted)",
                 marginTop: 80,
@@ -610,7 +610,7 @@ export default function ChangelogPage() {
           <Link
             href="/"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",

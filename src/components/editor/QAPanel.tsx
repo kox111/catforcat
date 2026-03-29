@@ -251,7 +251,7 @@ export default function QAPanel({
                         style={{
                           fontWeight: 500,
                           color: "var(--text-muted)",
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: "var(--font-editor-family)",
                         }}
                       >
                         #{issue.segmentPosition}

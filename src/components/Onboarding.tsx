@@ -63,7 +63,7 @@ export default function Onboarding() {
     fontSize: 14,
     fontWeight: 500,
     cursor: "pointer",
-    fontFamily: "'Inter', system-ui, sans-serif",
+    fontFamily: "var(--font-ui-family)",
     transition: "background 150ms",
   };
 
@@ -95,7 +95,7 @@ export default function Onboarding() {
           <>
             <h2
               style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
+                fontFamily: "var(--font-display-family)",
                 fontSize: 22,
                 fontWeight: 400,
                 color: "var(--text-primary)",
@@ -106,7 +106,7 @@ export default function Onboarding() {
             </h2>
             <p
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 13,
                 color: "var(--text-secondary)",
                 marginBottom: 28,
@@ -135,7 +135,7 @@ export default function Onboarding() {
           <>
             <h2
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 18,
                 fontWeight: 500,
                 color: "var(--text-primary)",
@@ -146,7 +146,7 @@ export default function Onboarding() {
             </h2>
             <p
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 13,
                 color: "var(--text-secondary)",
                 marginBottom: 28,
@@ -176,7 +176,7 @@ export default function Onboarding() {
           <>
             <h2
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 18,
                 fontWeight: 500,
                 color: "var(--text-primary)",
@@ -187,7 +187,7 @@ export default function Onboarding() {
             </h2>
             <p
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 13,
                 color: "var(--text-secondary)",
                 marginBottom: 20,
@@ -239,7 +239,7 @@ export default function Onboarding() {
                     style={{
                       fontSize: 11,
                       color: "var(--text-secondary)",
-                      fontFamily: "'Inter', system-ui, sans-serif",
+                      fontFamily: "var(--font-ui-family)",
                     }}
                   >
                     {label}
@@ -268,7 +268,7 @@ export default function Onboarding() {
           <>
             <h2
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 18,
                 fontWeight: 500,
                 color: "var(--text-primary)",
@@ -279,7 +279,7 @@ export default function Onboarding() {
             </h2>
             <p
               style={{
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 13,
                 color: "var(--text-secondary)",
                 marginBottom: 20,

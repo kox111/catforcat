@@ -270,7 +270,7 @@ export function PrivacyBadge({ level, onClick }: PrivacyBadgeProps) {
             : "var(--text-muted)",
         fontSize: 10,
         fontWeight: 500,
-        fontFamily: "'Inter', system-ui, sans-serif",
+        fontFamily: "var(--font-ui-family)",
         cursor: onClick ? "pointer" : "default",
         transition: "background 150ms",
       }}

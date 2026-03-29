@@ -398,7 +398,7 @@ export default function CommandPalette({
               style={{
                 width: "100%",
                 fontSize: 16,
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 padding: "14px 0",
                 background: "transparent",
                 border: "none",
@@ -517,7 +517,7 @@ export default function CommandPalette({
                   {cmd.shortcut && (
                     <span
                       style={{
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "var(--font-editor-family)",
                         fontSize: 11,
                         color: "var(--text-muted)",
                         background: "var(--bg-hover)",

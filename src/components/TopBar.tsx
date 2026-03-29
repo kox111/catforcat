@@ -156,7 +156,7 @@ export default function TopBar() {
             href={session ? "/app/projects" : "/"}
             style={{
               textDecoration: "none",
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 17,
               fontWeight: 400,
               color: "var(--brand-wordmark)",
@@ -172,7 +172,7 @@ export default function TopBar() {
 
           <span
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--font-editor-family)",
               fontSize: 8,
               fontWeight: 600,
               letterSpacing: "0.05em",
@@ -219,7 +219,7 @@ export default function TopBar() {
                         padding: "4px 12px",
                         borderRadius: 6,
                         fontSize: 13,
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         fontWeight: isActive ? 500 : 400,
                         textDecoration: "none",
                         background: isActive ? "var(--bg-card)" : "transparent",
@@ -393,7 +393,7 @@ export default function TopBar() {
                 padding: "1px 4px",
                 borderRadius: 6,
                 background: ring.gradient,
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
                 fontSize: 7,
                 fontWeight: 500,
                 letterSpacing: "0.03em",
@@ -436,7 +436,7 @@ export default function TopBar() {
                   fontSize: 12,
                   fontWeight: 500,
                   color: "var(--text-primary)",
-                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontFamily: "var(--font-ui-family)",
                 }}
               >
                 {userInitials}
@@ -496,7 +496,7 @@ export default function TopBar() {
                         fontSize: 10,
                         fontWeight: 500,
                         color: "var(--text-primary)",
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                       }}
                     >
                       {userInitials}
@@ -508,7 +508,7 @@ export default function TopBar() {
                         fontSize: 13,
                         fontWeight: 500,
                         color: "var(--text-primary)",
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -520,7 +520,7 @@ export default function TopBar() {
                       style={{
                         fontSize: 11,
                         color: "var(--text-secondary)",
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                       }}
                     >
                       {isPro ? "Pro plan" : "Free plan"}
@@ -545,7 +545,7 @@ export default function TopBar() {
                     background: "transparent",
                     transition: "background 150ms",
                     cursor: "pointer",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                   }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.background = "var(--bg-hover)")
@@ -576,7 +576,7 @@ export default function TopBar() {
                     background: "transparent",
                     transition: "background 150ms",
                     cursor: "pointer",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                   }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.background = "var(--bg-hover)")
@@ -599,7 +599,7 @@ export default function TopBar() {
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "7px 14px",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                   }}
                 >
                   <div
@@ -678,7 +678,7 @@ export default function TopBar() {
                         width: "100%",
                         textAlign: "left",
                         cursor: "pointer",
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         transition: "background 150ms",
                       }}
                       onMouseEnter={(e) =>
@@ -709,7 +709,7 @@ export default function TopBar() {
                     color: "var(--text-muted)",
                     background: "transparent",
                     border: "none",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                     transition: "background 150ms",
                     cursor: "pointer",
                   }}

@@ -227,7 +227,7 @@ export default function SettingsPage() {
                     fontSize: 22,
                     fontWeight: 500,
                     color: "var(--text-primary)",
-                    fontFamily: "'Inter', system-ui, sans-serif",
+                    fontFamily: "var(--font-ui-family)",
                     letterSpacing: "-0.5px",
                   }}
                 >
@@ -736,7 +736,7 @@ export default function SettingsPage() {
                   >
                     <div
                       style={{
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         fontSize: 13,
                         fontWeight: isActive ? 500 : 400,
                         color: isActive
@@ -749,7 +749,7 @@ export default function SettingsPage() {
                     </div>
                     <div
                       style={{
-                        fontFamily: "'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         fontSize: 9,
                         color: "var(--text-muted)",
                       }}
@@ -808,7 +808,7 @@ export default function SettingsPage() {
 
       <p
         style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
+          fontFamily: "var(--font-display-family)",
           fontSize: 10,
           fontStyle: "italic",
           fontWeight: 400,

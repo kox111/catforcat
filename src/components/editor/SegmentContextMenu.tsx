@@ -234,7 +234,7 @@ export default function SegmentContextMenu({
               opacity: item.disabled ? 0.4 : 1,
               cursor: item.disabled ? "not-allowed" : "pointer",
               border: "none",
-              fontFamily: "'Inter', system-ui, sans-serif",
+              fontFamily: "var(--font-ui-family)",
               transition: "all 100ms ease-out",
               borderRadius: isFocused ? 0 : 0,
             }}
@@ -271,7 +271,7 @@ export default function SegmentContextMenu({
               <span
                 style={{
                   fontSize: 9,
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "var(--font-editor-family)",
                   color: "var(--text-muted)",
                   marginLeft: 8,
                   flexShrink: 0,

@@ -90,7 +90,7 @@ export default function RegisterPage() {
         >
           <h1
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-display-family)",
               fontSize: 22,
               fontWeight: 400,
               letterSpacing: "0.03em",
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                 cursor: loading ? "not-allowed" : "pointer",
                 opacity: loading ? 0.6 : 1,
                 transition: "background 150ms",
-                fontFamily: "'Inter', system-ui, sans-serif",
+                fontFamily: "var(--font-ui-family)",
               }}
             >
               {loading ? "Creating account..." : "Create Account"}

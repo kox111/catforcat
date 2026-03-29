@@ -16,7 +16,7 @@ export default function NotFound() {
     >
       <span
         style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "var(--font-display-family)",
           fontSize: 24,
           fontWeight: 400,
           letterSpacing: "0.03em",

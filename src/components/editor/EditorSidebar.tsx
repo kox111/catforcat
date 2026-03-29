@@ -183,7 +183,7 @@ export default function EditorSidebar({
                 >
                   <span
                     style={{
-                      fontFamily: "'Inter', system-ui, sans-serif",
+                      fontFamily: "var(--font-ui-family)",
                       fontSize: 11,
                       fontWeight: 450,
                       color: "var(--text-primary)",
@@ -194,7 +194,7 @@ export default function EditorSidebar({
                   {item.shortcut && (
                     <span
                       style={{
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "var(--font-editor-family)",
                         fontSize: 9,
                         color: "var(--text-muted)",
                       }}

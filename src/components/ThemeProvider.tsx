@@ -13,7 +13,7 @@ export type Theme = "sakura" | "dark" | "light" | "linen";
 const ThemeContext = createContext<{
   theme: Theme;
   setTheme: (theme: Theme) => void;
-}>({ theme: "dark", setTheme: () => {} });
+}>({ theme: "linen", setTheme: () => {} });
 
 export function useTheme() {
   return useContext(ThemeContext);
@@ -24,7 +24,7 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("linen");
 
   useEffect(() => {
     try {
@@ -38,7 +38,7 @@ export default function ThemeProvider({
         setThemeState(saved);
         document.documentElement.setAttribute("data-theme", saved);
       } else {
-        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-theme", "linen");
       }
     } catch {
       /* ignore */

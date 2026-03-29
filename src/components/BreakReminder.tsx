@@ -149,7 +149,7 @@ export default function BreakReminder() {
       <div
         style={{
           fontSize: 10,
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "var(--font-editor-family)",
           color: "var(--text-muted)",
           marginBottom: 12,
         }}
@@ -169,7 +169,7 @@ export default function BreakReminder() {
             padding: "4px 12px",
             fontSize: 11,
             fontWeight: 500,
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             cursor: "pointer",
             backdropFilter: "blur(4px)",
             transition: "background 150ms, border-color 150ms",
@@ -193,7 +193,7 @@ export default function BreakReminder() {
             color: "var(--text-muted)",
             cursor: "pointer",
             fontSize: 11,
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontFamily: "var(--font-ui-family)",
             padding: "4px 8px",
             transition: "color 150ms",
           }}
