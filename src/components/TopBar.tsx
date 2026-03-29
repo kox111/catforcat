@@ -385,7 +385,7 @@ export default function TopBar() {
         </div>
 
         {/* Right side: [PRO pill] + Avatar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginRight: 4 }}>
           {/* PRO pill (only for pro users) */}
           {isPro && (
             <span
@@ -448,9 +448,9 @@ export default function TopBar() {
               <div
                 style={{
                   position: "absolute",
-                  top: 40,
-                  right: 0,
-                  width: 220,
+                  top: 38,
+                  right: -4,
+                  width: 200,
                   background: "var(--bg-panel)",
                   backdropFilter: "blur(16px) saturate(140%)",
                   border: "0.5px solid var(--glass-border)",
@@ -468,7 +468,7 @@ export default function TopBar() {
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    padding: "10px 14px",
+                    padding: "8px 12px",
                   }}
                 >
                   <div
@@ -538,7 +538,7 @@ export default function TopBar() {
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    padding: "7px 14px",
+                    padding: "6px 12px",
                     fontSize: 13,
                     textDecoration: "none",
                     color: "var(--text-primary)",
@@ -569,7 +569,7 @@ export default function TopBar() {
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    padding: "7px 14px",
+                    padding: "6px 12px",
                     fontSize: 13,
                     textDecoration: "none",
                     color: "var(--text-primary)",
@@ -598,7 +598,7 @@ export default function TopBar() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    padding: "7px 14px",
+                    padding: "6px 12px",
                     fontFamily: "var(--font-ui-family)",
                   }}
                 >
@@ -670,7 +670,7 @@ export default function TopBar() {
                         display: "flex",
                         alignItems: "center",
                         gap: 8,
-                        padding: "7px 14px",
+                        padding: "6px 12px",
                         fontSize: 13,
                         color: "var(--accent)",
                         background: "transparent",
@@ -702,7 +702,7 @@ export default function TopBar() {
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    padding: "7px 14px",
+                    padding: "6px 12px",
                     fontSize: 13,
                     width: "100%",
                     textAlign: "left",
