@@ -26,7 +26,7 @@ const SIDEBAR_ITEMS = [
   { id: "search", icon: Search, label: "Find & replace", shortcut: "Ctrl+H" },
   { id: "glossary", icon: Book, label: "Glossary" },
   { id: "notes", icon: StickyNote, label: "Notes" },
-  { id: "qa", icon: FileCheck, label: "QA check", shortcut: "Ctrl+Shift+Q" },
+  { id: "qa", icon: FileCheck, label: "QA check", shortcut: "Ctrl+Q" },
   { id: "analysis", icon: BarChart3, label: "Analysis" },
 ];
 

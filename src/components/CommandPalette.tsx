@@ -118,7 +118,7 @@ export default function CommandPalette({
             id: "ed-qa",
             label: "Run QA check",
             icon: AlertTriangle,
-            shortcut: "Ctrl+Shift+Q",
+            shortcut: "Ctrl+Q",
             category: "editor" as const,
             editorOnly: true,
             action: () => editorActions?.runQA?.(),

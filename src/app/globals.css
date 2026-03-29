@@ -405,6 +405,14 @@ body {
   background: var(--scrollbar-thumb-hover);
 }
 
+/* ─── Segment rows — subtle dividers ─── */
+.segment-row {
+  border-bottom: 0.5px solid var(--segment-divider);
+}
+.segment-row:last-child {
+  border-bottom: none;
+}
+
 /* ─── Autofill — preserve theme ─── */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

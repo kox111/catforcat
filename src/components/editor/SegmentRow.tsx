@@ -259,10 +259,13 @@ export default function SegmentRow({
         alignItems: "stretch",
         position: "relative",
         cursor: "pointer",
-        transition: "background 150ms ease, opacity 0.3s ease",
-        background: isActive ? "var(--bg-active)" : "transparent",
-        borderRadius: 6,
+        transition: "background 180ms ease, opacity 0.3s ease, box-shadow 180ms ease",
+        background: isActive ? "var(--bg-card)" : "transparent",
+        borderRadius: "var(--radius-sm)",
         opacity: dimmed ? 0.25 : 1,
+        margin: "0 6px",
+        borderLeft: isActive ? "2.5px solid var(--accent)" : "2.5px solid transparent",
+        boxShadow: isActive ? "var(--shadow-sm)" : "none",
       }}
       onMouseEnter={(e) => {
         if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
@@ -271,22 +274,6 @@ export default function SegmentRow({
         if (!isActive) e.currentTarget.style.background = "transparent";
       }}
     >
-      {/* Active segment left border indicator */}
-      {isActive && (
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 8,
-            bottom: 8,
-            width: 3,
-            borderRadius: 2,
-            background: "var(--accent)",
-            transition: "opacity 150ms ease",
-          }}
-        />
-      )}
-
       {/* Segment number gutter */}
       <div
         style={{
@@ -457,9 +444,9 @@ export default function SegmentRow({
           onFocus={onActivate}
           style={{
             width: "100%",
-            padding: "4px 8px",
-            borderRadius: 4,
-            background: isActive ? "var(--bg-card)" : "transparent",
+            padding: "6px 10px",
+            borderRadius: "var(--radius-sm)",
+            background: isActive ? "var(--bg-deep)" : "transparent",
             color: aiLoading ? "var(--text-muted)" : "var(--text-primary)",
             border: isActive
               ? "1px solid var(--border)"
@@ -473,7 +460,7 @@ export default function SegmentRow({
             outline: "none",
             transition:
               "color 200ms, border-color 150ms ease, background 150ms ease",
-            boxShadow: "none",
+            boxShadow: isActive ? "inset 0 1px 3px rgba(0,0,0,0.04)" : "none",
           }}
           placeholder={
             isActive

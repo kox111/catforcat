@@ -281,7 +281,7 @@ export default function EditorToolstrip({
       <IconBtn
         icon={<FileCheck size={14} />}
         label="QA check"
-        shortcut="Ctrl+Shift+Q"
+        shortcut="Ctrl+Q"
         onClick={onRunQA}
         disabled={qaRunning}
       />
