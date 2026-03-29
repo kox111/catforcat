@@ -265,17 +265,17 @@
   --bg-deep: #FAF0E6;
   --bg-panel: #F0E0D6;
   --bg-card: #F5EBE0;
-  --bg-hover: rgba(164, 119, 100, 0.06);
-  --bg-active: rgba(164, 119, 100, 0.10);
-  --bg-sidebar: #EDE4DC;
+  --bg-hover: rgba(164, 119, 100, 0.09);
+  --bg-active: rgba(164, 119, 100, 0.14);
+  --bg-sidebar: #E8DACE;
   --bg-paper: #FAF0E6;
-  --border: #E0D4C9;
+  --border: #D8C8BA;
   --border-focus: #A47764;
   --text-primary: #5C4033;
   --text-secondary: #8B7355;
   --text-muted: #B8A898;
   --accent: #A47764;
-  --accent-soft: rgba(164, 119, 100, 0.10);
+  --accent-soft: rgba(164, 119, 100, 0.16);
 
   --green: #7A9A6A;
   --green-soft: rgba(122, 154, 106, 0.10);
@@ -290,8 +290,8 @@
   --purple-soft: rgba(138, 122, 154, 0.10);
   --purple-text: #6A5070;
 
-  --status-bar: #E8DDD4;
-  --segment-divider: rgba(92, 64, 51, 0.06);
+  --status-bar: #E0D0C4;
+  --segment-divider: rgba(92, 64, 51, 0.08);
   --paper-shadow: 0 2px 12px rgba(92, 64, 51, 0.06);
   --shadow-sm: 0 1px 3px rgba(92, 64, 51, 0.06);
   --shadow-md: 0 4px 12px rgba(92, 64, 51, 0.08);
@@ -299,8 +299,8 @@
   --radius-sm: 8px;
   --radius-lg: 16px;
 
-  --scrollbar-thumb: rgba(164, 119, 100, 0.12);
-  --scrollbar-thumb-hover: rgba(164, 119, 100, 0.22);
+  --scrollbar-thumb: rgba(164, 119, 100, 0.18);
+  --scrollbar-thumb-hover: rgba(164, 119, 100, 0.30);
 
   --brand-wordmark: #5C4033;
 
@@ -311,9 +311,9 @@
   --mark-delete-bg: rgba(164, 100, 100, 0.3);
   --mark-insert-bg: rgba(122, 154, 106, 0.3);
 
-  --btn-bg: rgba(164, 119, 100, 0.08);
-  --btn-border: rgba(164, 119, 100, 0.15);
-  --btn-bg-hover: rgba(164, 119, 100, 0.14);
+  --btn-bg: rgba(164, 119, 100, 0.12);
+  --btn-border: rgba(164, 119, 100, 0.22);
+  --btn-bg-hover: rgba(164, 119, 100, 0.20);
 
   /* CTA button tokens */
   --cta-bg: var(--accent);
@@ -328,14 +328,14 @@
   --glow-accent: rgba(164, 119, 100, 0.20);
   --glow-accent-strong: rgba(164, 119, 100, 0.35);
   --btn-glow: 0 0 0 transparent;
-  --btn-glow-hover: 0 0 10px rgba(164, 119, 100, 0.10);
+  --btn-glow-hover: 0 0 12px rgba(164, 119, 100, 0.16);
   --btn-depth: 0 1px 2px rgba(92, 64, 51, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   --btn-depth-hover: 0 2px 8px rgba(92, 64, 51, 0.12), 0 0 12px rgba(164, 119, 100, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   --btn-depth-active: inset 0 1px 3px rgba(92, 64, 51, 0.15);
-  --glass-bg: rgba(255, 255, 255, 0.35);
-  --glass-border: rgba(92, 64, 51, 0.08);
-  --glass-bg-hover: rgba(255, 255, 255, 0.50);
-  --panel-glow: 0 0 16px rgba(164, 119, 100, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.40);
+  --glass-border: rgba(164, 119, 100, 0.12);
+  --glass-bg-hover: rgba(255, 255, 255, 0.55);
+  --panel-glow: 0 0 16px rgba(164, 119, 100, 0.08);
   --action-gradient: linear-gradient(135deg, rgba(122, 154, 106, 0.14), rgba(122, 154, 106, 0.04));
   --action-border: rgba(122, 154, 106, 0.30);
   --action-glow: 0 0 12px rgba(122, 154, 106, 0.10);
