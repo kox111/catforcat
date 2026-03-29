@@ -156,12 +156,43 @@ export default function EditorPage({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   // Focus mode
   const [focusMode, setFocusMode] = useState(false);
+  // Fullscreen mode
+  const [isFullscreen, setIsFullscreen] = useState(false);
   // Bottom panel tab state
   const [bottomTab, setBottomTab] = useState<"tm" | "glossary">("tm");
   // Add to glossary modal
   const [addGlossaryModal, setAddGlossaryModal] = useState<{
     sourceTerm: string;
   } | null>(null);
+  // Fullscreen toggle + F11 listener
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    const handleF11 = (e: KeyboardEvent) => {
+      if (e.key === "F11") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    window.addEventListener("keydown", handleF11);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      window.removeEventListener("keydown", handleF11);
+    };
+  }, [toggleFullscreen]);
+
   // Export dropdown (controlled from sidebar)
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
   // Bottom panel collapse/resize
@@ -1262,6 +1293,8 @@ export default function EditorPage({
             /* ignore */
           }
         }}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={toggleFullscreen}
       />
 
       {/* ─── Session recovery banner ─── */}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Settings, LogOut, Star, FileText, Sparkles, Download } from "lucide-react";
+import { Settings, LogOut, Star, FileText, Sparkles, Download, Maximize, Minimize } from "lucide-react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
 import SaveIndicator from "@/components/editor/SaveIndicator";
@@ -49,6 +49,8 @@ interface EditorToolbarProps {
   editorFontSize?: number;
   onFontSizeChange?: (size: number) => void;
   onExportOpen?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 /* ─── Theme gradient ring colors per theme ─── */
@@ -117,6 +119,8 @@ export default function EditorToolbar({
   editorFontSize = 13,
   onFontSizeChange,
   onExportOpen,
+  isFullscreen = false,
+  onToggleFullscreen,
 }: EditorToolbarProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -573,6 +577,31 @@ export default function EditorToolbar({
           <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
             Exporting...
           </span>
+        )}
+
+        {/* Fullscreen toggle */}
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 28,
+              height: 28,
+              borderRadius: "var(--radius-sm)",
+              border: "none",
+              background: "transparent",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              transition: "color 150ms ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+            title={isFullscreen ? "Exit fullscreen (F11)" : "Fullscreen (F11)"}
+          >
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+          </button>
         )}
 
         {/* Separator */}
