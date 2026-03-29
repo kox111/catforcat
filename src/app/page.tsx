@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 /**
@@ -34,6 +35,9 @@ function CatLogo({ className }: { className?: string }) {
 }
 
 export default function LandingPage() {
+  const [ctaHover, setCtaHover] = useState(false);
+  const [ctaActive, setCtaActive] = useState(false);
+
   return (
     <>
       {/* Responsive sizes via CSS classes — 3 breakpoints */}
@@ -41,7 +45,7 @@ export default function LandingPage() {
         .landing-nav { height: 80px; padding: 0 48px; }
         .landing-wordmark { font-size: 24px; }
         .landing-login { font-size: 18px; }
-        .landing-tryfree { font-size: 18px; padding: 10px 28px; }
+        .landing-login-btn { font-size: 15px; padding: 8px 20px; }
         .landing-cat { width: 240px; }
         .landing-cat-spacer { height: 40px; }
         .landing-headline { font-size: 56px; margin-bottom: 16px; }
@@ -53,7 +57,7 @@ export default function LandingPage() {
           .landing-nav { height: 70px; }
           .landing-wordmark { font-size: 20px; }
           .landing-login { font-size: 15px; }
-          .landing-tryfree { font-size: 15px; padding: 9px 24px; }
+          .landing-login-btn { font-size: 14px; padding: 7px 18px; }
           .landing-cat { width: 180px; }
           .landing-cat-spacer { height: 32px; }
           .landing-headline { font-size: 44px; margin-bottom: 12px; }
@@ -66,7 +70,7 @@ export default function LandingPage() {
           .landing-nav { height: 60px; padding: 0 20px; }
           .landing-wordmark { font-size: 17px; }
           .landing-login { font-size: 13px; }
-          .landing-tryfree { font-size: 13px; padding: 8px 24px; }
+          .landing-login-btn { font-size: 13px; padding: 6px 16px; }
           .landing-cat { width: 120px; }
           .landing-cat-spacer { height: 20px; }
           .landing-headline { font-size: 32px; margin-bottom: 8px; }
@@ -113,48 +117,32 @@ export default function LandingPage() {
             catforcat.
           </Link>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Link
-              href="/login"
-              className="landing-login"
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontWeight: 400,
-                color: "var(--text-secondary)",
-                textDecoration: "none",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.textDecoration = "underline")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.textDecoration = "none")
-              }
-            >
-              Log in
-            </Link>
-            <Link
-              href="/register"
-              className="landing-tryfree"
-              style={{
-                fontFamily: "var(--font-ui-family)",
-                fontWeight: 500,
-                color: "var(--text-primary)",
-                background: "var(--btn-bg)",
-                border: "1px solid var(--btn-border)",
-                borderRadius: 20,
-                textDecoration: "none",
-                transition: "background 150ms",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--btn-bg-hover)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--btn-bg)";
-              }}
-            >
-              Try free
-            </Link>
-          </div>
+          <Link
+            href="/login"
+            className="landing-login-btn"
+            style={{
+              fontFamily: "var(--font-ui-family)",
+              fontWeight: 500,
+              color: "var(--text-primary)",
+              textDecoration: "none",
+              borderRadius: 9999,
+              border: "1px solid var(--border)",
+              transition: "all 150ms",
+              boxShadow: "0 1px 2px rgba(92, 64, 51, 0.06), inset 0 1px 0 rgba(255,255,255,0.5)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--bg-hover)";
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.boxShadow = "0 2px 4px rgba(92, 64, 51, 0.1), inset 0 1px 0 rgba(255,255,255,0.6)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.borderColor = "var(--border)";
+              e.currentTarget.style.boxShadow = "0 1px 2px rgba(92, 64, 51, 0.06), inset 0 1px 0 rgba(255,255,255,0.5)";
+            }}
+          >
+            Log in
+          </Link>
         </nav>
 
         {/* Hero — vertically centered */}
@@ -182,7 +170,7 @@ export default function LandingPage() {
               letterSpacing: "0.01em",
             }}
           >
-            a cat tool, provided by a cat.
+            A cat tool, provided by a cat
           </h1>
 
           <p
@@ -203,19 +191,31 @@ export default function LandingPage() {
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
-              color: "var(--text-primary)",
-              background: "var(--btn-bg)",
-              border: "1px solid var(--btn-border)",
-              borderRadius: 24,
+              color: "#ffffff",
+              background: ctaHover
+                ? "linear-gradient(180deg, #B89080 0%, #B08874 50%, #A47764 100%)"
+                : "linear-gradient(180deg, #B08874 0%, #A47764 50%, #946B58 100%)",
+              border: "none",
+              borderRadius: 9999,
               textDecoration: "none",
-              transition: "background 150ms",
+              transition: "all 200ms ease",
+              cursor: "pointer",
+              display: "inline-block",
+              boxShadow: ctaActive
+                ? "0 1px 4px rgba(164, 119, 100, 0.2)"
+                : ctaHover
+                  ? "0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(164, 119, 100, 0.4), 0 2px 6px rgba(164, 119, 100, 0.25)"
+                  : "0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(164, 119, 100, 0.3), 0 1px 3px rgba(164, 119, 100, 0.2)",
+              transform: ctaActive
+                ? "translateY(0)"
+                : ctaHover
+                  ? "translateY(-1px)"
+                  : "translateY(0)",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--btn-bg-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--btn-bg)";
-            }}
+            onMouseEnter={() => setCtaHover(true)}
+            onMouseLeave={() => { setCtaHover(false); setCtaActive(false); }}
+            onMouseDown={() => setCtaActive(true)}
+            onMouseUp={() => setCtaActive(false)}
           >
             Start translating — free
           </Link>

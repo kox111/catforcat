@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 
 export default function LoginPage() {
@@ -14,6 +15,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [needs2FA, setNeeds2FA] = useState(false);
   const [totpCode, setTotpCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitHover, setSubmitHover] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +59,16 @@ export default function LoginPage() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    padding: "8px 12px",
-    borderRadius: 6,
-    fontSize: 14,
+    padding: "12px 16px",
+    borderRadius: "var(--radius-sm)",
+    fontSize: 15,
     outline: "none",
-    background: "var(--bg-card)",
-    border: "1px solid var(--border)",
+    background: "var(--bg-deep)",
+    border: "1.5px solid var(--border)",
     color: "var(--text-primary)",
     fontFamily: "inherit",
+    transition: "border-color 150ms, box-shadow 150ms",
+    boxShadow: "inset 0 1px 2px rgba(92, 64, 51, 0.06)",
   };
 
   return (
@@ -82,11 +87,12 @@ export default function LoginPage() {
           suppressHydrationWarning
           style={{
             width: "100%",
-            maxWidth: 448,
-            padding: 32,
-            borderRadius: "var(--radius)",
-            background: "var(--bg-panel)",
+            maxWidth: 420,
+            padding: 40,
+            borderRadius: "var(--radius-lg)",
+            background: "var(--bg-card)",
             border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-md)",
           }}
         >
           <h1
@@ -162,14 +168,37 @@ export default function LoginPage() {
                   >
                     Password
                   </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    style={inputStyle}
-                    placeholder="••••••••"
-                  />
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      style={{ ...inputStyle, paddingRight: 44 }}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: "absolute",
+                        right: 12,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        color: "var(--text-muted)",
+                        cursor: "pointer",
+                        padding: 4,
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
@@ -226,18 +255,28 @@ export default function LoginPage() {
               disabled={loading || (needs2FA && totpCode.length !== 6)}
               style={{
                 width: "100%",
-                padding: "10px 0",
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 500,
-                background: "var(--btn-bg)",
-                color: "var(--text-primary)",
-                border: "1px solid var(--btn-border)",
+                padding: "14px 0",
+                borderRadius: 9999,
+                fontSize: 15,
+                fontWeight: 600,
+                background: submitHover
+                  ? "linear-gradient(180deg, #B89080 0%, #B08874 50%, #A47764 100%)"
+                  : "linear-gradient(180deg, #B08874 0%, #A47764 50%, #946B58 100%)",
+                color: "#ffffff",
+                border: "none",
                 cursor: loading || (needs2FA && totpCode.length !== 6) ? "not-allowed" : "pointer",
                 opacity: loading || (needs2FA && totpCode.length !== 6) ? 0.6 : 1,
-                transition: "background 150ms",
+                transition: "all 200ms ease",
                 fontFamily: "var(--font-ui-family)",
+                boxShadow: submitHover
+                  ? "0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(164, 119, 100, 0.4), 0 2px 6px rgba(164, 119, 100, 0.25)"
+                  : "0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(164, 119, 100, 0.3), 0 1px 3px rgba(164, 119, 100, 0.2)",
+                transform: submitHover ? "translateY(-1px)" : "translateY(0)",
               }}
+              onMouseEnter={() => {
+                if (!loading && !(needs2FA && totpCode.length !== 6)) setSubmitHover(true);
+              }}
+              onMouseLeave={() => setSubmitHover(false)}
             >
               {loading ? "Signing in..." : needs2FA ? "Verify & Sign In" : "Sign In"}
             </button>
