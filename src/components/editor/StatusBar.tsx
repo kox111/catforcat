@@ -128,40 +128,32 @@ export default function StatusBar({
     >
       {/* Left: Shortcuts pill · Seg X/Y · words · total */}
       <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-        {/* Shortcuts pill */}
+        {/* Shortcuts — subtle text */}
         <button
           onClick={onShortcutsClick}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 5,
-            padding: "2px 10px",
-            borderRadius: 6,
-            background: "var(--glass-bg)",
-            border: "0.5px solid var(--glass-border)",
+            gap: 4,
+            padding: 0,
+            background: "none",
+            border: "none",
             cursor: "pointer",
             fontSize: 10,
-            color: "var(--text-secondary)",
-            fontFamily: "var(--font-ui-family)",
-            transition: "all 180ms ease-out",
-            marginRight: 10,
-            boxShadow: "var(--btn-depth)",
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-editor-family)",
+            transition: "color 180ms ease-out",
+            marginRight: 6,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "var(--accent)";
-            e.currentTarget.style.color = "var(--text-primary)";
-            e.currentTarget.style.boxShadow = "var(--btn-glow-hover)";
-            e.currentTarget.style.transform = "translateY(-1px)";
+            e.currentTarget.style.color = "var(--text-secondary)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "var(--glass-border)";
-            e.currentTarget.style.color = "var(--text-secondary)";
-            e.currentTarget.style.boxShadow = "var(--btn-depth)";
-            e.currentTarget.style.transform = "none";
+            e.currentTarget.style.color = "var(--text-muted)";
           }}
           title="Keyboard shortcuts (Ctrl+/)"
         >
-          <Keyboard size={11} />
+          <Keyboard size={10} />
           <span>Shortcuts</span>
         </button>
 
@@ -215,52 +207,34 @@ export default function StatusBar({
         )}
       </div>
 
-      {/* Right: Powered by [provider] */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <button
-          onClick={onProviderClick}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            background: "var(--glass-bg)",
-            border: "0.5px solid var(--glass-border)",
-            borderRadius: 6,
-            padding: "2px 10px",
-            fontSize: 9,
-            color: "var(--text-muted)",
-            fontFamily: "var(--font-ui-family)",
-            cursor: "pointer",
-            transition: "all 180ms ease-out",
-            boxShadow: "var(--btn-depth)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "var(--text-secondary)";
-            e.currentTarget.style.borderColor = "var(--accent)";
-            e.currentTarget.style.boxShadow = "var(--btn-glow-hover)";
-            e.currentTarget.style.transform = "translateY(-1px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "var(--text-muted)";
-            e.currentTarget.style.borderColor = "var(--glass-border)";
-            e.currentTarget.style.boxShadow = "var(--btn-depth)";
-            e.currentTarget.style.transform = "none";
-          }}
-          title="Change translation provider"
-        >
-          <span style={{ letterSpacing: "0.02em" }}>powered by</span>
-          <ProviderLogo provider={translationProvider} size={11} />
-          <span
-            style={{
-              fontWeight: 600,
-              color: "var(--text-secondary)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {translationProvider}
-          </span>
-        </button>
-      </div>
+      {/* Right: Powered by [provider] — subtle text */}
+      <button
+        onClick={onProviderClick}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          padding: 0,
+          background: "none",
+          border: "none",
+          fontSize: 9,
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-editor-family)",
+          cursor: "pointer",
+          transition: "color 180ms ease-out",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "var(--text-secondary)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "var(--text-muted)";
+        }}
+        title="Change translation provider"
+      >
+        <span>powered by</span>
+        <ProviderLogo provider={translationProvider} size={10} />
+        <span style={{ fontWeight: 500 }}>{translationProvider}</span>
+      </button>
     </div>
   );
 }
