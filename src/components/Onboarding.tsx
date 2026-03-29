@@ -76,17 +76,19 @@ export default function Onboarding() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--overlay)",
+        background: "rgba(0, 0, 0, 0.7)",
+        backdropFilter: "blur(8px)",
       }}
     >
       <div
         style={{
           background: "var(--bg-panel)",
-          border: "0.5px solid var(--border)",
-          borderRadius: 14,
-          padding: 32,
+          border: "1px solid var(--border)",
+          borderRadius: 16,
+          padding: 40,
           maxWidth: 480,
           width: "90%",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 20px 60px rgba(0,0,0,0.2)",
           textAlign: "center",
         }}
       >
