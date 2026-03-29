@@ -191,10 +191,10 @@ export default function LandingPage() {
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
-              color: "#ffffff",
+              color: "var(--cta-text)",
               background: ctaHover
-                ? "linear-gradient(180deg, #B89080 0%, #B08874 50%, #A47764 100%)"
-                : "linear-gradient(180deg, #B08874 0%, #A47764 50%, #946B58 100%)",
+                ? "var(--cta-bg-gradient-hover)"
+                : "var(--cta-bg-gradient)",
               border: "none",
               borderRadius: 9999,
               textDecoration: "none",
@@ -202,10 +202,10 @@ export default function LandingPage() {
               cursor: "pointer",
               display: "inline-block",
               boxShadow: ctaActive
-                ? "0 1px 4px rgba(164, 119, 100, 0.2)"
+                ? "var(--cta-shadow-active)"
                 : ctaHover
-                  ? "0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(164, 119, 100, 0.4), 0 2px 6px rgba(164, 119, 100, 0.25)"
-                  : "0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(164, 119, 100, 0.3), 0 1px 3px rgba(164, 119, 100, 0.2)",
+                  ? "var(--cta-shadow-hover)"
+                  : "var(--cta-shadow)",
               transform: ctaActive
                 ? "translateY(0)"
                 : ctaHover

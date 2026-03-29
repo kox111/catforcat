@@ -68,7 +68,7 @@ export default function LoginPage() {
     color: "var(--text-primary)",
     fontFamily: "inherit",
     transition: "border-color 150ms, box-shadow 150ms",
-    boxShadow: "inset 0 1px 2px rgba(92, 64, 51, 0.06)",
+    boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.04)",
   };
 
   return (
@@ -260,17 +260,17 @@ export default function LoginPage() {
                 fontSize: 15,
                 fontWeight: 600,
                 background: submitHover
-                  ? "linear-gradient(180deg, #B89080 0%, #B08874 50%, #A47764 100%)"
-                  : "linear-gradient(180deg, #B08874 0%, #A47764 50%, #946B58 100%)",
-                color: "#ffffff",
+                  ? "var(--cta-bg-gradient-hover)"
+                  : "var(--cta-bg-gradient)",
+                color: "var(--cta-text)",
                 border: "none",
                 cursor: loading || (needs2FA && totpCode.length !== 6) ? "not-allowed" : "pointer",
                 opacity: loading || (needs2FA && totpCode.length !== 6) ? 0.6 : 1,
                 transition: "all 200ms ease",
                 fontFamily: "var(--font-ui-family)",
                 boxShadow: submitHover
-                  ? "0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(164, 119, 100, 0.4), 0 2px 6px rgba(164, 119, 100, 0.25)"
-                  : "0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(164, 119, 100, 0.3), 0 1px 3px rgba(164, 119, 100, 0.2)",
+                  ? "var(--cta-shadow-hover)"
+                  : "var(--cta-shadow)",
                 transform: submitHover ? "translateY(-1px)" : "translateY(0)",
               }}
               onMouseEnter={() => {
