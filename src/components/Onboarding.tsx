@@ -432,7 +432,7 @@ export default function Onboarding() {
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem("catforcat-onboarded")) {
+      if (!localStorage.getItem("catforcat-tour-v2")) {
         // Small delay so DOM elements are ready
         setTimeout(() => setShow(true), 500);
       }
@@ -477,9 +477,20 @@ export default function Onboarding() {
 
   if (!show) return null;
 
+  // Find next valid step (skip steps whose target element doesn't exist in DOM)
+  const findNextValidStep = (fromStep: number): number => {
+    for (let i = fromStep; i < TOUR_STEPS.length; i++) {
+      const s = TOUR_STEPS[i];
+      if (s.target === "__welcome__") return i;
+      const el = document.querySelector(`[data-tour="${s.target}"]`);
+      if (el) return i;
+    }
+    return -1; // no valid steps left
+  };
+
   const finish = () => {
     try {
-      localStorage.setItem("catforcat-onboarded", "true");
+      localStorage.setItem("catforcat-tour-v2", "true");
     } catch {
       /* ignore */
     }
@@ -487,8 +498,9 @@ export default function Onboarding() {
   };
 
   const next = () => {
-    if (step < TOUR_STEPS.length - 1) {
-      setStep(step + 1);
+    const nextValid = findNextValidStep(step + 1);
+    if (nextValid >= 0) {
+      setStep(nextValid);
     } else {
       finish();
     }
