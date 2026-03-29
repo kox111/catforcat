@@ -99,6 +99,12 @@ export default function EditorPage({
   const segmentRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const virtualListRef = useRef<VirtualSegmentListHandle>(null);
   const tmMatchesRef = useRef<TMMatch[]>([]);
+  const [tmMatchesBySegment, setTmMatchesBySegment] = useState<
+    Record<string, { score: number; targetText: string }[]>
+  >({});
+  const [glossaryMatchCountBySegment, setGlossaryMatchCountBySegment] = useState<
+    Record<string, number>
+  >({});
   const [tmPanelVisible, setTmPanelVisible] = useState(true);
   const [glossaryTerms, setGlossaryTerms] = useState<
     { sourceTerm: string; targetTerm: string }[]
@@ -239,18 +245,34 @@ export default function EditorPage({
   const handleTMMatchesUpdate = useCallback((matches: TMMatch[]) => {
     tmMatchesRef.current = matches;
     setTmMatchCount(matches.length);
+    // Cache matches for inline badges
+    if (activeSegmentId && matches.length > 0) {
+      setTmMatchesBySegment((prev) => ({
+        ...prev,
+        [activeSegmentId]: matches.map((m) => ({
+          score: m.score,
+          targetText: m.targetText,
+        })),
+      }));
+    }
     // Auto-expand when matches appear
     if (matches.length > 0) {
       setBottomPanelCollapsed(false);
     }
-  }, []);
+  }, [activeSegmentId]);
 
   // Track glossary terms found in active segment
   const handleGlossaryTermsFound = useCallback(
     (terms: { sourceTerm: string; targetTerm: string }[]) => {
       setGlossaryTerms(terms);
+      if (activeSegmentId) {
+        setGlossaryMatchCountBySegment((prev) => ({
+          ...prev,
+          [activeSegmentId]: terms.length,
+        }));
+      }
     },
-    [],
+    [activeSegmentId],
   );
 
   // Auto-dismiss glossary warning
@@ -2088,6 +2110,8 @@ export default function EditorPage({
             fontSize={editorFontSize}
             columnRatio={columnRatio}
             focusMode={focusMode}
+            tmMatchesBySegment={tmMatchesBySegment}
+            glossaryMatchCountBySegment={glossaryMatchCountBySegment}
             onActivate={(segmentId) => setActiveSegment(segmentId)}
             onTargetChange={(segmentId, text) => {
               trackUndoHistory(segmentId, text);

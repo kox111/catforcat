@@ -30,11 +30,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+              "script-src 'self' 'unsafe-inline' https://js.stripe.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob:",
-              "connect-src 'self' https://api.stripe.com https://*.deepl.com https://translation.googleapis.com",
+              "connect-src 'self' https://api.stripe.com https://api.deepl.com https://api-free.deepl.com https://translation.googleapis.com https://api.anthropic.com",
               "frame-src https://js.stripe.com",
               "object-src 'none'",
               "base-uri 'self'",

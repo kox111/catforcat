@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
     const words = seg.sourceText
       .toLowerCase()
       .split(/\s+/)
-      .filter((w) => w.length > 2 && !STOPWORDS.has(w));
+      .filter((w: string) => w.length > 2 && !STOPWORDS.has(w));
     const seen = new Set<string>();
     for (const w of words) {
       if (!seen.has(w)) {
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
         const targetWords = seg.targetText
           .toLowerCase()
           .split(/\s+/)
-          .filter((w) => w.length > 2 && !STOPWORDS.has(w));
+          .filter((w: string) => w.length > 2 && !STOPWORDS.has(w));
         for (const tw of targetWords) {
           translations.set(tw, (translations.get(tw) || 0) + 1);
         }
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
     },
     select: { sourceTerm: true },
   });
-  const existingSet = new Set(existing.map((e) => e.sourceTerm.toLowerCase()));
+  const existingSet = new Set(existing.map((e: { sourceTerm: string }) => e.sourceTerm.toLowerCase()));
 
   const toImport = termPairs.filter((p) => !existingSet.has(p.source));
 

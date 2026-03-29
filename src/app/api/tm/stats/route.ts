@@ -57,7 +57,7 @@ export async function GET() {
       }));
 
     // Most recent (top 5)
-    const mostRecent = allEntries.slice(0, 5).map((e) => ({
+    const mostRecent = allEntries.slice(0, 5).map((e: { sourceText: string; targetText: string; createdAt: Date }) => ({
       sourceText:
         e.sourceText.length > 80
           ? e.sourceText.slice(0, 80) + "…"

@@ -125,15 +125,15 @@ export async function POST(req: NextRequest) {
   const { segment, srcLang, tgtLang, context, projectId } = body;
   let { glossaryTerms } = body;
 
-  if (!segment || !srcLang || !tgtLang) {
+  if (!segment || !srcLang || !tgtLang || !projectId) {
     return NextResponse.json(
-      { error: "segment, srcLang, and tgtLang are required" },
+      { error: "segment, srcLang, tgtLang, and projectId are required" },
       { status: 400 },
     );
   }
 
   // Privacy enforcement — check project privacy level
-  if (projectId) {
+  {
     const project = await prisma.project.findFirst({
       where: { id: projectId, userId: userData.id },
       select: { privacyLevel: true },
@@ -166,12 +166,12 @@ export async function POST(req: NextRequest) {
     if (dbTerms.length > 0) {
       // Filter to only terms that actually appear in the segment text
       const segmentLower = segment.toLowerCase();
-      const matching = dbTerms.filter((t) =>
+      const matching = dbTerms.filter((t: { sourceTerm: string }) =>
         segmentLower.includes(t.sourceTerm.toLowerCase()),
       );
 
       if (matching.length > 0) {
-        glossaryTerms = matching.map((t) => ({
+        glossaryTerms = matching.map((t: { sourceTerm: string; targetTerm: string }) => ({
           source: t.sourceTerm,
           target: t.targetTerm,
         }));
@@ -184,14 +184,28 @@ export async function POST(req: NextRequest) {
     matchedTermsCount = glossaryTerms.length;
   }
 
-  // Provider determined by plan: pro → DeepL (if configured), otherwise Google
+  // Provider selection: pro → Claude AI (if configured) → DeepL → Google
+  const claudeAvailable = !!process.env.ANTHROPIC_API_KEY;
   const deeplAvailable = !!process.env.DEEPL_API_KEY;
-  const provider = plan === "pro" && deeplAvailable ? "deepl" : "google";
+  const provider =
+    plan === "pro" && claudeAvailable
+      ? "claude"
+      : plan === "pro" && deeplAvailable
+        ? "deepl"
+        : "google";
 
   try {
     let translation: string;
 
-    if (provider === "deepl") {
+    if (provider === "claude") {
+      translation = await translateWithClaude(
+        segment,
+        srcLang,
+        tgtLang,
+        glossaryTerms,
+        context,
+      );
+    } else if (provider === "deepl") {
       translation = await translateWithDeepL(
         segment,
         srcLang,
@@ -375,6 +389,79 @@ async function translateWithDeepL(
   const data = await response.json();
   let translation = data.translations?.[0]?.text || "";
   translation = translation.replace(/<\/?m[^>]*>/g, "");
+  return translation;
+}
+
+// ─────────────────────────────────────────────
+// Claude API (Anthropic) — AI Copilot translation
+// Contextual translation that respects glossary, tone, and document context
+// ─────────────────────────────────────────────
+async function translateWithClaude(
+  text: string,
+  srcLang: string,
+  tgtLang: string,
+  glossaryTerms?: GlossaryTerm[],
+  context?: { previousSegment?: string; nextSegment?: string },
+): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error("AI translation is not configured. Contact support.");
+  }
+
+  const sanitize = (s: string) =>
+    s.replace(/["""]/g, "'").replace(/\n/g, " ").slice(0, 2000);
+
+  let glossaryInstruction = "";
+  if (glossaryTerms && glossaryTerms.length > 0) {
+    const terms = glossaryTerms
+      .map((t) => `"${sanitize(t.source)}" → "${sanitize(t.target)}"`)
+      .join(", ");
+    glossaryInstruction = `\nMandatory terminology: ${terms}. You MUST use these exact translations for these terms.`;
+  }
+
+  let contextInstruction = "";
+  if (context?.previousSegment) {
+    contextInstruction += `\nPrevious sentence: "${sanitize(context.previousSegment)}"`;
+  }
+  if (context?.nextSegment) {
+    contextInstruction += `\nNext sentence: "${sanitize(context.nextSegment)}"`;
+  }
+
+  const prompt = `Translate the following text from ${srcLang} to ${tgtLang}. Return ONLY the translation, nothing else.${glossaryInstruction}${contextInstruction}
+
+Text to translate: "${sanitize(text)}"`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    console.error("Claude API error:", response.status);
+    throw new Error("AI translation service unavailable");
+  }
+
+  const data = await response.json();
+  let translation =
+    data.content?.[0]?.text?.trim() || "";
+
+  // Strip surrounding quotes if Claude wraps in them
+  if (
+    (translation.startsWith('"') && translation.endsWith('"')) ||
+    (translation.startsWith("'") && translation.endsWith("'"))
+  ) {
+    translation = translation.slice(1, -1);
+  }
+
   return translation;
 }
 

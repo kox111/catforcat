@@ -43,6 +43,13 @@ export async function POST(
       );
     }
 
+    if (reviewerId !== user.id) {
+      return NextResponse.json(
+        { error: "Unauthorized: you can only assign yourself as reviewer" },
+        { status: 403 },
+      );
+    }
+
     // Update project status to "review"
     const updatedProject = await prisma.project.update({
       where: { id },
@@ -53,12 +60,12 @@ export async function POST(
 
     // For all segments with non-empty targetText, copy targetText → previousTargetText
     const segmentsToUpdate = project.segments.filter(
-      (seg) => seg.targetText && seg.targetText.trim() !== "",
+      (seg: { id: string; targetText: string }) => seg.targetText && seg.targetText.trim() !== "",
     );
 
     if (segmentsToUpdate.length > 0) {
       await prisma.$transaction(
-        segmentsToUpdate.map((seg) =>
+        segmentsToUpdate.map((seg: { id: string; targetText: string }) =>
           prisma.segment.update({
             where: { id: seg.id },
             data: {

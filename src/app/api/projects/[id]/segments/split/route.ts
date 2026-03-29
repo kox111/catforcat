@@ -46,27 +46,26 @@ export async function POST(
       );
     }
 
-    // Transaction: update original + shift positions + create new segment
-    const result = await prisma.$transaction(async (tx) => {
-      // Shift all segments after this one up by 1
-      await tx.$executeRawUnsafe(
-        `UPDATE segments SET position = position + 1 WHERE project_id = $1 AND position > $2`,
-        id,
-        segment.position,
-      );
+    // Transaction: shift positions + update original + create new segment
+    // Note: shift must happen first so the new position is available
+    await prisma.$executeRawUnsafe(
+      `UPDATE segments SET position = position + 1 WHERE project_id = $1 AND position > $2`,
+      id,
+      segment.position,
+    );
 
+    const [updated, newSeg] = await prisma.$transaction([
       // Update original segment (first half)
-      const updated = await tx.segment.update({
+      prisma.segment.update({
         where: { id: segmentId },
         data: {
           sourceText: sourceA,
           targetText: "", // Reset target since source changed
           status: "empty",
         },
-      });
-
+      }),
       // Create new segment (second half)
-      const newSeg = await tx.segment.create({
+      prisma.segment.create({
         data: {
           projectId: id,
           position: segment.position + 1,
@@ -74,10 +73,8 @@ export async function POST(
           targetText: "",
           status: "empty",
         },
-      });
-
-      return { updated, newSeg };
-    });
+      }),
+    ]);
 
     // Fetch all segments to return updated list
     const allSegments = await prisma.segment.findMany({

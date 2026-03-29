@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { verifyTOTP } from "./two-factor";
+import { checkRateLimit } from "./rate-limit";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,6 +17,15 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
+        }
+
+        const rateLimit = await checkRateLimit(
+          `login:${credentials.email.toLowerCase()}`,
+          5,
+          900_000,
+        );
+        if (!rateLimit.allowed) {
+          throw new Error("TOO_MANY_ATTEMPTS");
         }
 
         const user = await prisma.user.findUnique({

@@ -18,4 +18,5 @@ export const env = {
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
   GOOGLE_TRANSLATE_API_KEY: process.env.GOOGLE_TRANSLATE_API_KEY || "",
   DEEPL_API_KEY: process.env.DEEPL_API_KEY || "",
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || "",
 };

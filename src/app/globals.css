@@ -56,17 +56,41 @@
   --mark-delete-bg: rgba(138, 92, 94, 0.3);
   --mark-insert-bg: rgba(92, 138, 106, 0.3);
 
-  --btn-bg: rgba(255, 255, 255, 0.06);
-  --btn-border: rgba(255, 255, 255, 0.1);
-  --btn-bg-hover: rgba(255, 255, 255, 0.1);
+  /* ── Button System: Primary / Secondary / Ghost ── */
+  /* Primary: solid accent, high contrast — CTAs, Pre-translate, Export, Sign In */
+  --btn-primary-bg: var(--accent);
+  --btn-primary-bg-hover: #b0a0a0;
+  --btn-primary-text: #1a1a1a;
+  --btn-primary-border: transparent;
+  --btn-primary-shadow: 0 2px 8px rgba(160, 144, 144, 0.3);
+  --btn-primary-shadow-hover: 0 4px 16px rgba(160, 144, 144, 0.4);
 
-  /* CTA button tokens */
-  --cta-bg: var(--accent);
+  /* Secondary: transparent bg, subtle border — toolbar icons, search, QA, glossary */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.1);
+  --btn-secondary-text: var(--text-secondary);
+  --btn-secondary-text-hover: var(--text-primary);
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-border-hover: rgba(255, 255, 255, 0.2);
+
+  /* Ghost: no bg, no border — links, cancel, sign out, A-/A+ */
+  --btn-ghost-bg: transparent;
+  --btn-ghost-bg-hover: rgba(255, 255, 255, 0.06);
+  --btn-ghost-text: var(--text-muted);
+  --btn-ghost-text-hover: var(--text-secondary);
+
+  /* Legacy aliases (keep for backward compat) */
+  --btn-bg: var(--btn-secondary-bg);
+  --btn-border: var(--btn-secondary-border);
+  --btn-bg-hover: var(--btn-secondary-bg-hover);
+
+  /* CTA button tokens (alias to primary) */
+  --cta-bg: var(--btn-primary-bg);
   --cta-bg-gradient: linear-gradient(180deg, #b0a0a0 0%, #a09090 50%, #908080 100%);
   --cta-bg-gradient-hover: linear-gradient(180deg, #bab0b0 0%, #b0a0a0 50%, #a09090 100%);
-  --cta-text: #ffffff;
-  --cta-shadow: 0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(160, 144, 144, 0.3), 0 1px 3px rgba(160, 144, 144, 0.2);
-  --cta-shadow-hover: 0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(160, 144, 144, 0.4), 0 2px 6px rgba(160, 144, 144, 0.25);
+  --cta-text: var(--btn-primary-text);
+  --cta-shadow: var(--btn-primary-shadow);
+  --cta-shadow-hover: var(--btn-primary-shadow-hover);
   --cta-shadow-active: 0 1px 4px rgba(160, 144, 144, 0.2);
 
   /* Glow & micro-interaction tokens */
@@ -140,17 +164,37 @@
   --mark-delete-bg: rgba(196, 138, 138, 0.4);
   --mark-insert-bg: rgba(139, 184, 158, 0.4);
 
-  --btn-bg: rgba(255, 255, 255, 0.15);
-  --btn-border: rgba(92, 74, 80, 0.15);
-  --btn-bg-hover: rgba(255, 255, 255, 0.25);
+  /* ── Button System: Primary / Secondary / Ghost ── */
+  --btn-primary-bg: var(--accent);
+  --btn-primary-bg-hover: #a06a7e;
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: transparent;
+  --btn-primary-shadow: 0 2px 8px rgba(139, 90, 107, 0.3);
+  --btn-primary-shadow-hover: 0 4px 16px rgba(139, 90, 107, 0.4);
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.15);
+  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.25);
+  --btn-secondary-text: var(--text-secondary);
+  --btn-secondary-text-hover: var(--text-primary);
+  --btn-secondary-border: rgba(92, 74, 80, 0.15);
+  --btn-secondary-border-hover: rgba(92, 74, 80, 0.25);
+
+  --btn-ghost-bg: transparent;
+  --btn-ghost-bg-hover: rgba(255, 255, 255, 0.12);
+  --btn-ghost-text: var(--text-muted);
+  --btn-ghost-text-hover: var(--text-secondary);
+
+  --btn-bg: var(--btn-secondary-bg);
+  --btn-border: var(--btn-secondary-border);
+  --btn-bg-hover: var(--btn-secondary-bg-hover);
 
   /* CTA button tokens */
-  --cta-bg: var(--accent);
+  --cta-bg: var(--btn-primary-bg);
   --cta-bg-gradient: linear-gradient(180deg, #a06a7e 0%, #8b5a6b 50%, #7a4a5e 100%);
   --cta-bg-gradient-hover: linear-gradient(180deg, #b07a8e 0%, #a06a7e 50%, #8b5a6b 100%);
-  --cta-text: #ffffff;
-  --cta-shadow: 0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(139, 90, 107, 0.3), 0 1px 3px rgba(139, 90, 107, 0.2);
-  --cta-shadow-hover: 0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(139, 90, 107, 0.4), 0 2px 6px rgba(139, 90, 107, 0.25);
+  --cta-text: var(--btn-primary-text);
+  --cta-shadow: var(--btn-primary-shadow);
+  --cta-shadow-hover: var(--btn-primary-shadow-hover);
   --cta-shadow-active: 0 1px 4px rgba(139, 90, 107, 0.2);
 
   --glow-accent: rgba(139, 90, 107, 0.25);
@@ -223,17 +267,37 @@
   --mark-delete-bg: rgba(196, 90, 94, 0.2);
   --mark-insert-bg: rgba(74, 154, 100, 0.2);
 
-  --btn-bg: rgba(0, 0, 0, 0.05);
-  --btn-border: rgba(0, 0, 0, 0.15);
-  --btn-bg-hover: rgba(0, 0, 0, 0.08);
+  /* ── Button System: Primary / Secondary / Ghost ── */
+  --btn-primary-bg: var(--accent);
+  --btn-primary-bg-hover: #666666;
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: transparent;
+  --btn-primary-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --btn-primary-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.18);
+
+  --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+  --btn-secondary-bg-hover: rgba(0, 0, 0, 0.08);
+  --btn-secondary-text: var(--text-secondary);
+  --btn-secondary-text-hover: var(--text-primary);
+  --btn-secondary-border: rgba(0, 0, 0, 0.15);
+  --btn-secondary-border-hover: rgba(0, 0, 0, 0.25);
+
+  --btn-ghost-bg: transparent;
+  --btn-ghost-bg-hover: rgba(0, 0, 0, 0.04);
+  --btn-ghost-text: var(--text-muted);
+  --btn-ghost-text-hover: var(--text-secondary);
+
+  --btn-bg: var(--btn-secondary-bg);
+  --btn-border: var(--btn-secondary-border);
+  --btn-bg-hover: var(--btn-secondary-bg-hover);
 
   /* CTA button tokens */
-  --cta-bg: var(--accent);
+  --cta-bg: var(--btn-primary-bg);
   --cta-bg-gradient: linear-gradient(180deg, #666666 0%, #555555 50%, #444444 100%);
   --cta-bg-gradient-hover: linear-gradient(180deg, #777777 0%, #666666 50%, #555555 100%);
-  --cta-text: #ffffff;
-  --cta-shadow: 0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
-  --cta-shadow-hover: 0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.12);
+  --cta-text: var(--btn-primary-text);
+  --cta-shadow: var(--btn-primary-shadow);
+  --cta-shadow-hover: var(--btn-primary-shadow-hover);
   --cta-shadow-active: 0 1px 4px rgba(0, 0, 0, 0.15);
 
   --glow-accent: rgba(85, 85, 85, 0.2);
@@ -311,17 +375,37 @@
   --mark-delete-bg: rgba(164, 100, 100, 0.3);
   --mark-insert-bg: rgba(122, 154, 106, 0.3);
 
-  --btn-bg: rgba(164, 119, 100, 0.12);
-  --btn-border: rgba(164, 119, 100, 0.22);
-  --btn-bg-hover: rgba(164, 119, 100, 0.20);
+  /* ── Button System: Primary / Secondary / Ghost ── */
+  --btn-primary-bg: var(--accent);
+  --btn-primary-bg-hover: #B08874;
+  --btn-primary-text: #ffffff;
+  --btn-primary-border: transparent;
+  --btn-primary-shadow: 0 2px 8px rgba(164, 119, 100, 0.3);
+  --btn-primary-shadow-hover: 0 4px 16px rgba(164, 119, 100, 0.4);
+
+  --btn-secondary-bg: rgba(164, 119, 100, 0.12);
+  --btn-secondary-bg-hover: rgba(164, 119, 100, 0.20);
+  --btn-secondary-text: var(--text-secondary);
+  --btn-secondary-text-hover: var(--text-primary);
+  --btn-secondary-border: rgba(164, 119, 100, 0.22);
+  --btn-secondary-border-hover: rgba(164, 119, 100, 0.35);
+
+  --btn-ghost-bg: transparent;
+  --btn-ghost-bg-hover: rgba(164, 119, 100, 0.08);
+  --btn-ghost-text: var(--text-muted);
+  --btn-ghost-text-hover: var(--text-secondary);
+
+  --btn-bg: var(--btn-secondary-bg);
+  --btn-border: var(--btn-secondary-border);
+  --btn-bg-hover: var(--btn-secondary-bg-hover);
 
   /* CTA button tokens */
-  --cta-bg: var(--accent);
+  --cta-bg: var(--btn-primary-bg);
   --cta-bg-gradient: linear-gradient(180deg, #B08874 0%, #A47764 50%, #946B58 100%);
   --cta-bg-gradient-hover: linear-gradient(180deg, #B89080 0%, #B08874 50%, #A47764 100%);
-  --cta-text: #ffffff;
-  --cta-shadow: 0 1px 0 0 rgba(255,255,255,0.15) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 2px 8px rgba(164, 119, 100, 0.3), 0 1px 3px rgba(164, 119, 100, 0.2);
-  --cta-shadow-hover: 0 1px 0 0 rgba(255,255,255,0.2) inset, 0 -1px 0 0 rgba(0,0,0,0.1) inset, 0 4px 16px rgba(164, 119, 100, 0.4), 0 2px 6px rgba(164, 119, 100, 0.25);
+  --cta-text: var(--btn-primary-text);
+  --cta-shadow: var(--btn-primary-shadow);
+  --cta-shadow-hover: var(--btn-primary-shadow-hover);
   --cta-shadow-active: 0 1px 4px rgba(164, 119, 100, 0.2);
 
   /* Glow & micro-interaction tokens */

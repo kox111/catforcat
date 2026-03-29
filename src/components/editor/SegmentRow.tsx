@@ -4,6 +4,11 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { Check, MessageSquare, Sparkles, BookOpen } from "lucide-react";
 import type { Segment } from "@/lib/store";
 
+interface TMMatchBadge {
+  score: number;
+  targetText: string;
+}
+
 interface SegmentRowProps {
   segment: Segment & {
     previousTargetText?: string;
@@ -31,6 +36,9 @@ interface SegmentRowProps {
   onRejectSegment?: () => void;
   // Focus mode
   dimmed?: boolean;
+  // Inline badges
+  tmMatches?: TMMatchBadge[];
+  glossaryMatchCount?: number;
 }
 
 /**
@@ -216,7 +224,11 @@ export default function SegmentRow({
   onRejectSegment,
   // Focus mode
   dimmed = false,
+  // Inline badges
+  tmMatches = [],
+  glossaryMatchCount = 0,
 }: SegmentRowProps) {
+  const [tmPopoverOpen, setTmPopoverOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const autoResize = useCallback(() => {
@@ -361,6 +373,102 @@ export default function SegmentRow({
           >
             <MessageSquare size={11} />
           </button>
+        )}
+
+        {/* TM match badge */}
+        {tmMatches.length > 0 && (
+          <div
+            style={{ position: "relative" }}
+            onMouseEnter={() => setTmPopoverOpen(true)}
+            onMouseLeave={() => setTmPopoverOpen(false)}
+          >
+            <div
+              style={{
+                fontSize: 8,
+                fontFamily: "var(--font-editor-family)",
+                padding: "1px 4px",
+                borderRadius: 6,
+                background: tmMatches[0].score >= 100 ? "var(--green-soft)" : "var(--amber-soft)",
+                color: tmMatches[0].score >= 100 ? "var(--green-text)" : "var(--amber-text)",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                fontWeight: 500,
+              }}
+              title={`${tmMatches.length} TM match${tmMatches.length > 1 ? "es" : ""}`}
+            >
+              {tmMatches[0].score}%
+            </div>
+            {tmPopoverOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: 32,
+                  top: -4,
+                  zIndex: 60,
+                  background: "var(--bg-panel)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "var(--radius-sm)",
+                  padding: 8,
+                  minWidth: 220,
+                  maxWidth: 320,
+                  boxShadow: "var(--shadow-md)",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6, fontFamily: "var(--font-ui-family)" }}>
+                  TM Matches ({tmMatches.length})
+                </div>
+                {tmMatches.slice(0, 3).map((m, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 4 }}>
+                    <span style={{
+                      fontSize: 9,
+                      fontFamily: "var(--font-editor-family)",
+                      padding: "1px 4px",
+                      borderRadius: 4,
+                      background: m.score >= 100 ? "var(--green-soft)" : m.score >= 75 ? "var(--amber-soft)" : "var(--bg-hover)",
+                      color: m.score >= 100 ? "var(--green-text)" : m.score >= 75 ? "var(--amber-text)" : "var(--text-muted)",
+                      fontWeight: 500,
+                      flexShrink: 0,
+                    }}>
+                      {m.score}%
+                    </span>
+                    <span style={{
+                      fontSize: 11,
+                      color: "var(--text-secondary)",
+                      fontFamily: "var(--font-ui-family)",
+                      lineHeight: 1.3,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}>
+                      {m.targetText}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Glossary match badge */}
+        {glossaryMatchCount > 0 && (
+          <div
+            style={{
+              fontSize: 8,
+              fontFamily: "var(--font-editor-family)",
+              padding: "1px 4px",
+              borderRadius: 6,
+              background: "var(--purple-soft)",
+              color: "var(--purple-text)",
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+            }}
+            title={`${glossaryMatchCount} glossary term${glossaryMatchCount > 1 ? "s" : ""}`}
+          >
+            G·{glossaryMatchCount}
+          </div>
         )}
       </div>
 

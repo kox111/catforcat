@@ -438,6 +438,193 @@ export function segmentMarkdown(content: string): RawSegment[] {
 }
 
 /**
+ * Segment WebVTT subtitle content.
+ * Similar to SRT but uses different timestamp format (00:00:00.000) and
+ * starts with WEBVTT header.
+ */
+export function segmentVTT(content: string): RawSegment[] {
+  const segments: RawSegment[] = [];
+
+  // Remove WEBVTT header and NOTE blocks
+  const cleaned = content
+    .replace(/^WEBVTT[^\n]*\n/, "")
+    .replace(/NOTE[^\n]*\n(?:(?!\n\n)[\s\S])*\n\n/g, "")
+    .trim();
+
+  const blocks = cleaned.split(/\n\s*\n/);
+  let seqIndex = 1;
+
+  for (const block of blocks) {
+    const lines = block.trim().split("\n");
+    if (lines.length < 2) continue;
+
+    // Find the timestamp line (contains -->)
+    let timeLineIdx = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes("-->")) {
+        timeLineIdx = i;
+        break;
+      }
+    }
+    if (timeLineIdx === -1) continue;
+
+    const timeLine = lines[timeLineIdx].trim();
+    // Text is everything after the timestamp line
+    const textLines = lines
+      .slice(timeLineIdx + 1)
+      .join(" ")
+      .replace(/<[^>]+>/g, "") // Strip VTT formatting tags like <b>, <i>, <c.classname>
+      .trim();
+
+    if (textLines.length > 0) {
+      segments.push({
+        text: textLines,
+        metadata: {
+          fileFormat: "vtt",
+          sequenceNumber: seqIndex,
+          timestamps: timeLine,
+          cueId: timeLineIdx > 0 ? lines[0].trim() : undefined,
+        },
+      });
+      seqIndex++;
+    }
+  }
+
+  return segments;
+}
+
+/**
+ * Segment YAML i18n content.
+ * Handles nested keys with dot notation (like JSON segmenter).
+ * Common in Rails, Flutter, Hugo.
+ */
+export function segmentYAML(content: string): RawSegment[] {
+  const segments: RawSegment[] = [];
+  const lines = content.split("\n");
+  const keyStack: { key: string; indent: number }[] = [];
+
+  for (const line of lines) {
+    // Skip comments and empty lines
+    if (/^\s*#/.test(line) || /^\s*$/.test(line)) continue;
+    // Skip document markers
+    if (/^---/.test(line) || /^\.\.\./.test(line)) continue;
+
+    const match = line.match(/^(\s*)([\w\-.]+)\s*:\s*(.*)/);
+    if (!match) continue;
+
+    const indent = match[1].length;
+    const key = match[2];
+    const value = match[3].trim();
+
+    // Pop stack to current indent level
+    while (keyStack.length > 0 && keyStack[keyStack.length - 1].indent >= indent) {
+      keyStack.pop();
+    }
+
+    if (value && value !== "|" && value !== ">" && !value.endsWith(":")) {
+      // Leaf node with value — this is a translatable string
+      const cleanValue = value
+        .replace(/^["']|["']$/g, "") // Strip quotes
+        .trim();
+
+      if (cleanValue.length > 0) {
+        const fullKey = [...keyStack.map((s) => s.key), key].join(".");
+        segments.push({
+          text: cleanValue,
+          metadata: {
+            fileFormat: "yaml",
+            keyPath: fullKey,
+          },
+        });
+      }
+    }
+
+    // Push to stack (even non-leaf nodes for path building)
+    keyStack.push({ key, indent });
+  }
+
+  return segments;
+}
+
+/**
+ * Export segments back to VTT format.
+ */
+export function exportToVTT(
+  segments: {
+    sourceText: string;
+    targetText: string;
+    metadata: Record<string, unknown>;
+  }[],
+): string {
+  const lines: string[] = ["WEBVTT", ""];
+
+  for (const seg of segments) {
+    const meta = seg.metadata as Record<string, unknown>;
+    const cueId = meta.cueId as string | undefined;
+    const timestamps = meta.timestamps as string;
+    const text = seg.targetText || seg.sourceText;
+
+    if (cueId) lines.push(cueId);
+    lines.push(timestamps);
+    lines.push(text);
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Export segments back to YAML format.
+ */
+export function exportToYAML(
+  segments: {
+    sourceText: string;
+    targetText: string;
+    metadata: Record<string, unknown>;
+  }[],
+): string {
+  // Build nested object from dot-notation paths
+  const root: Record<string, unknown> = {};
+
+  for (const seg of segments) {
+    const meta = seg.metadata as Record<string, unknown>;
+    const keyPath = meta.keyPath as string;
+    if (!keyPath) continue;
+
+    const parts = keyPath.split(".");
+    let current = root;
+
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (!current[parts[i]] || typeof current[parts[i]] !== "object") {
+        current[parts[i]] = {};
+      }
+      current = current[parts[i]] as Record<string, unknown>;
+    }
+
+    current[parts[parts.length - 1]] = seg.targetText || seg.sourceText;
+  }
+
+  // Serialize to YAML manually (no dependency)
+  function toYaml(obj: Record<string, unknown>, indent = 0): string {
+    const prefix = "  ".repeat(indent);
+    const lines: string[] = [];
+    for (const [key, value] of Object.entries(obj)) {
+      if (typeof value === "object" && value !== null) {
+        lines.push(`${prefix}${key}:`);
+        lines.push(toYaml(value as Record<string, unknown>, indent + 1));
+      } else {
+        const str = String(value);
+        const needsQuotes = /[:#{}[\],&*?|>!%@`]/.test(str) || str === "";
+        lines.push(`${prefix}${key}: ${needsQuotes ? `"${str.replace(/"/g, '\\"')}"` : str}`);
+      }
+    }
+    return lines.join("\n");
+  }
+
+  return toYaml(root);
+}
+
+/**
  * Export segments back to JSON format.
  * Reconstructs the JSON structure using dot notation keys.
  */

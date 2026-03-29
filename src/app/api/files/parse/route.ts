@@ -6,6 +6,8 @@ import {
   segmentSRT,
   segmentPO,
   segmentMarkdown,
+  segmentVTT,
+  segmentYAML,
   type RawSegment,
 } from "@/lib/segmenter";
 /**
@@ -20,19 +22,35 @@ import {
 
 const ACCEPTED_EXTENSIONS = new Set([
   "txt", "docx", "pdf", "csv", "html", "htm", "xlsx", "pptx", "xml",
-  "xlf", "xliff", "json", "srt", "po", "md",
+  "xlf", "xliff", "sdlxliff", "mxliff", "json", "srt", "vtt", "po", "pot", "md", "yaml", "yml",
 ]);
+
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
 export async function POST(req: NextRequest) {
   const { error } = await getAuthenticatedUser();
   if (error) return error;
 
   try {
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "File too large. Maximum size is 25MB." },
+        { status: 413 },
+      );
+    }
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "File too large. Maximum size is 25MB." },
+        { status: 413 },
+      );
     }
 
     const fileName = file.name;
@@ -360,8 +378,29 @@ export async function POST(req: NextRequest) {
         isStructured: true,
       });
 
+    // ─── VTT (WebVTT subtitles) ───
+    } else if (ext === "vtt") {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const vttText = buffer.toString("utf-8");
+      fileFormat = "vtt";
+
+      const rawSegments: RawSegment[] = segmentVTT(vttText);
+      const segments = rawSegments.map((seg) => ({
+        text: seg.text,
+        metadata: seg.metadata,
+      }));
+
+      return NextResponse.json({
+        segments,
+        fileName,
+        fileFormat,
+        totalParagraphs: segments.length,
+        totalSegments: segments.length,
+        isStructured: true,
+      });
+
     // ─── PO ───
-    } else if (ext === "po") {
+    } else if (ext === "po" || ext === "pot") {
       const buffer = Buffer.from(await file.arrayBuffer());
       const poText = buffer.toString("utf-8");
       fileFormat = "po";
@@ -404,11 +443,32 @@ export async function POST(req: NextRequest) {
         isStructured: true,
       });
 
-    // ─── XLIFF ───
-    } else if (ext === "xlf" || ext === "xliff") {
+    // ─── YAML i18n ───
+    } else if (ext === "yaml" || ext === "yml") {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const yamlText = buffer.toString("utf-8");
+      fileFormat = "yaml";
+
+      const rawSegments: RawSegment[] = segmentYAML(yamlText);
+      const segments = rawSegments.map((seg) => ({
+        text: seg.text,
+        metadata: seg.metadata,
+      }));
+
+      return NextResponse.json({
+        segments,
+        fileName,
+        fileFormat,
+        totalParagraphs: segments.length,
+        totalSegments: segments.length,
+        isStructured: true,
+      });
+
+    // ─── XLIFF / SDLXLIFF / MXLIFF ───
+    } else if (ext === "xlf" || ext === "xliff" || ext === "sdlxliff" || ext === "mxliff") {
       const buffer = Buffer.from(await file.arrayBuffer());
       const xliffText = buffer.toString("utf-8");
-      fileFormat = "xliff";
+      fileFormat = ext === "sdlxliff" ? "sdlxliff" : ext === "mxliff" ? "mxliff" : "xliff";
 
       const xliffResult = parseXLIFF(xliffText);
 
@@ -559,7 +619,9 @@ function extractParagraphsFromHtml(
 }
 
 /**
- * Parse XLIFF 1.2 or 2.0 file.
+ * Parse XLIFF 1.2, XLIFF 2.0, SDLXLIFF, and MXLIFF files.
+ * SDLXLIFF uses <seg-source> with <mrk mtype="seg"> for segmentation
+ * and <sdl:seg-defs> for metadata (conf, origin, percent, locked).
  */
 function parseXLIFF(xml: string): {
   segments: {
@@ -579,6 +641,10 @@ function parseXLIFF(xml: string): {
   let srcLang = "";
   let tgtLang = "";
 
+  // Detect if SDLXLIFF (has SDL namespace)
+  const isSdlXliff = xml.includes("sdl.com/FileTypes/SdlXliff");
+
+  // Extract languages from <file> element
   const fileMatch = xml.match(
     /<file[^>]*source-language="([^"]+)"[^>]*(?:target-language="([^"]+)")?/i,
   );
@@ -587,6 +653,7 @@ function parseXLIFF(xml: string): {
     tgtLang = fileMatch[2] ? normalizeLangCode(fileMatch[2]) : "";
   }
 
+  // Fallback: XLIFF 2.0 uses srcLang/trgLang on <xliff>
   if (!srcLang) {
     const xliffMatch = xml.match(
       /<xliff[^>]*srcLang="([^"]+)"[^>]*(?:trgLang="([^"]+)")?/i,
@@ -603,33 +670,107 @@ function parseXLIFF(xml: string): {
   let index = 0;
 
   while ((match = tuRegex.exec(xml)) !== null) {
-    const id = match[1];
+    const tuId = match[1];
     const content = match[2];
-    const sourceMatch = content.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
-    const targetMatch = content.match(/<target[^>]*>([\s\S]*?)<\/target>/i);
 
-    if (sourceMatch) {
-      const sourceText = stripInlineTags(sourceMatch[1]).trim();
-      const targetText = targetMatch
-        ? stripInlineTags(targetMatch[1]).trim()
-        : undefined;
+    // SDLXLIFF: extract segments from <seg-source> <mrk mtype="seg">
+    const segSourceMatch = content.match(/<seg-source[^>]*>([\s\S]*?)<\/seg-source>/i);
 
-      if (sourceText) {
+    if (isSdlXliff && segSourceMatch) {
+      // Parse <mrk mtype="seg" mid="N"> elements from seg-source
+      const mrkRegex = /<mrk\s+mtype="seg"\s+mid="(\d+)"[^>]*>([\s\S]*?)<\/mrk>/gi;
+      const targetContent = content.match(/<target[^>]*>([\s\S]*?)<\/target>/i);
+
+      // Parse sdl:seg-defs for metadata
+      const segDefsContent = content.match(/<sdl:seg-defs[^>]*>([\s\S]*?)<\/sdl:seg-defs>/i);
+      const segMetaMap: Record<string, Record<string, string>> = {};
+      if (segDefsContent) {
+        const segRegex = /<sdl:seg\s+id="(\d+)"([^/]*?)(?:\/>|>[\s\S]*?<\/sdl:seg>)/gi;
+        let segM;
+        while ((segM = segRegex.exec(segDefsContent[1])) !== null) {
+          const attrs: Record<string, string> = {};
+          const attrStr = segM[2];
+          const confM = attrStr.match(/conf="([^"]+)"/);
+          const originM = attrStr.match(/origin="([^"]+)"/);
+          const percentM = attrStr.match(/percent="([^"]+)"/);
+          const lockedM = attrStr.match(/locked="([^"]+)"/);
+          if (confM) attrs.conf = confM[1];
+          if (originM) attrs.origin = originM[1];
+          if (percentM) attrs.percent = percentM[1];
+          if (lockedM) attrs.locked = lockedM[1];
+          segMetaMap[segM[1]] = attrs;
+        }
+      }
+
+      // Extract each <mrk> segment from seg-source
+      let mrkMatch;
+      while ((mrkMatch = mrkRegex.exec(segSourceMatch[1])) !== null) {
+        const mid = mrkMatch[1];
+        const sourceText = stripInlineTags(mrkMatch[2]).trim();
+        if (!sourceText) continue;
+
+        // Find matching target <mrk> with same mid
+        let targetText: string | undefined;
+        if (targetContent) {
+          const tgtMrkRegex = new RegExp(
+            `<mrk\\s+mtype="seg"\\s+mid="${mid}"[^>]*>([\\s\\S]*?)<\\/mrk>`,
+            "i",
+          );
+          const tgtMrk = targetContent[1].match(tgtMrkRegex);
+          if (tgtMrk) {
+            targetText = stripInlineTags(tgtMrk[1]).trim() || undefined;
+          }
+        }
+
+        // Get SDL metadata for this segment
+        const sdlMeta = segMetaMap[mid] || {};
+
         segments.push({
           text: sourceText,
-          targetText: targetText || undefined,
+          targetText,
           metadata: {
             paragraphIndex: index,
             style: "normal",
-            fileFormat: "xliff",
-            xliffId: id,
+            fileFormat: "sdlxliff",
+            xliffId: tuId,
+            segmentMid: mid,
+            ...(sdlMeta.conf && { sdlConf: sdlMeta.conf }),
+            ...(sdlMeta.origin && { sdlOrigin: sdlMeta.origin }),
+            ...(sdlMeta.percent && { sdlPercent: parseInt(sdlMeta.percent, 10) }),
+            ...(sdlMeta.locked === "true" && { locked: true }),
           },
         });
         index++;
       }
+    } else {
+      // Standard XLIFF: use <source> and <target>
+      const sourceMatch = content.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
+      const targetMatch = content.match(/<target[^>]*>([\s\S]*?)<\/target>/i);
+
+      if (sourceMatch) {
+        const sourceText = stripInlineTags(sourceMatch[1]).trim();
+        const targetText = targetMatch
+          ? stripInlineTags(targetMatch[1]).trim()
+          : undefined;
+
+        if (sourceText) {
+          segments.push({
+            text: sourceText,
+            targetText: targetText || undefined,
+            metadata: {
+              paragraphIndex: index,
+              style: "normal",
+              fileFormat: "xliff",
+              xliffId: tuId,
+            },
+          });
+          index++;
+        }
+      }
     }
   }
 
+  // Fallback: XLIFF 2.0 uses <segment> instead of <trans-unit>
   if (segments.length === 0) {
     const unitRegex = /<segment[^>]*>([\s\S]*?)<\/segment>/gi;
     let segMatch;

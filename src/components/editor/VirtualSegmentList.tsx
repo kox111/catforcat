@@ -41,6 +41,8 @@ interface VirtualSegmentListProps {
   requestAISuggestion: () => void;
   onNoteClick: (segment: EditorSegment, comment: string) => void;
   onContextMenu: (e: React.MouseEvent, segmentId: string) => void;
+  tmMatchesBySegment?: Record<string, { score: number; targetText: string }[]>;
+  glossaryMatchCountBySegment?: Record<string, number>;
 }
 
 function getSegmentComment(segment: EditorSegment): string {
@@ -73,6 +75,8 @@ const VirtualSegmentList = forwardRef<
     requestAISuggestion,
     onNoteClick,
     onContextMenu,
+    tmMatchesBySegment = {},
+    glossaryMatchCountBySegment = {},
   } = props;
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -121,11 +125,11 @@ const VirtualSegmentList = forwardRef<
         flex: 1,
         minHeight: 0,
         overflowY: "auto",
-        margin: "0 20px 16px 20px",
-        borderRadius: "var(--radius)",
+        margin: "0 32px 16px 32px",
+        borderRadius: "var(--radius-lg)",
         background: "var(--bg-card)",
-        boxShadow: "0 4px 24px var(--paper-shadow)",
-        border: "1px solid var(--bg-hover)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.10), 0 20px 60px rgba(0,0,0,0.06)",
+        border: "1px solid var(--border)",
         contain: "strict",
       }}
     >
@@ -176,6 +180,8 @@ const VirtualSegmentList = forwardRef<
                 fontSize={fontSize}
                 columnRatio={columnRatio}
                 dimmed={focusMode && !isActive}
+                tmMatches={tmMatchesBySegment[segment.id] || []}
+                glossaryMatchCount={glossaryMatchCountBySegment[segment.id] || 0}
               />
             </div>
           );

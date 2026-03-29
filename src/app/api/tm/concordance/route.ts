@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   // Substring search (case-insensitive) in both source and target
   const queryLower = query.trim().toLowerCase();
   const matches = allEntries.filter(
-    (e) =>
+    (e: { sourceText: string; targetText: string }) =>
       e.sourceText.toLowerCase().includes(queryLower) ||
       e.targetText.toLowerCase().includes(queryLower),
   );
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   const paginated = matches.slice(offset, offset + pageSize);
 
   return NextResponse.json({
-    results: paginated.map((e) => ({
+    results: paginated.map((e: { id: string; sourceText: string; targetText: string; srcLang: string; tgtLang: string; usageCount: number }) => ({
       id: e.id,
       sourceText: e.sourceText,
       targetText: e.targetText,

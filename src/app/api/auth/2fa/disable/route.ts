@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { verifyTOTP } from "@/lib/two-factor";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/auth/2fa/disable
@@ -17,6 +18,14 @@ export async function POST(req: NextRequest) {
 
   if (!token || typeof token !== "string") {
     return NextResponse.json({ error: "token is required" }, { status: 400 });
+  }
+
+  const rateLimit = await checkRateLimit(`2fa-disable:${user.id}`, 5, 300_000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Too many attempts. Try again in 5 minutes." },
+      { status: 429 },
+    );
   }
 
   const userData = await prisma.user.findUnique({

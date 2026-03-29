@@ -49,9 +49,9 @@ export async function POST(
       );
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction([
       // Merge: update first segment with combined text
-      await tx.segment.update({
+      prisma.segment.update({
         where: { id: segmentId },
         data: {
           sourceText: segA.sourceText + " " + segB.sourceText,
@@ -61,18 +61,16 @@ export async function POST(
               : segA.targetText || segB.targetText || "",
           status: "draft",
         },
-      });
-
+      }),
       // Delete second segment
-      await tx.segment.delete({ where: { id: nextSegmentId } });
-
+      prisma.segment.delete({ where: { id: nextSegmentId } }),
       // Shift positions down
-      await tx.$executeRawUnsafe(
+      prisma.$executeRawUnsafe(
         `UPDATE segments SET position = position - 1 WHERE project_id = $1 AND position > $2`,
         id,
         segB.position,
-      );
-    });
+      ),
+    ]);
 
     const allSegments = await prisma.segment.findMany({
       where: { projectId: id },

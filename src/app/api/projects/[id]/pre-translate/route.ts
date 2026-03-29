@@ -55,7 +55,7 @@ export async function POST(
 
   // Get empty segments (no target text or status is "empty")
   const emptySegments = project.segments.filter(
-    (s) => s.targetText.trim() === "" || s.status === "empty",
+    (s: { targetText: string; status: string }) => s.targetText.trim() === "" || s.status === "empty",
   );
 
   if (emptySegments.length === 0) {

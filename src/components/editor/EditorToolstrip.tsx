@@ -138,8 +138,8 @@ function IconBtn({
         onMouseDown={() => setPressed(true)}
         onMouseUp={() => setPressed(false)}
         style={{
-          padding: "5px 8px",
-          borderRadius: 7,
+          padding: "6px 9px",
+          borderRadius: 9999,
           border: active
             ? "0.5px solid var(--accent)"
             : "0.5px solid transparent",
@@ -230,21 +230,28 @@ export default function EditorToolstrip({
     [],
   );
 
-  const [aMinusHover, setAMinusHover] = useState(false);
-  const [aPlusHover, setAPlusHover] = useState(false);
 
   return (
     <div
       style={{
-        height: 36,
         flexShrink: 0,
         display: "flex",
+        justifyContent: "center",
+        padding: "8px 24px 4px",
+      }}
+    >
+    <div
+      style={{
+        display: "flex",
         alignItems: "center",
-        padding: "0 14px",
+        padding: "5px 10px",
         gap: 3,
         background: "var(--bg-panel)",
-        borderBottom: "0.5px solid var(--border)",
-        borderTop: "0.5px solid var(--border)",
+        border: "1px solid var(--border)",
+        borderRadius: 9999,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)",
+        backdropFilter: "blur(12px)",
+        width: "fit-content",
       }}
     >
       {/* ─── Group 1: Search (most used) ─── */}
@@ -317,8 +324,8 @@ export default function EditorToolstrip({
             display: "flex",
             alignItems: "center",
             gap: 6,
-            padding: "4px 12px",
-            borderRadius: 7,
+            padding: "4px 14px",
+            borderRadius: 9999,
             border: "0.5px solid var(--amber-soft)",
             background:
               preHover && !preTranslating
@@ -355,73 +362,7 @@ export default function EditorToolstrip({
       {/* ─── Spacer ─── */}
       <div style={{ flex: 1 }} />
 
-      {/* ─── Group 5: View (font size) ─── */}
-      <button
-        onClick={() => onFontSizeChange?.(Math.max(10, editorFontSize - 2))}
-        disabled={editorFontSize <= 10}
-        onMouseEnter={() => setAMinusHover(true)}
-        onMouseLeave={() => setAMinusHover(false)}
-        style={{
-          padding: "3px 7px",
-          borderRadius: 6,
-          border: `0.5px solid ${aMinusHover && editorFontSize > 10 ? "var(--accent)" : "var(--border)"}`,
-          background: aMinusHover && editorFontSize > 10 ? "var(--glass-bg)" : "transparent",
-          fontFamily: "var(--font-editor-family)",
-          fontSize: 10,
-          color: editorFontSize <= 10
-            ? "var(--text-muted)"
-            : aMinusHover
-              ? "var(--text-primary)"
-              : "var(--text-secondary)",
-          cursor: editorFontSize <= 10 ? "default" : "pointer",
-          opacity: editorFontSize <= 10 ? 0.4 : 1,
-          transition: "all 150ms ease-out",
-          boxShadow: aMinusHover && editorFontSize > 10 ? "var(--btn-glow-hover)" : "none",
-        }}
-        title="Decrease font size"
-      >
-        A−
-      </button>
-      <span
-        style={{
-          fontFamily: "var(--font-editor-family)",
-          fontSize: 10,
-          color: "var(--text-muted)",
-          padding: "0 3px",
-          minWidth: 16,
-          textAlign: "center",
-        }}
-      >
-        {editorFontSize}
-      </span>
-      <button
-        onClick={() => onFontSizeChange?.(Math.min(24, editorFontSize + 2))}
-        disabled={editorFontSize >= 24}
-        onMouseEnter={() => setAPlusHover(true)}
-        onMouseLeave={() => setAPlusHover(false)}
-        style={{
-          padding: "3px 7px",
-          borderRadius: 6,
-          border: `0.5px solid ${aPlusHover && editorFontSize < 24 ? "var(--accent)" : "var(--border)"}`,
-          background: aPlusHover && editorFontSize < 24 ? "var(--glass-bg)" : "transparent",
-          fontFamily: "var(--font-editor-family)",
-          fontSize: 10,
-          color: editorFontSize >= 24
-            ? "var(--text-muted)"
-            : aPlusHover
-              ? "var(--text-primary)"
-              : "var(--text-secondary)",
-          cursor: editorFontSize >= 24 ? "default" : "pointer",
-          opacity: editorFontSize >= 24 ? 0.4 : 1,
-          transition: "all 150ms ease-out",
-          boxShadow: aPlusHover && editorFontSize < 24 ? "var(--btn-glow-hover)" : "none",
-        }}
-        title="Increase font size"
-      >
-        A+
-      </button>
-
-      <Sep />
+      {/* Font size moved to Settings page */}
 
       {/* ─── Group 6: Export — real action button ─── */}
       <div style={{ position: "relative" }}>
@@ -446,8 +387,8 @@ export default function EditorToolstrip({
             display: "flex",
             alignItems: "center",
             gap: 6,
-            padding: "4px 12px",
-            borderRadius: 7,
+            padding: "4px 14px",
+            borderRadius: 9999,
             border: "0.5px solid var(--action-border)",
             background: exportHover
               ? "var(--action-gradient)"
@@ -475,6 +416,7 @@ export default function EditorToolstrip({
         </button>
         <Tooltip label="Export project" visible={exportTipShow} />
       </div>
+    </div>
     </div>
   );
 }

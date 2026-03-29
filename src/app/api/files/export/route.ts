@@ -14,6 +14,8 @@ import {
   exportToSRT,
   exportToPO,
   exportToMarkdown,
+  exportToVTT,
+  exportToYAML,
 } from "@/lib/segmenter";
 /**
  * GET /api/files/export?projectId=xxx&format=txt-bilingual|txt-target|docx|tmx
@@ -71,6 +73,12 @@ export async function GET(req: NextRequest) {
         return exportPoFormat(project);
       case "markdown":
         return exportMarkdownFormat(project);
+      case "vtt":
+        return exportVttFormat(project);
+      case "yaml":
+        return exportYamlFormat(project);
+      case "sdlxliff":
+        return exportXliff(project); // SDLXLIFF exports as standard XLIFF (compatible)
       default:
         return NextResponse.json(
           { error: `Unsupported format: ${format}` },
@@ -570,6 +578,52 @@ function exportHtmlBilingual(project: ProjectWithSegments) {
   return new NextResponse(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+// ─────────────────────────────────────────────
+// VTT — WebVTT subtitles
+// ─────────────────────────────────────────────
+function exportVttFormat(project: ProjectWithSegments) {
+  const content = exportToVTT(
+    project.segments.map((seg) => ({
+      sourceText: seg.sourceText,
+      targetText: seg.targetText,
+      metadata: (seg as unknown as { metadata: string }).metadata
+        ? JSON.parse((seg as unknown as { metadata: string }).metadata || "{}")
+        : {},
+    })),
+  );
+
+  const fileName = `${sanitizeFileName(project.name)}.vtt`;
+  return new NextResponse(content, {
+    headers: {
+      "Content-Type": "text/vtt; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
+}
+
+// ─────────────────────────────────────────────
+// YAML — i18n localization files
+// ─────────────────────────────────────────────
+function exportYamlFormat(project: ProjectWithSegments) {
+  const content = exportToYAML(
+    project.segments.map((seg) => ({
+      sourceText: seg.sourceText,
+      targetText: seg.targetText,
+      metadata: (seg as unknown as { metadata: string }).metadata
+        ? JSON.parse((seg as unknown as { metadata: string }).metadata || "{}")
+        : {},
+    })),
+  );
+
+  const fileName = `${sanitizeFileName(project.name)}.yml`;
+  return new NextResponse(content, {
+    headers: {
+      "Content-Type": "text/yaml; charset=utf-8",
       "Content-Disposition": `attachment; filename="${fileName}"`,
     },
   });

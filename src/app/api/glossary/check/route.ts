@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     // Find which terms appear in the source text (case-insensitive)
     const sourceLower = sourceText.toLowerCase();
-    const found = terms.filter((term) =>
+    const found = terms.filter((term: { sourceTerm: string }) =>
       sourceLower.includes(term.sourceTerm.toLowerCase()),
     );
 

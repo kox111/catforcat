@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     where: { userId: user.id, srcLang, tgtLang },
     select: { sourceText: true },
   });
-  const existingSet = new Set(existing.map((e) => e.sourceText.toLowerCase()));
+  const existingSet = new Set(existing.map((e: { sourceText: string }) => e.sourceText.toLowerCase()));
 
   let imported = 0;
   let skipped = 0;

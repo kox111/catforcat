@@ -21,9 +21,9 @@ export async function GET() {
   });
 
   // Add progress info to each project
-  const projectsWithProgress = projects.map((p) => {
+  const projectsWithProgress = projects.map((p: typeof projects[number]) => {
     const total = p.segments.length;
-    const confirmed = p.segments.filter((s) => s.status === "confirmed").length;
+    const confirmed = p.segments.filter((s: { status: string }) => s.status === "confirmed").length;
     return {
       id: p.id,
       name: p.name,
