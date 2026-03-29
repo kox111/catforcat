@@ -303,8 +303,8 @@ export default function SegmentRow({
         {/* Status: tiny colored dot */}
         <div
           style={{
-            width: 6,
-            height: 6,
+            width: 5,
+            height: 5,
             borderRadius: "50%",
             background:
               segment.reviewStatus === "accepted"
@@ -314,15 +314,16 @@ export default function SegmentRow({
                   : isConfirmed
                     ? "var(--green)"
                     : isDraft
-                      ? "var(--amber)"
+                      ? "var(--text-secondary)"
                       : "var(--text-muted)",
             opacity:
               segment.reviewStatus === "accepted" ||
               segment.reviewStatus === "rejected" ||
-              isConfirmed ||
-              isDraft
-                ? 1
-                : 0.3,
+              isConfirmed
+                ? 0.7
+                : isDraft
+                  ? 0.4
+                  : 0.2,
             transition: "background 200ms",
           }}
         />

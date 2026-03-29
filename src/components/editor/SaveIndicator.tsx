@@ -110,13 +110,13 @@ export default function SaveIndicator({
 
   /* ── Computed styles ── */
 
-  // Dot color: amber (idle/saving), green (saved), red (error)
+  // Dot color: muted (idle/saving), green (saved), red (error)
   const dotColor =
     phase === "error"
       ? "var(--red)"
       : phase === "saved"
         ? "var(--green)"
-        : "var(--amber)";
+        : "var(--text-muted)";
 
   const dotPulse =
     phase === "saving" ? "saveIndicatorPulse 2s ease-in-out infinite" : "none";
