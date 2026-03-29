@@ -217,21 +217,27 @@ function TourTooltip({
     };
   } else {
     const gap = 16;
+    const tooltipW = 360;
+    const margin = 16;
+    // Clamp horizontal position to stay within viewport
+    const clampLeft = (idealLeft: number) =>
+      Math.max(margin, Math.min(idealLeft, window.innerWidth - tooltipW - margin));
+
     switch (step.position) {
       case "bottom":
         tooltipStyle.top = rect.bottom + gap;
-        tooltipStyle.left = Math.max(16, rect.left + rect.width / 2 - 180);
+        tooltipStyle.left = clampLeft(rect.left + rect.width / 2 - tooltipW / 2);
         break;
       case "top":
         tooltipStyle.bottom = window.innerHeight - rect.top + gap;
-        tooltipStyle.left = Math.max(16, rect.left + rect.width / 2 - 180);
+        tooltipStyle.left = clampLeft(rect.left + rect.width / 2 - tooltipW / 2);
         break;
       case "left":
-        tooltipStyle.top = rect.top + rect.height / 2 - 80;
+        tooltipStyle.top = Math.max(margin, rect.top + rect.height / 2 - 80);
         tooltipStyle.right = window.innerWidth - rect.left + gap;
         break;
       case "right":
-        tooltipStyle.top = rect.top + rect.height / 2 - 80;
+        tooltipStyle.top = Math.max(margin, rect.top + rect.height / 2 - 80);
         tooltipStyle.left = rect.right + gap;
         break;
     }
