@@ -1138,10 +1138,30 @@ export default function EditorPage({
         return;
       }
 
-      // Ctrl+I — copy source to target
-      if (e.ctrlKey && e.key === "i") {
+      // Ctrl+D — copy source to target (D = Duplicate)
+      if (e.ctrlKey && !e.shiftKey && e.key === "d") {
         e.preventDefault();
         copySourceToTarget(activeSegmentId);
+        return;
+      }
+
+      // Ctrl+G — go to segment
+      if (e.ctrlKey && !e.shiftKey && e.key === "g") {
+        e.preventDefault();
+        setGoToOpen(true);
+        return;
+      }
+
+      // Ctrl+E — add to glossary
+      if (e.ctrlKey && !e.shiftKey && e.key === "e") {
+        e.preventDefault();
+        const seg = segments.find((s) => s.id === activeSegmentId);
+        if (seg) {
+          const selection = window.getSelection()?.toString().trim();
+          setAddGlossaryModal({
+            sourceTerm: selection || seg.sourceText.slice(0, 100),
+          });
+        }
         return;
       }
 

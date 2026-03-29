@@ -20,35 +20,36 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
   {
     title: "Translation",
     shortcuts: [
-      { keys: "Ctrl + Enter", description: "Confirm segment" },
-      {
-        keys: "Ctrl + Shift + Enter",
-        description: "AI translation suggestion",
-      },
-      { keys: "Ctrl + I", description: "Copy source to target" },
+      { keys: "Ctrl + Enter", description: "Confirm segment + next" },
+      { keys: "Ctrl + Shift + Enter", description: "AI translation suggestion" },
+      { keys: "Ctrl + D", description: "Copy source to target" },
       { keys: "Ctrl + 1/2/3", description: "Apply TM match #1/2/3" },
     ],
   },
   {
-    title: "Search & Memory",
+    title: "Navigation",
     shortcuts: [
-      { keys: "Ctrl + F", description: "Search & replace" },
+      { keys: "Ctrl + ↑ / ↓", description: "Previous / next segment" },
+      { keys: "Ctrl + G", description: "Go to segment" },
+      { keys: "F11", description: "Fullscreen" },
+    ],
+  },
+  {
+    title: "Search & Reference",
+    shortcuts: [
+      { keys: "Ctrl + H", description: "Find & replace" },
       { keys: "Ctrl + K", description: "Concordance search (TM)" },
+      { keys: "Ctrl + E", description: "Add to glossary" },
+      { keys: "Ctrl + Q", description: "Run QA check" },
     ],
   },
   {
     title: "Editing",
     shortcuts: [
-      { keys: "Ctrl + Z", description: "Undo (per segment)" },
-      { keys: "Ctrl + Shift + Z", description: "Redo (per segment)" },
-      { keys: "Ctrl + S", description: "Force save" },
-    ],
-  },
-  {
-    title: "Panels & Tools",
-    shortcuts: [
-      { keys: "Ctrl + /", description: "Show this shortcuts panel" },
-      { keys: "Right-click", description: "Context menu (split, merge, note)" },
+      { keys: "Ctrl + Z", description: "Undo" },
+      { keys: "Ctrl + Shift + Z", description: "Redo" },
+      { keys: "Ctrl + /", description: "Show shortcuts" },
+      { keys: "Right-click", description: "Context menu" },
     ],
   },
 ];

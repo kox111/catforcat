@@ -230,9 +230,9 @@ export default function EditorToolbar({
         flexShrink: 0,
       }}
     >
-      {/* ── LEFT: Breadcrumbs ── */}
+      {/* ── LEFT: Logo (link back) + Project name ── */}
       <div
-        style={{ display: "flex", alignItems: "center", gap: 0, minWidth: 0, flex: 1 }}
+        style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}
       >
         <Link
           href="/app/projects"
@@ -247,70 +247,26 @@ export default function EditorToolbar({
             transition: "opacity 150ms",
             flexShrink: 0,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.6")}
           onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          title="Back to projects"
         >
           catforcat.
         </Link>
 
         <span
           style={{
-            fontFamily: "var(--font-editor-family)",
-            fontSize: 8,
-            fontWeight: 600,
-            letterSpacing: "0.05em",
-            color: "var(--text-muted)",
-            background: "var(--glass-bg)",
-            border: "0.5px solid var(--border)",
-            borderRadius: 4,
-            padding: "1px 4px",
-            marginLeft: 6,
-            flexShrink: 0,
-            lineHeight: 1.4,
-          }}
-        >
-          BETA
-        </span>
-
-        <span
-          style={{
-            color: "var(--text-muted)",
-            fontSize: 13,
-            margin: "0 8px",
-            userSelect: "none",
-            flexShrink: 0,
-          }}
-        >
-          ›
-        </span>
-
-        <span
-          style={{
             fontFamily: "var(--font-ui-family)",
             fontSize: 13,
+            fontWeight: 500,
             color: "var(--text-primary)",
-            maxWidth: 200,
+            maxWidth: 280,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           }}
         >
           {projectName}
-        </span>
-
-        <span
-          style={{
-            fontFamily: "var(--font-editor-family)",
-            fontSize: 11,
-            color: "var(--text-secondary)",
-            background: "var(--bg-card)",
-            padding: "2px 8px",
-            borderRadius: 4,
-            marginLeft: 12,
-            flexShrink: 0,
-          }}
-        >
-          {srcLang} → {tgtLang}
         </span>
       </div>
 
@@ -327,33 +283,26 @@ export default function EditorToolbar({
           <button
             onClick={() => onPreTranslate?.("full")}
             disabled={preTranslating}
-            onMouseEnter={() => setPreHover(true)}
-            onMouseLeave={() => setPreHover(false)}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
-              padding: "4px 14px",
-              borderRadius: 7,
-              border: "0.5px solid var(--amber-soft)",
-              background:
-                preHover && !preTranslating
-                  ? "linear-gradient(135deg, var(--amber-soft), transparent)"
-                  : "var(--glass-bg)",
-              color: preTranslating ? "var(--text-muted)" : "var(--amber-text)",
+              gap: 5,
+              padding: "5px 14px",
+              borderRadius: "var(--radius-sm)",
+              border: "none",
+              background: preTranslating ? "var(--bg-hover)" : "var(--accent)",
+              color: preTranslating ? "var(--text-muted)" : "#fff",
               cursor: preTranslating ? "not-allowed" : "pointer",
               opacity: preTranslating ? 0.5 : 1,
               fontFamily: "var(--font-ui-family)",
               fontSize: 11,
-              fontWeight: 450,
-              transition: "all 180ms ease-out",
-              boxShadow:
-                preHover && !preTranslating
-                  ? "0 0 14px var(--amber-soft), var(--btn-depth)"
-                  : "var(--btn-depth)",
+              fontWeight: 500,
+              transition: "opacity 150ms ease",
             }}
+            onMouseEnter={(e) => { if (!preTranslating) e.currentTarget.style.opacity = "0.85"; }}
+            onMouseLeave={(e) => { if (!preTranslating) e.currentTarget.style.opacity = "1"; }}
           >
-            <Sparkles size={13} />
+            <Sparkles size={12} />
             <span>Pre-translate</span>
           </button>
 
@@ -428,90 +377,32 @@ export default function EditorToolbar({
           justifyContent: "flex-end",
         }}
       >
-        {/* Font size controls */}
-        {!isCompact && (
-          <div style={{ display: "flex", alignItems: "center", gap: 2, marginRight: 4 }}>
-            <button
-              onClick={() => onFontSizeChange?.(Math.max(10, editorFontSize - 2))}
-              disabled={editorFontSize <= 10}
-              onMouseEnter={() => setAMinusHover(true)}
-              onMouseLeave={() => setAMinusHover(false)}
-              style={{
-                padding: "2px 6px",
-                borderRadius: 5,
-                border: `0.5px solid ${aMinusHover && editorFontSize > 10 ? "var(--accent)" : "var(--border)"}`,
-                background: aMinusHover && editorFontSize > 10 ? "var(--glass-bg)" : "transparent",
-                fontFamily: "var(--font-editor-family)",
-                fontSize: 10,
-                color: editorFontSize <= 10 ? "var(--text-muted)" : aMinusHover ? "var(--text-primary)" : "var(--text-secondary)",
-                cursor: editorFontSize <= 10 ? "default" : "pointer",
-                opacity: editorFontSize <= 10 ? 0.4 : 1,
-                transition: "all 150ms ease-out",
-              }}
-            >
-              A−
-            </button>
-            <span
-              style={{
-                fontFamily: "var(--font-editor-family)",
-                fontSize: 10,
-                color: "var(--text-muted)",
-                padding: "0 2px",
-                minWidth: 14,
-                textAlign: "center",
-              }}
-            >
-              {editorFontSize}
-            </span>
-            <button
-              onClick={() => onFontSizeChange?.(Math.min(24, editorFontSize + 2))}
-              disabled={editorFontSize >= 24}
-              onMouseEnter={() => setAPlusHover(true)}
-              onMouseLeave={() => setAPlusHover(false)}
-              style={{
-                padding: "2px 6px",
-                borderRadius: 5,
-                border: `0.5px solid ${aPlusHover && editorFontSize < 24 ? "var(--accent)" : "var(--border)"}`,
-                background: aPlusHover && editorFontSize < 24 ? "var(--glass-bg)" : "transparent",
-                fontFamily: "var(--font-editor-family)",
-                fontSize: 10,
-                color: editorFontSize >= 24 ? "var(--text-muted)" : aPlusHover ? "var(--text-primary)" : "var(--text-secondary)",
-                cursor: editorFontSize >= 24 ? "default" : "pointer",
-                opacity: editorFontSize >= 24 ? 0.4 : 1,
-                transition: "all 150ms ease-out",
-              }}
-            >
-              A+
-            </button>
-          </div>
-        )}
-
-        {/* Separator */}
-        {!isCompact && (
-          <div style={{ width: 0.5, height: 16, background: "var(--border)", margin: "0 4px", opacity: 0.5 }} />
-        )}
-
         {/* Export button */}
         <div ref={dropdownRef} style={{ position: "relative" }}>
           <button
             onClick={() => setExportOpen(!exportOpen)}
-            onMouseEnter={() => setExportHover(true)}
-            onMouseLeave={() => setExportHover(false)}
             style={{
               display: "flex",
               alignItems: "center",
               gap: 5,
-              padding: "4px 12px",
-              borderRadius: 7,
-              border: "0.5px solid var(--action-border)",
-              background: exportHover ? "var(--action-gradient)" : "var(--glass-bg)",
-              color: exportHover ? "var(--green-text)" : "var(--text-secondary)",
+              padding: "5px 14px",
+              borderRadius: "var(--radius-sm)",
+              border: "0.5px solid var(--border)",
+              background: "transparent",
+              color: "var(--text-secondary)",
               cursor: "pointer",
               fontFamily: "var(--font-ui-family)",
               fontSize: 11,
-              fontWeight: 450,
-              transition: "all 180ms ease-out",
-              boxShadow: exportHover ? "var(--action-glow), var(--btn-depth)" : "var(--btn-depth)",
+              fontWeight: 500,
+              transition: "color 150ms ease, border-color 150ms ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--text-primary)";
+              e.currentTarget.style.borderColor = "var(--accent)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--text-secondary)";
+              e.currentTarget.style.borderColor = "var(--border)";
             }}
           >
             <Download size={12} />
@@ -603,9 +494,6 @@ export default function EditorToolbar({
             {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
           </button>
         )}
-
-        {/* Separator */}
-        <div style={{ width: 0.5, height: 16, background: "var(--border)", margin: "0 2px", opacity: 0.5 }} />
 
         {/* Save indicator */}
         <SaveIndicator
