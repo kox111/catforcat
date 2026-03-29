@@ -132,37 +132,49 @@ export default function StatusBar({
         )}
       </div>
 
-      {/* Right: Provider pill */}
+      {/* Right: Powered by [provider] */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <button
           onClick={onProviderClick}
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
             background: "var(--glass-bg)",
             border: "0.5px solid var(--glass-border)",
             borderRadius: 6,
             padding: "2px 10px",
             fontSize: 9,
-            color: "var(--text-secondary)",
-            fontFamily: "var(--font-editor-family)",
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-ui-family)",
             cursor: "pointer",
             transition: "all 180ms ease-out",
             boxShadow: "var(--btn-depth)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "var(--text-primary)";
+            e.currentTarget.style.color = "var(--text-secondary)";
             e.currentTarget.style.borderColor = "var(--accent)";
             e.currentTarget.style.boxShadow = "var(--btn-glow-hover)";
             e.currentTarget.style.transform = "translateY(-1px)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "var(--text-secondary)";
+            e.currentTarget.style.color = "var(--text-muted)";
             e.currentTarget.style.borderColor = "var(--glass-border)";
             e.currentTarget.style.boxShadow = "var(--btn-depth)";
             e.currentTarget.style.transform = "none";
           }}
           title="Change translation provider"
         >
-          {translationProvider}
+          <span style={{ letterSpacing: "0.02em" }}>powered by</span>
+          <span
+            style={{
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              letterSpacing: "0.01em",
+            }}
+          >
+            {translationProvider}
+          </span>
         </button>
       </div>
     </div>
