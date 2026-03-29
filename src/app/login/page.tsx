@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needs2FA, setNeeds2FA] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,14 +21,29 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
+      const credentials: Record<string, string> = {
         email,
         password,
+        redirect: "false",
+      };
+      if (needs2FA) {
+        credentials.totpToken = totpCode;
+      }
+
+      const result = await signIn("credentials", {
+        ...credentials,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        if (result.error.includes("2FA_REQUIRED")) {
+          setNeeds2FA(true);
+          setError("");
+        } else if (result.error.includes("2FA_INVALID")) {
+          setError("Invalid 2FA code. Please try again.");
+        } else {
+          setError("Invalid email or password");
+        }
       } else {
         router.push("/app/projects");
       }
@@ -112,49 +129,101 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 16 }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  marginBottom: 4,
-                  color: "var(--text-muted)",
-                }}
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={inputStyle}
-                placeholder="you@example.com"
-              />
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 12,
-                  marginBottom: 4,
-                  color: "var(--text-muted)",
-                }}
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={inputStyle}
-                placeholder="••••••••"
-              />
-            </div>
+            {!needs2FA && (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      marginBottom: 4,
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    style={inputStyle}
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      marginBottom: 4,
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    style={inputStyle}
+                    placeholder="••••••••"
+                  />
+                </div>
+              </>
+            )}
+
+            {needs2FA && (
+              <div style={{ marginBottom: 16 }}>
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                    marginBottom: 14,
+                    textAlign: "center",
+                  }}
+                >
+                  Enter the 6-digit code from your authenticator app.
+                </p>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 12,
+                    marginBottom: 6,
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  Authentication code
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={totpCode}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setTotpCode(v);
+                    setError("");
+                  }}
+                  placeholder="000000"
+                  autoFocus
+                  autoComplete="one-time-code"
+                  style={{
+                    ...inputStyle,
+                    fontSize: 22,
+                    fontFamily: "'Courier New', Courier, monospace",
+                    fontWeight: 600,
+                    letterSpacing: "0.35em",
+                    textAlign: "center",
+                  }}
+                />
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (needs2FA && totpCode.length !== 6)}
               style={{
                 width: "100%",
                 padding: "10px 0",
@@ -164,14 +233,39 @@ export default function LoginPage() {
                 background: "var(--btn-bg)",
                 color: "var(--text-primary)",
                 border: "1px solid var(--btn-border)",
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.6 : 1,
+                cursor: loading || (needs2FA && totpCode.length !== 6) ? "not-allowed" : "pointer",
+                opacity: loading || (needs2FA && totpCode.length !== 6) ? 0.6 : 1,
                 transition: "background 150ms",
                 fontFamily: "'Inter', system-ui, sans-serif",
               }}
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Signing in..." : needs2FA ? "Verify & Sign In" : "Sign In"}
             </button>
+
+            {needs2FA && (
+              <button
+                type="button"
+                onClick={() => {
+                  setNeeds2FA(false);
+                  setTotpCode("");
+                  setError("");
+                }}
+                style={{
+                  width: "100%",
+                  marginTop: 8,
+                  padding: "8px 0",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  background: "transparent",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}
+              >
+                Back to login
+              </button>
+            )}
           </form>
 
           <p

@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.1] - 2026-03-28
+
+### New
+- Virtualized segment list — editor now handles 5,000+ segments without performance issues
+- Two-Factor Authentication (2FA) with TOTP — setup via QR code in Settings, required on login when enabled
+- Persistent rate limiting — API rate limits now survive server restarts
+
+### Changed
+- Security headers upgraded: added Content-Security-Policy, Strict-Transport-Security, DNS prefetch control
+- Scroll-to-segment behavior improved for keyboard navigation and QA panel links
+
+---
+
 ## [1.0.0] - 2026-03-27
 
 ### New

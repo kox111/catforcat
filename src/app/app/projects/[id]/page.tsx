@@ -7,7 +7,9 @@ import { useEditorStore } from "@/lib/store";
 import EditorToolbar from "@/components/editor/EditorToolbar";
 import EditorSidebar from "@/components/editor/EditorSidebar";
 import StatusBar from "@/components/editor/StatusBar";
-import SegmentRow from "@/components/editor/SegmentRow";
+import VirtualSegmentList, {
+  type VirtualSegmentListHandle,
+} from "@/components/editor/VirtualSegmentList";
 import TMPanel from "@/components/editor/TMPanel";
 import GlossaryPanel from "@/components/editor/GlossaryPanel";
 import QAPanel from "@/components/editor/QAPanel";
@@ -94,6 +96,7 @@ export default function EditorPage({
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const segmentRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
+  const virtualListRef = useRef<VirtualSegmentListHandle>(null);
   const tmMatchesRef = useRef<TMMatch[]>([]);
   const [tmPanelVisible, setTmPanelVisible] = useState(true);
   const [glossaryTerms, setGlossaryTerms] = useState<
@@ -937,14 +940,15 @@ export default function EditorPage({
     };
   }, [resetSaveTimer]);
 
-  // Scroll to active segment
+  // Scroll to active segment via virtualizer
   useEffect(() => {
     if (activeSegmentId) {
-      const el = segmentRefs.current.get(activeSegmentId);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        el.focus();
-      }
+      virtualListRef.current?.scrollToSegment(activeSegmentId);
+      // Focus the textarea after scroll settles
+      requestAnimationFrame(() => {
+        const el = segmentRefs.current.get(activeSegmentId);
+        if (el) el.focus();
+      });
     }
   }, [activeSegmentId]);
 
@@ -1759,6 +1763,7 @@ export default function EditorPage({
 
         {/* Content area */}
         <div
+          data-editor-content
           style={{
             flex: 1,
             minHeight: 0,
@@ -1833,74 +1838,41 @@ export default function EditorPage({
             </div>
           </div>
 
-          {/* Two floating paper documents */}
-          <div
-            data-editor-content
-            style={{
-              flex: 1,
-              minHeight: 0,
-              overflowY: "auto",
-              margin: "0 20px 16px 20px",
-              borderRadius: "var(--radius)",
-              background: "var(--bg-card)",
-              boxShadow: "0 4px 24px var(--paper-shadow)",
-              border: "1px solid var(--bg-hover)",
+          {/* Virtualized segment list */}
+          <VirtualSegmentList
+            ref={virtualListRef}
+            segments={filteredSegments}
+            activeSegmentId={activeSegmentId}
+            glossaryTerms={glossaryTerms}
+            allGlossarySourceTerms={allGlossarySourceTerms}
+            online={online}
+            aiLoading={aiLoading}
+            tgtLang={project.tgtLang}
+            fontSize={editorFontSize}
+            columnRatio={columnRatio}
+            focusMode={focusMode}
+            onActivate={(segmentId) => setActiveSegment(segmentId)}
+            onTargetChange={(segmentId, text) => {
+              trackUndoHistory(segmentId, text);
+              updateSegmentTarget(segmentId, text);
             }}
-          >
-            {filteredSegments.map((segment) => {
-              let segComment = "";
-              try {
-                const meta = JSON.parse(segment.metadata || "{}");
-                segComment = meta.comment || "";
-              } catch {
-                /* ignore */
-              }
-
-              return (
-                <SegmentRow
-                  key={segment.id}
-                  segment={segment}
-                  isActive={segment.id === activeSegmentId}
-                  onActivate={() => setActiveSegment(segment.id)}
-                  onTargetChange={(text) => {
-                    trackUndoHistory(segment.id, text);
-                    updateSegmentTarget(segment.id, text);
-                  }}
-                  registerRef={(el) => registerRef(segment.id, el)}
-                  highlightTerms={
-                    segment.id === activeSegmentId
-                      ? glossaryTerms.map((t) => t.sourceTerm)
-                      : allGlossarySourceTerms
-                  }
-                  onRequestAI={
-                    segment.id === activeSegmentId && online
-                      ? requestAISuggestion
-                      : undefined
-                  }
-                  aiLoading={segment.id === activeSegmentId ? aiLoading : false}
-                  tgtLang={project.tgtLang}
-                  comment={segComment}
-                  onNoteClick={() =>
-                    setNoteModal({
-                      segmentId: segment.id,
-                      position: segment.position,
-                      note: segComment,
-                    })
-                  }
-                  onContextMenu={(e) =>
-                    setContextMenu({
-                      x: e.clientX,
-                      y: e.clientY,
-                      segmentId: segment.id,
-                    })
-                  }
-                  fontSize={editorFontSize}
-                  columnRatio={columnRatio}
-                  dimmed={focusMode && segment.id !== activeSegmentId}
-                />
-              );
-            })}
-          </div>
+            registerRef={registerRef}
+            requestAISuggestion={requestAISuggestion}
+            onNoteClick={(segment, comment) =>
+              setNoteModal({
+                segmentId: segment.id,
+                position: segment.position,
+                note: comment,
+              })
+            }
+            onContextMenu={(e, segmentId) =>
+              setContextMenu({
+                x: e.clientX,
+                y: e.clientY,
+                segmentId,
+              })
+            }
+          />
 
           {/* QA Panel */}
           {qaVisible && qaIssues !== undefined && (

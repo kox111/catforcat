@@ -18,6 +18,7 @@ export async function GET() {
       aiRequestsResetAt: true,
       stripeSubscriptionId: true,
       stripeCurrentPeriodEnd: true,
+      twoFactorEnabled: true,
     },
   });
 
@@ -44,5 +45,6 @@ export async function GET() {
     aiRequestsLimit: aiLimit,
     hasSubscription: !!userData.stripeSubscriptionId,
     subscriptionEndsAt: userData.stripeCurrentPeriodEnd?.toISOString() || null,
+    twoFactorEnabled: userData.twoFactorEnabled,
   });
 }

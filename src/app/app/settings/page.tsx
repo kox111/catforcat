@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useViewScale } from "@/components/ViewScaleProvider";
 import { type ScaleMode, SCALE_MODES, MODE_ORDER } from "@/lib/view-scale";
+import TwoFactorSetup from "@/components/TwoFactorSetup";
 
 interface SettingsData {
   plan: string;
@@ -13,6 +14,7 @@ interface SettingsData {
   aiRequestsLimit: number;
   hasSubscription: boolean;
   subscriptionEndsAt: string | null;
+  twoFactorEnabled: boolean;
 }
 
 export default function SettingsPage() {
@@ -103,21 +105,23 @@ export default function SettingsPage() {
     }
   };
 
-  useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const res = await fetch("/api/settings");
-        if (res.ok) {
-          const data: SettingsData = await res.json();
-          setSettings(data);
-        }
-      } catch {
-        // silent
-      } finally {
-        setLoading(false);
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch("/api/settings");
+      if (res.ok) {
+        const data: SettingsData = await res.json();
+        setSettings(data);
       }
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleUpgrade = async () => {
@@ -756,6 +760,28 @@ export default function SettingsPage() {
                 );
               })}
             </div>
+          </section>
+
+          {/* Security Section */}
+          <section
+            style={{
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "24px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <h2
+              className="text-sm font-semibold mb-4"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Security
+            </h2>
+            <TwoFactorSetup
+              isEnabled={settings?.twoFactorEnabled ?? false}
+              onStatusChange={fetchSettings}
+            />
           </section>
 
           {/* Account Section */}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/translate
@@ -16,28 +17,6 @@ import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
  * Rate limited to 30 requests/minute per user.
  * Monthly AI request limits: Free = 500/month, Pro = unlimited.
  */
-
-// ─────────────────────────────────────────────
-// Rate Limiter (in-memory, sliding window)
-// ─────────────────────────────────────────────
-const rateLimitMap = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 30;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(userId) || [];
-  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-
-  if (recent.length >= RATE_LIMIT_MAX) {
-    rateLimitMap.set(userId, recent);
-    return false;
-  }
-
-  recent.push(now);
-  rateLimitMap.set(userId, recent);
-  return true;
-}
 
 // ─────────────────────────────────────────────
 // Plan limits for AI requests per month
@@ -100,10 +79,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Rate limit check (per-minute)
-  if (!checkRateLimit(userData.id)) {
+  // Rate limit check (per-minute, DB-backed)
+  const rateKey = `translate:${userData.id}`;
+  const rateLimit = await checkRateLimit(rateKey, 30, 60_000);
+
+  if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Rate limit exceeded. Maximum 30 requests per minute." },
+      { error: "Rate limit exceeded", retryAfter: Math.ceil((rateLimit.resetAt.getTime() - Date.now()) / 1000) },
       { status: 429 },
     );
   }
