@@ -199,7 +199,7 @@ export default function ThemeOnboarding() {
                       style={{
                         fontSize: 6,
                         color: t.lineText,
-                        fontFamily: "'Inter', sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                         marginBottom: 2,
                       }}
                     >
@@ -209,7 +209,7 @@ export default function ThemeOnboarding() {
                       style={{
                         fontSize: 6,
                         color: t.lineMuted,
-                        fontFamily: "'Inter', sans-serif",
+                        fontFamily: "var(--font-ui-family)",
                       }}
                     >
                       Target translation...

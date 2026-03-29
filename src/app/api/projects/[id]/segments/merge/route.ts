@@ -68,7 +68,7 @@ export async function POST(
 
       // Shift positions down
       await tx.$executeRawUnsafe(
-        `UPDATE segments SET position = position - 1 WHERE project_id = ? AND position > ?`,
+        `UPDATE segments SET position = position - 1 WHERE project_id = $1 AND position > $2`,
         id,
         segB.position,
       );

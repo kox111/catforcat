@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/projects/[id]/smart-review
@@ -14,30 +15,8 @@ import { getPrivacyConfig, type PrivacyLevel } from "@/lib/privacy";
  * - If omitted: review all segments with non-empty targetText
  *
  * Rate limited to 30 requests/minute per user.
- * Monthly AI request limits: Free = 500/month, Pro = unlimited.
+ * Monthly AI request limits: Free = 5000/month, Pro = unlimited.
  */
-
-// ─────────────────────────────────────────────
-// Rate Limiter (in-memory, sliding window)
-// ─────────────────────────────────────────────
-const rateLimitMap = new Map<string, number[]>();
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 30;
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(userId) || [];
-  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-
-  if (recent.length >= RATE_LIMIT_MAX) {
-    rateLimitMap.set(userId, recent);
-    return false;
-  }
-
-  recent.push(now);
-  rateLimitMap.set(userId, recent);
-  return true;
-}
 
 // ─────────────────────────────────────────────
 // Plan limits for AI requests per month
@@ -89,8 +68,9 @@ export async function POST(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Rate limit check (per-minute)
-  if (!checkRateLimit(user.id)) {
+  // Rate limit check (per-minute, DB-backed)
+  const rateLimit = await checkRateLimit(`smart-review:${user.id}`, 30, 60_000);
+  if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Rate limit exceeded. Maximum 30 requests per minute." },
       { status: 429 },
@@ -237,16 +217,22 @@ async function scoreSegment(
   srcLang: string,
   tgtLang: string,
 ): Promise<LLMScore> {
-  const prompt = `You are a professional translation quality evaluator.
+  // Sanitize user text to prevent prompt injection
+  const sanitize = (text: string) =>
+    text.replace(/["""]/g, "'").replace(/\n/g, " ").slice(0, 2000);
 
-Source (${srcLang}): "${sourceText}"
-Translation (${tgtLang}): "${targetText}"
+  const prompt = `You are a professional translation quality evaluator. Rate the following translation from 0 to 100.
 
-Rate this translation from 0 to 100 and explain your rating in one sentence.
 Consider: accuracy, fluency, terminology consistency, grammar.
 
-Respond in JSON format ONLY:
-{"score": 85, "reason": "Accurate translation with natural flow, minor stylistic improvement possible in the second clause."}`;
+Source language: ${srcLang}
+Target language: ${tgtLang}
+
+<source_text>${sanitize(sourceText)}</source_text>
+<translation>${sanitize(targetText)}</translation>
+
+Respond in JSON format ONLY, nothing else:
+{"score": 85, "reason": "One sentence explanation."}`;
 
   // Try OpenAI API first (if configured)
   const openaiKey = process.env.OPENAI_API_KEY;

@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
   if (tgtLang) where.tgtLang = tgtLang;
   if (query) {
     where.OR = [
-      { sourceTerm: { contains: query } },
-      { targetTerm: { contains: query } },
+      { sourceTerm: { contains: query, mode: "insensitive" as const } },
+      { targetTerm: { contains: query, mode: "insensitive" as const } },
     ];
   }
 

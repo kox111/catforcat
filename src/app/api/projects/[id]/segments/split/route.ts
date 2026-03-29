@@ -50,7 +50,7 @@ export async function POST(
     const result = await prisma.$transaction(async (tx) => {
       // Shift all segments after this one up by 1
       await tx.$executeRawUnsafe(
-        `UPDATE segments SET position = position + 1 WHERE project_id = ? AND position > ?`,
+        `UPDATE segments SET position = position + 1 WHERE project_id = $1 AND position > $2`,
         id,
         segment.position,
       );

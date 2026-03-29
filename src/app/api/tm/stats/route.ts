@@ -16,7 +16,7 @@ export async function GET() {
       where: { userId: user.id },
     });
 
-    // All entries for aggregation (we do it in JS since SQLite grouping is limited with Prisma)
+    // All entries for aggregation
     const allEntries = await prisma.translationMemory.findMany({
       where: { userId: user.id },
       select: {

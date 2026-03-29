@@ -445,7 +445,7 @@ textarea:focus:not([data-editor-textarea]) {
 /* ─── Editor document typography ─── */
 .editor-source,
 .editor-target {
-  font-family: var(--font-inter, "Inter"), system-ui, sans-serif;
+  font-family: var(--font-ui-family);
   font-size: 15px;
   line-height: 1.7;
   letter-spacing: 0.01em;

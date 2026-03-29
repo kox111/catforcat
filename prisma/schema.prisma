@@ -61,7 +61,7 @@ model Segment {
   targetText         String   @default("") @map("target_text")
   status             String   @default("empty") // empty | draft | confirmed
   tmMatchPct         Int      @default(0) @map("tm_match_pct")
-  metadata           String   @default("{}") // JSON string (SQLite doesn't have JSONB)
+  metadata           String   @default("{}") // JSON string
   previousTargetText String   @default("") @map("previous_target_text")
   reviewStatus       String   @default("pending") @map("review_status") // pending | accepted | rejected
   reviewedBy         String?  @map("reviewed_by")
