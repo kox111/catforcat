@@ -31,7 +31,7 @@ export const PLANS = {
     price: 0,
     limits: {
       projects: 3,
-      segmentsPerProject: 500,
+      segmentsPerProject: 2000,
       tmEntries: 1000,
       glossaryTerms: 200,
       aiRequestsPerMonth: 5000,
