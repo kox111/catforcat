@@ -482,7 +482,8 @@ export default function SegmentRow({
           fontSize: `${fontSize}px`,
           lineHeight: "1.7",
           letterSpacing: "0.01em",
-          userSelect: "text",
+          userSelect: isActive ? "text" : "none",
+          cursor: isActive ? "text" : "pointer",
         }}
       >
         <HighlightedSource
@@ -568,6 +569,7 @@ export default function SegmentRow({
             letterSpacing: "0.01em",
             resize: "none",
             outline: "none",
+            cursor: isActive ? "text" : "pointer",
             transition:
               "color 200ms, border-color 150ms ease, background 150ms ease",
             boxShadow: isActive ? "inset 0 1px 3px rgba(0,0,0,0.04)" : "none",
