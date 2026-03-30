@@ -515,6 +515,43 @@ export default function SegmentRow({
           position: "relative",
         }}
       >
+        {/* AI Loading indicator */}
+        {aiLoading && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 10px",
+              marginBottom: 6,
+              borderRadius: "var(--radius-sm)",
+              background: "var(--accent-soft)",
+              border: "1px solid var(--border)",
+              animation: "tourFadeIn 200ms ease-out",
+            }}
+          >
+            <div
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                border: "2px solid var(--border)",
+                borderTopColor: "var(--accent)",
+                animation: "spin 800ms linear infinite",
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11,
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-ui-family)",
+              }}
+            >
+              Translating...
+            </span>
+          </div>
+        )}
+
         {/* B.1 — Review diff */}
         {reviewMode &&
           segment.previousTargetText &&
