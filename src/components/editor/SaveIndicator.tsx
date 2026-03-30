@@ -59,7 +59,7 @@ export default function SaveIndicator({
     setCheckDrawn(false);
   }, [lastSavedAt]);
 
-  /* ── Slow typewriter for "Saving..." — 1 char per ~1.5s ── */
+  /* ── Typewriter for "Saving..." — human typing speed ~220ms/char ── */
   useEffect(() => {
     if (phase !== "saving") return;
     setSavingChars(0);
@@ -71,11 +71,11 @@ export default function SaveIndicator({
         }
         return p + 1;
       });
-    }, 1500);
+    }, 220);
     return () => clearInterval(iv);
   }, [phase]);
 
-  /* ── Fast typewriter for "Saved" — 90ms per char, then draw check ── */
+  /* ── Typewriter for "Saved" — human speed ~200ms/char, then draw check ── */
   useEffect(() => {
     if (phase !== "saved") return;
     setSavedChars(0);
@@ -84,27 +84,26 @@ export default function SaveIndicator({
       setSavedChars((p) => {
         if (p >= SAVED_TEXT.length) {
           clearInterval(iv);
-          setTimeout(() => setCheckDrawn(true), 100);
+          setTimeout(() => setCheckDrawn(true), 300);
           return p;
         }
         return p + 1;
       });
-    }, 90);
+    }, 200);
     return () => clearInterval(iv);
   }, [phase]);
 
-  /* ── After 1.5s in "saved" → back to idle or saving ── */
+  /* ── After 2.5s in "saved" → back to idle or saving ── */
   useEffect(() => {
     if (phase !== "saved") return;
     const t = setTimeout(() => {
-      // If new changes appeared during "saved" animation, go to saving
       if (hasPendingChanges) {
         setPhase("saving");
         setSavingChars(0);
       } else {
         setPhase("idle");
       }
-    }, 1500);
+    }, 2500);
     return () => clearTimeout(t);
   }, [phase, hasPendingChanges]);
 
@@ -119,7 +118,7 @@ export default function SaveIndicator({
         : "var(--text-muted)";
 
   const dotPulse =
-    phase === "saving" ? "saveIndicatorPulse 2s ease-in-out infinite" : "none";
+    phase === "saving" ? "saveIndicatorPulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite" : "none";
 
   // Slide positions for saving→saved transition
   const savingY = phase === "saving" ? 0 : -14;
@@ -131,8 +130,8 @@ export default function SaveIndicator({
     <>
       <style>{`
         @keyframes saveIndicatorPulse {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.1); }
+          0%, 100% { opacity: 0.35; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.08); }
         }
       `}</style>
 
@@ -206,7 +205,7 @@ export default function SaveIndicator({
                     style={{
                       display: "inline-block",
                       opacity: i < savingChars ? 1 : 0,
-                      transition: "opacity 0.3s ease",
+                      transition: "opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                   >
                     {ch}
@@ -244,7 +243,7 @@ export default function SaveIndicator({
                     style={{
                       display: "inline-block",
                       opacity: i < savedChars ? 1 : 0,
-                      transition: "opacity 0.15s ease",
+                      transition: "opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                   >
                     {ch}
