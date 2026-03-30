@@ -532,19 +532,20 @@ export default function SegmentRow({
           >
             <div
               style={{
-                width: 14,
-                height: 14,
+                width: 12,
+                height: 12,
                 borderRadius: "50%",
-                border: "2px solid var(--border)",
+                border: "1.5px solid var(--border)",
                 borderTopColor: "var(--accent)",
-                animation: "spin 800ms linear infinite",
+                animation: "spin 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite",
               }}
             />
             <span
               style={{
                 fontSize: 11,
-                color: "var(--text-secondary)",
+                color: "var(--text-muted)",
                 fontFamily: "var(--font-ui-family)",
+                letterSpacing: "0.02em",
               }}
             >
               Translating...
@@ -613,11 +614,7 @@ export default function SegmentRow({
             boxShadow: isActive ? "inset 0 1px 3px rgba(0,0,0,0.04)" : "none",
           }}
           placeholder={
-            isActive
-              ? aiLoading
-                ? "AI is thinking..."
-                : "Type translation..."
-              : ""
+            isActive && !aiLoading ? "Type translation..." : ""
           }
           rows={1}
           disabled={aiLoading}
