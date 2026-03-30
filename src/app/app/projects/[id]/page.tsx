@@ -1889,8 +1889,11 @@ export default function EditorPage({
               action: () => {
                 if (seg) {
                   setActiveSegment(seg.id);
-                  if (typeof requestAISuggestion === "function")
-                    requestAISuggestion();
+                  // Delay to let state update propagate before requesting AI
+                  setTimeout(() => {
+                    if (typeof requestAISuggestion === "function")
+                      requestAISuggestion();
+                  }, 50);
                 }
               },
             },

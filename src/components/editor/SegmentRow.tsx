@@ -264,6 +264,7 @@ export default function SegmentRow({
       onContextMenu={(e) => {
         if (onContextMenu) {
           e.preventDefault();
+          onActivate();
           onContextMenu(e);
         }
       }}
