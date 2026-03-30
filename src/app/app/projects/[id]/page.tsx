@@ -800,7 +800,10 @@ export default function EditorPage({
       setTimeout(() => saveSegments(), 50);
       // Advance to next unconfirmed
       const nextId = getNextUnconfirmedId(segId);
-      if (nextId) setActiveSegment(nextId);
+      if (nextId) {
+        scrollOnActivateRef.current = true;
+        setActiveSegment(nextId);
+      }
       // B1: Auto-Glossary Detection — every 5 confirms, suggest frequent terms
       confirmCountRef.current += 1;
       if (confirmCountRef.current % 5 === 0) {
@@ -999,11 +1002,17 @@ export default function EditorPage({
     };
   }, [resetSaveTimer]);
 
-  // Scroll to active segment via virtualizer
+  // Track whether navigation was via keyboard (should scroll) or mouse (should not)
+  const scrollOnActivateRef = useRef(false);
+
+  // Scroll to active segment only when triggered by keyboard navigation
   useEffect(() => {
-    if (activeSegmentId) {
+    if (activeSegmentId && scrollOnActivateRef.current) {
       virtualListRef.current?.scrollToSegment(activeSegmentId);
-      // Focus the textarea after scroll settles
+      scrollOnActivateRef.current = false;
+    }
+    // Focus the textarea
+    if (activeSegmentId) {
       requestAnimationFrame(() => {
         const el = segmentRefs.current.get(activeSegmentId);
         if (el) el.focus();
@@ -1149,7 +1158,10 @@ export default function EditorPage({
       if (e.ctrlKey && e.key === "ArrowUp") {
         e.preventDefault();
         const prevId = getPrevSegmentId(activeSegmentId);
-        if (prevId) setActiveSegment(prevId);
+        if (prevId) {
+          scrollOnActivateRef.current = true;
+          setActiveSegment(prevId);
+        }
         return;
       }
 
@@ -1157,7 +1169,10 @@ export default function EditorPage({
       if (e.ctrlKey && e.key === "ArrowDown") {
         e.preventDefault();
         const nextId = getNextSegmentId(activeSegmentId);
-        if (nextId) setActiveSegment(nextId);
+        if (nextId) {
+          scrollOnActivateRef.current = true;
+          setActiveSegment(nextId);
+        }
         return;
       }
 
@@ -1283,7 +1298,10 @@ export default function EditorPage({
   // GoTo handler: find segment by position number (1-based)
   const handleGoToSegment = (position: number) => {
     const seg = segments.find((s) => s.position === position);
-    if (seg) setActiveSegment(seg.id);
+    if (seg) {
+      scrollOnActivateRef.current = true;
+      setActiveSegment(seg.id);
+    }
   };
 
   // Computed word counts for StatusBar
@@ -1651,7 +1669,10 @@ export default function EditorPage({
         <SearchReplaceModal
           segments={segments}
           onClose={() => setSearchOpen(false)}
-          onNavigateToSegment={(segId) => setActiveSegment(segId)}
+          onNavigateToSegment={(segId) => {
+            scrollOnActivateRef.current = true;
+            setActiveSegment(segId);
+          }}
           onReplaceInTarget={(segId, newText) =>
             applyTranslation(segId, newText)
           }
@@ -2144,7 +2165,10 @@ export default function EditorPage({
             <QAPanel
               issues={qaIssues}
               onClose={() => setQaVisible(false)}
-              onNavigateToSegment={(segmentId) => setActiveSegment(segmentId)}
+              onNavigateToSegment={(segmentId) => {
+                scrollOnActivateRef.current = true;
+                setActiveSegment(segmentId);
+              }}
               translatedCount={
                 segments.filter(
                   (s) => s.targetText && s.targetText.trim() !== "",
