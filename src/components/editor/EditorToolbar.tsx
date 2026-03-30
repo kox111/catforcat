@@ -71,6 +71,10 @@ const AVATAR_RING: Record<Theme, { gradient: string; bg: string }> = {
     gradient: "linear-gradient(135deg, #A47864, #C4A898)",
     bg: "var(--bg-deep)",
   },
+  forest: {
+    gradient: "linear-gradient(135deg, #8B7355, #6A8A58)",
+    bg: "var(--bg-deep)",
+  },
 };
 
 const THEME_DOTS: {
@@ -83,6 +87,7 @@ const THEME_DOTS: {
   { id: "sakura", color: "#EFC4CC", border: "0.5px solid #ffffff33", label: "Sakura" },
   { id: "light", color: "#F7F6F3", border: "0.5px solid #ECEAE5", label: "Light" },
   { id: "linen", color: "#C4AA90", border: "0.5px solid #B09878", label: "Linen" },
+  { id: "forest", color: "#3A3028", border: "0.5px solid #4A3E32", label: "Forest" },
 ];
 
 const EXPORT_FORMATS = [

@@ -534,6 +534,11 @@ export default function SettingsPage() {
                     color: "#C4AA90",
                     border: "0.5px solid #B09878",
                   },
+                  {
+                    id: "forest" as const,
+                    color: "#3A3028",
+                    border: "0.5px solid #4A3E32",
+                  },
                 ].map((t) => (
                   <div
                     key={t.id}

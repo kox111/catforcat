@@ -47,6 +47,7 @@ const THEME_DOTS: { id: Theme; color: string; border: string }[] = [
   { id: "sakura", color: "#EFC4CC", border: "1px solid #ffffff4d" },
   { id: "light", color: "#F7F6F3", border: "1px solid #ECEAE5" },
   { id: "linen", color: "#C4AA90", border: "1px solid #B09878" },
+  { id: "forest", color: "#3A3028", border: "1px solid #4A3E32" },
 ];
 
 /* ─── Spotlight cutout overlay ─── */

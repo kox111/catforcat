@@ -14,6 +14,7 @@ const THEMES: { id: Theme; label: string; color: string; border: string }[] = [
   { id: "dark", label: "Dark", color: "#202124", border: "#3C3C3F" },
   { id: "light", label: "Light", color: "#F7F6F3", border: "#ECEAE5" },
   { id: "linen", label: "Linen", color: "#C4AA90", border: "#B09878" },
+  { id: "forest", label: "Forest", color: "#3A3028", border: "#4A3E32" },
 ];
 
 export default function ThemeFAB() {

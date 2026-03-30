@@ -91,6 +91,7 @@ const ACCENT_CODE_COLOR: Record<Theme, string> = {
   sakura: "#8B5A6B",
   light: "var(--accent)",
   linen: "#A47864",
+  forest: "#8AAA70",
 };
 
 const GRADIENT_COLORS: Record<Theme, [string, string]> = {
@@ -98,6 +99,7 @@ const GRADIENT_COLORS: Record<Theme, [string, string]> = {
   sakura: ["#8B5A6B", "#B08090"],
   light: ["#6B6B6B", "#AAAAAA"],
   linen: ["#A47864", "#C4A898"],
+  forest: ["#8B7355", "#6A8A58"],
 };
 
 const ACCEPTED_EXTENSIONS = [

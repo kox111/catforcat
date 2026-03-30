@@ -31,6 +31,10 @@ const AVATAR_RING: Record<Theme, { gradient: string; bg: string }> = {
     gradient: "linear-gradient(135deg, #A47864, #C4A898)",
     bg: "var(--bg-deep)",
   },
+  forest: {
+    gradient: "linear-gradient(135deg, #8B7355, #6A8A58)",
+    bg: "var(--bg-deep)",
+  },
 };
 
 const THEME_DOTS: {
@@ -62,6 +66,12 @@ const THEME_DOTS: {
     color: "#C4AA90",
     border: "0.5px solid #B09878",
     label: "Linen",
+  },
+  {
+    id: "forest",
+    color: "#3A3028",
+    border: "0.5px solid #4A3E32",
+    label: "Forest",
   },
 ];
 
