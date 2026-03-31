@@ -274,12 +274,13 @@ export default function SegmentRow({
         position: "relative",
         cursor: "pointer",
         transition: "background 180ms ease, opacity 0.3s ease, box-shadow 180ms ease",
-        background: isActive ? "var(--bg-card)" : "transparent",
+        background: isActive ? "var(--glass-active-bg)" : "transparent",
         borderRadius: "var(--radius-sm)",
         opacity: dimmed ? 0.25 : 1,
         margin: "0 6px",
         borderLeft: isActive ? "2.5px solid var(--accent)" : "2.5px solid transparent",
-        boxShadow: isActive ? "var(--shadow-sm)" : "none",
+        border: isActive ? "1px solid var(--glass-active-border)" : "1px solid transparent",
+        boxShadow: isActive ? "var(--glass-active-shadow)" : "none",
       }}
       onMouseEnter={(e) => {
         if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";

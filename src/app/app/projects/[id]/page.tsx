@@ -2045,9 +2045,10 @@ export default function EditorPage({
           }}
         />
 
-        {/* Content area */}
+        {/* Content area — the workspace desk */}
         <div
           data-editor-content
+          className="glass-workspace"
           style={{
             flex: 1,
             minHeight: 0,

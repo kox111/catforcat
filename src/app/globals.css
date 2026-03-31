@@ -847,6 +847,13 @@ body {
   z-index: 1;
 }
 
+/* Glass workspace: the "desk" surface behind floating documents */
+.glass-workspace {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 70%),
+    var(--bg-deep);
+}
+
 /* ─── CTA buttons: add glass blur automatically ─── */
 button, [role="button"] {
   backdrop-filter: blur(12px) saturate(130%);
