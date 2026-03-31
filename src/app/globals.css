@@ -137,14 +137,14 @@
    ═══════════════════════════════════════════ */
 [data-theme="sakura"] {
   --bg-deep: #ebbfc8;
-  --bg-panel: rgba(242, 204, 211, 0.72);
-  --bg-card: rgba(245, 212, 218, 0.60);
+  --bg-panel: rgba(245, 212, 220, 0.92);
+  --bg-card: rgba(248, 220, 226, 0.88);
   --bg-hover: rgba(255, 255, 255, 0.15);
   --bg-active: rgba(255, 255, 255, 0.10);
-  --bg-sidebar: rgba(232, 186, 194, 0.78);
+  --bg-sidebar: rgba(238, 200, 208, 0.94);
   --bg-paper: #ebbfc8;
-  --border: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(255, 255, 255, 0.30);
+  --border: rgba(139, 90, 107, 0.08);
+  --border-focus: rgba(139, 90, 107, 0.22);
   --text-primary: #5c4a50;
   --text-secondary: #7a6a70;
   --text-muted: #b0a0a6;
@@ -261,14 +261,14 @@
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
   --bg-deep: #f3f3f0;
-  --bg-panel: rgba(255, 255, 255, 0.72);
-  --bg-card: rgba(250, 250, 248, 0.65);
-  --bg-hover: rgba(0, 0, 0, 0.04);
-  --bg-active: rgba(0, 0, 0, 0.06);
-  --bg-sidebar: rgba(240, 239, 236, 0.78);
+  --bg-panel: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(252, 252, 250, 0.88);
+  --bg-hover: rgba(0, 0, 0, 0.03);
+  --bg-active: rgba(0, 0, 0, 0.05);
+  --bg-sidebar: rgba(245, 244, 241, 0.94);
   --bg-paper: #ffffff;
   --border: rgba(0, 0, 0, 0.06);
-  --border-focus: rgba(0, 0, 0, 0.18);
+  --border-focus: rgba(0, 0, 0, 0.15);
   --text-primary: #1a1a1a;
   --text-secondary: #555555;
   --text-muted: #aaaaaa;
@@ -390,14 +390,14 @@
    ═══════════════════════════════════════════ */
 [data-theme="linen"] {
   --bg-deep: #F8EDE2;
-  --bg-panel: rgba(240, 224, 214, 0.72);
-  --bg-card: rgba(245, 235, 224, 0.60);
+  --bg-panel: rgba(245, 235, 224, 0.92);
+  --bg-card: rgba(250, 240, 230, 0.88);
   --bg-hover: rgba(164, 119, 100, 0.08);
   --bg-active: rgba(164, 119, 100, 0.12);
-  --bg-sidebar: rgba(232, 218, 206, 0.78);
+  --bg-sidebar: rgba(238, 226, 214, 0.94);
   --bg-paper: #FAF0E6;
-  --border: rgba(164, 119, 100, 0.12);
-  --border-focus: rgba(164, 119, 100, 0.35);
+  --border: rgba(164, 119, 100, 0.10);
+  --border-focus: rgba(164, 119, 100, 0.30);
   --text-primary: #5C4033;
   --text-secondary: #8B7355;
   --text-muted: #B8A898;
