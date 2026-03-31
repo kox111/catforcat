@@ -2057,12 +2057,12 @@ export default function EditorPage({
             overflow: "hidden",
           }}
         >
-          {/* Document header — two paper sheet tabs */}
+          {/* Document header — tabs are the TOP of each paper sheet */}
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              padding: "10px 16px 0 16px",
+              alignItems: "stretch",
+              padding: "12px 16px 0 16px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2073,17 +2073,19 @@ export default function EditorPage({
             }}
           >
             <div
-              className="paper-sheet"
               style={{
                 flex: columnRatio,
-                padding: "6px 14px",
-                borderBottom: "none",
+                padding: "8px 14px",
+                background: "var(--bg-paper)",
                 borderRadius: "var(--radius) var(--radius) 0 0",
+                border: "1px solid var(--border)",
+                borderBottom: "none",
+                boxShadow: "var(--paper-shadow)",
               }}
             >
               Source — {getLangLabel(project.srcLang)}
             </div>
-            {/* Gap between sheets */}
+            {/* Gap between sheets — desk shows through */}
             <div style={{ width: 10, flexShrink: 0 }} />
             {/* Drag handle */}
             <div
@@ -2130,12 +2132,14 @@ export default function EditorPage({
               }}
             />
             <div
-              className="paper-sheet"
               style={{
                 flex: 1 - columnRatio,
-                padding: "6px 14px",
-                borderBottom: "none",
+                padding: "8px 14px",
+                background: "var(--bg-paper)",
                 borderRadius: "var(--radius) var(--radius) 0 0",
+                border: "1px solid var(--border)",
+                borderBottom: "none",
+                boxShadow: "var(--paper-shadow)",
               }}
             >
               Target — {getLangLabel(project.tgtLang)}

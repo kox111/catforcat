@@ -485,7 +485,7 @@ export default function SegmentRow({
           letterSpacing: "0.01em",
           userSelect: isActive ? "text" : "none",
           cursor: isActive ? "text" : "pointer",
-          background: isActive ? "var(--bg-card)" : "var(--bg-paper)",
+          background: isActive ? "var(--bg-active)" : "transparent",
           borderRadius: 0,
         }}
       >
@@ -533,7 +533,7 @@ export default function SegmentRow({
           flex: 1 - columnRatio,
           padding: "12px 20px 12px 16px",
           position: "relative",
-          background: isActive ? "var(--bg-card)" : "var(--bg-paper)",
+          background: isActive ? "var(--bg-active)" : "transparent",
           borderRadius: 0,
         }}
       >

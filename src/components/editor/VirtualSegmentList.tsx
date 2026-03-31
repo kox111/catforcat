@@ -127,6 +127,7 @@ const VirtualSegmentList = forwardRef<
         overflowY: "auto",
         margin: "0 16px 12px 16px",
         contain: "strict",
+        background: "var(--bg-paper)",
         borderRadius: "0 0 var(--radius) var(--radius)",
         boxShadow: "var(--paper-shadow)",
         border: "1px solid var(--border)",
