@@ -223,16 +223,16 @@ export default function EditorToolbar({
 
   return (
     <div
-      className="editor-header glass-container"
+      className="editor-header glass-header-fade"
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 16px",
-        height: 44,
-        background: "var(--bg-panel)",
-        borderBottom: "0.5px solid var(--glass-container-border)",
+        height: 52,
         flexShrink: 0,
+        position: "relative",
+        zIndex: 10,
       }}
     >
       {/* ── LEFT: Logo (link back) + Project name ── */}
@@ -392,8 +392,8 @@ export default function EditorToolbar({
               gap: 5,
               padding: "5px 14px",
               borderRadius: "var(--radius-sm)",
-              border: "0.5px solid var(--border)",
-              background: "transparent",
+              border: "none",
+              background: "none",
               color: "var(--text-secondary)",
               cursor: "pointer",
               fontFamily: "var(--font-ui-family)",

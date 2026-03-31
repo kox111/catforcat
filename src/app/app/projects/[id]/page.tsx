@@ -2057,12 +2057,12 @@ export default function EditorPage({
             overflow: "hidden",
           }}
         >
-          {/* Document header — two sheet tabs */}
+          {/* Document header — two paper sheet tabs */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              padding: "6px 12px 0 48px",
+              padding: "10px 16px 0 16px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2073,12 +2073,12 @@ export default function EditorPage({
             }}
           >
             <div
-              className="glass-elevated"
+              className="paper-sheet"
               style={{
                 flex: columnRatio,
-                padding: "5px 14px",
-                borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
+                padding: "6px 14px",
                 borderBottom: "none",
+                borderRadius: "var(--radius) var(--radius) 0 0",
               }}
             >
               Source — {getLangLabel(project.srcLang)}
@@ -2130,12 +2130,12 @@ export default function EditorPage({
               }}
             />
             <div
-              className="glass-elevated"
+              className="paper-sheet"
               style={{
                 flex: 1 - columnRatio,
-                padding: "5px 14px",
-                borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
+                padding: "6px 14px",
                 borderBottom: "none",
+                borderRadius: "var(--radius) var(--radius) 0 0",
               }}
             >
               Target — {getLangLabel(project.tgtLang)}

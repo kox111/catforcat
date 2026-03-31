@@ -274,13 +274,12 @@ export default function SegmentRow({
         position: "relative",
         cursor: "pointer",
         transition: "background 180ms ease, opacity 0.3s ease, box-shadow 180ms ease",
-        background: isActive ? "var(--glass-active-bg)" : "transparent",
-        borderRadius: "var(--radius-sm)",
+        background: "transparent",
+        borderRadius: 0,
         opacity: dimmed ? 0.25 : 1,
-        margin: "0 6px",
+        margin: 0,
         borderLeft: isActive ? "2.5px solid var(--accent)" : "2.5px solid transparent",
-        border: isActive ? "1px solid var(--glass-active-border)" : "1px solid transparent",
-        boxShadow: isActive ? "var(--glass-active-shadow)" : "none",
+        boxShadow: "none",
       }}
       onMouseEnter={(e) => {
         if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
@@ -486,8 +485,8 @@ export default function SegmentRow({
           letterSpacing: "0.01em",
           userSelect: isActive ? "text" : "none",
           cursor: isActive ? "text" : "pointer",
-          background: isActive ? "var(--bg-card)" : "transparent",
-          borderRadius: isActive ? "var(--radius-sm) 0 0 var(--radius-sm)" : "0",
+          background: isActive ? "var(--bg-card)" : "var(--bg-paper)",
+          borderRadius: 0,
         }}
       >
         <HighlightedSource
@@ -534,8 +533,8 @@ export default function SegmentRow({
           flex: 1 - columnRatio,
           padding: "12px 20px 12px 16px",
           position: "relative",
-          background: isActive ? "var(--bg-card)" : "transparent",
-          borderRadius: isActive ? "0 var(--radius-sm) var(--radius-sm) 0" : "0",
+          background: isActive ? "var(--bg-card)" : "var(--bg-paper)",
+          borderRadius: 0,
         }}
       >
         {/* AI Loading indicator */}

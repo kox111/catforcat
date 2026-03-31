@@ -125,8 +125,12 @@ const VirtualSegmentList = forwardRef<
         flex: 1,
         minHeight: 0,
         overflowY: "auto",
-        margin: "0 12px 8px 12px",
+        margin: "0 16px 12px 16px",
         contain: "strict",
+        borderRadius: "0 0 var(--radius) var(--radius)",
+        boxShadow: "var(--paper-shadow)",
+        border: "1px solid var(--border)",
+        borderTop: "none",
       }}
     >
       <div

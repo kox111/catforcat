@@ -68,13 +68,11 @@ export default function EditorSidebar({
 
   return (
     <div
-      className="glass-container"
       style={{
         width: 44,
         minWidth: 44,
         height: "100%",
-        background: "var(--bg-sidebar)",
-        borderRight: "0.5px solid var(--glass-container-border)",
+        background: "transparent",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
