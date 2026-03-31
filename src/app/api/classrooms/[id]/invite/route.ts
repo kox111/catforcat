@@ -70,16 +70,41 @@ export async function POST(
 
       return NextResponse.json({ invitation }, { status: 201 });
     } else if (email) {
+      // Check if a user with this email already exists
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+
       const invitation = await prisma.invitation.create({
         data: {
           fromUserId: user!.id,
           toEmail: email,
+          toUserId: existingUser?.id || null,
           classroomId: id,
           role: assignedRole,
           color: assignedColor,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       });
+
+      // If user exists, create notification
+      if (existingUser) {
+        // Check if already a member
+        const alreadyMember = await prisma.classroomMember.findUnique({
+          where: { classroomId_userId: { classroomId: id, userId: existingUser.id } },
+        });
+        if (alreadyMember) {
+          return NextResponse.json({ error: "Already a member" }, { status: 409 });
+        }
+
+        await prisma.notification.create({
+          data: {
+            userId: existingUser.id,
+            type: "invitation",
+            title: "Classroom invitation",
+            body: `@${user!.username || user!.name} invited you to "${classroom.name}"`,
+            link: `/app/classrooms`,
+          },
+        });
+      }
 
       return NextResponse.json({ invitation }, { status: 201 });
     }

@@ -113,17 +113,33 @@ export async function POST(
 
       return NextResponse.json({ invitation }, { status: 201 });
     } else if (email) {
-      // Email-based invitation
+      // Check if a user with this email already exists
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+
       const invitation = await prisma.invitation.create({
         data: {
           fromUserId: user!.id,
           toEmail: email,
+          toUserId: existingUser?.id || null,
           projectId: id,
           role: assignedRole,
           color: assignedColor,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       });
+
+      // If user exists, notify them
+      if (existingUser) {
+        await prisma.notification.create({
+          data: {
+            userId: existingUser.id,
+            type: "invitation",
+            title: "Project invitation",
+            body: `@${user!.username || user!.name} invited you to join a project`,
+            link: `/app/projects`,
+          },
+        });
+      }
 
       return NextResponse.json({ invitation }, { status: 201 });
     }
