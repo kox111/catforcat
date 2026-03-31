@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 /* ─── Types ─── */
 
 interface SaveIndicatorProps {
-  hasPendingChanges: boolean;
+  isSaving: boolean;
   lastSavedAt: number | null;
   saveError: string | null;
 }
@@ -15,7 +15,7 @@ type Phase = "idle" | "saving" | "saved" | "error";
 /* ─── Component ─── */
 
 export default function SaveIndicator({
-  hasPendingChanges,
+  isSaving,
   lastSavedAt,
   saveError,
 }: SaveIndicatorProps) {
@@ -23,46 +23,59 @@ export default function SaveIndicator({
   const [savingChars, setSavingChars] = useState(0);
   const [savedChars, setSavedChars] = useState(0);
   const [checkDrawn, setCheckDrawn] = useState(false);
-  const prevSavedRef = useRef<number | null>(null);
 
-  const SAVING_TEXT = "Saving..."; // 9 chars * ~1.5s = ~13.5s (fits in 15s cycle)
+  const prevSavingRef = useRef(false);
+  const prevSavedRef = useRef<number | null>(null);
+  const saveCompletedRef = useRef(false);
+  const saveFailedRef = useRef(false);
+
+  const SAVING_TEXT = "Saving..."; // 9 chars × 1s = 9s animation
   const SAVED_TEXT = "Saved";
 
-  /* ── Error → show 2s then back to idle ── */
+  /* ── Detect save START (isSaving false → true) ── */
   useEffect(() => {
-    if (!saveError) return;
-    setPhase("error");
-    const t = setTimeout(() => setPhase("idle"), 2000);
-    return () => clearTimeout(t);
-  }, [saveError]);
-
-  /* ── Pending changes appear → start SAVING phase ── */
-  useEffect(() => {
-    if (phase === "saved" || phase === "error") return;
-    if (hasPendingChanges) {
-      if (phase !== "saving") {
-        setPhase("saving");
-        setSavingChars(0);
-      }
-    } else if (phase === "saving") {
-      // No more pending but we haven't saved yet — go idle
-      setPhase("idle");
+    if (isSaving && !prevSavingRef.current) {
+      setPhase("saving");
+      setSavingChars(0);
+      saveCompletedRef.current = false;
+      saveFailedRef.current = false;
     }
-  }, [hasPendingChanges, phase]);
+    prevSavingRef.current = isSaving;
+  }, [isSaving]);
 
-  /* ── Save completed → SAVED phase ── */
+  /* ── Detect save COMPLETED (lastSavedAt changed) ── */
   useEffect(() => {
     if (!lastSavedAt || lastSavedAt === prevSavedRef.current) return;
     prevSavedRef.current = lastSavedAt;
-    setPhase("saved");
-    setSavedChars(0);
-    setCheckDrawn(false);
-  }, [lastSavedAt]);
+    saveCompletedRef.current = true;
+    // If typewriter already finished, transition immediately
+    if (phase === "saving" && savingChars >= SAVING_TEXT.length) {
+      setPhase("saved");
+      setSavedChars(0);
+      setCheckDrawn(false);
+    }
+  }, [lastSavedAt, phase, savingChars]);
 
-  /* ── Typewriter for "Saving..." — human typing speed ~220ms/char ── */
+  /* ── Detect save ERROR ── */
+  useEffect(() => {
+    if (!saveError) return;
+    saveFailedRef.current = true;
+    // If typewriter already finished, show error immediately
+    if (phase === "saving" && savingChars >= SAVING_TEXT.length) {
+      setPhase("error");
+    }
+    // If not saving, show error directly
+    if (phase !== "saving") {
+      setPhase("error");
+    }
+  }, [saveError, phase, savingChars]);
+
+  /* ── Typewriter for "Saving..." — 1 second per character ── */
   useEffect(() => {
     if (phase !== "saving") return;
     setSavingChars(0);
+    saveCompletedRef.current = false;
+    saveFailedRef.current = false;
     const iv = setInterval(() => {
       setSavingChars((p) => {
         if (p >= SAVING_TEXT.length) {
@@ -71,11 +84,26 @@ export default function SaveIndicator({
         }
         return p + 1;
       });
-    }, 220);
+    }, 1000);
     return () => clearInterval(iv);
   }, [phase]);
 
-  /* ── Typewriter for "Saved" — human speed ~200ms/char, then draw check ── */
+  /* ── Typewriter finished → check if save completed or failed ── */
+  useEffect(() => {
+    if (phase !== "saving") return;
+    if (savingChars < SAVING_TEXT.length) return;
+    // Typewriter done — transition based on save result
+    if (saveFailedRef.current) {
+      setPhase("error");
+    } else if (saveCompletedRef.current) {
+      setPhase("saved");
+      setSavedChars(0);
+      setCheckDrawn(false);
+    }
+    // If save is still in progress (rare), wait — lastSavedAt effect will handle it
+  }, [savingChars, phase]);
+
+  /* ── Typewriter for "Saved" — fast (200ms/char), then draw check ── */
   useEffect(() => {
     if (phase !== "saved") return;
     setSavedChars(0);
@@ -93,23 +121,22 @@ export default function SaveIndicator({
     return () => clearInterval(iv);
   }, [phase]);
 
-  /* ── After 2.5s in "saved" → back to idle or saving ── */
+  /* ── After 2.5s in "saved" → back to idle ── */
   useEffect(() => {
     if (phase !== "saved") return;
-    const t = setTimeout(() => {
-      if (hasPendingChanges) {
-        setPhase("saving");
-        setSavingChars(0);
-      } else {
-        setPhase("idle");
-      }
-    }, 2500);
+    const t = setTimeout(() => setPhase("idle"), 2500);
     return () => clearTimeout(t);
-  }, [phase, hasPendingChanges]);
+  }, [phase]);
+
+  /* ── Error → show 2s then back to idle ── */
+  useEffect(() => {
+    if (phase !== "error") return;
+    const t = setTimeout(() => setPhase("idle"), 2000);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   /* ── Computed styles ── */
 
-  // Dot color: muted (idle/saving), green (saved), red (error)
   const dotColor =
     phase === "error"
       ? "var(--red)"
@@ -120,7 +147,6 @@ export default function SaveIndicator({
   const dotPulse =
     phase === "saving" ? "saveIndicatorPulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite" : "none";
 
-  // Slide positions for saving→saved transition
   const savingY = phase === "saving" ? 0 : -14;
   const savingO = phase === "saving" ? 1 : 0;
   const savedY = phase === "saved" ? 0 : 14;
@@ -177,7 +203,7 @@ export default function SaveIndicator({
               width: 62,
             }}
           >
-            {/* "Saving..." — slow typewriter (1 char per ~1.5s) */}
+            {/* "Saving..." — slow typewriter (1 char per second) */}
             <div
               style={{
                 position: "absolute",
@@ -214,7 +240,7 @@ export default function SaveIndicator({
               </span>
             </div>
 
-            {/* "Saved" — fast typewriter (90ms) + animated check */}
+            {/* "Saved" — fast typewriter (200ms) + animated check */}
             <div
               style={{
                 position: "absolute",

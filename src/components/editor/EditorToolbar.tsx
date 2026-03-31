@@ -496,7 +496,7 @@ export default function EditorToolbar({
 
         {/* Save indicator */}
         <SaveIndicator
-          hasPendingChanges={hasPendingChanges}
+          isSaving={saving}
           lastSavedAt={lastSavedAt ?? null}
           saveError={saveError ?? null}
         />
