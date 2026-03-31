@@ -135,7 +135,24 @@ export default function LiveDashboard({ sessionId, onEnd }: LiveDashboardProps) 
             onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg-deep)"; }}
           >
-            <div style={{ marginBottom: 6 }}>
+            <div style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: s.lastActiveAt && (Date.now() - new Date(s.lastActiveAt).getTime() < 5 * 60 * 1000)
+                    ? "var(--green)"
+                    : "var(--text-muted)",
+                  opacity: s.lastActiveAt && (Date.now() - new Date(s.lastActiveAt).getTime() < 5 * 60 * 1000)
+                    ? 1
+                    : 0.4,
+                  flexShrink: 0,
+                }}
+                title={s.lastActiveAt && (Date.now() - new Date(s.lastActiveAt).getTime() < 5 * 60 * 1000)
+                  ? "Active now"
+                  : "Inactive"}
+              />
               <UserPreviewCard user={s.user} color={s.color} compact />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
