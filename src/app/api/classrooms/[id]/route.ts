@@ -34,6 +34,17 @@ export async function GET(
           orderBy: { createdAt: "desc" },
           include: {
             _count: { select: { submissions: true } },
+            submissions: {
+              select: {
+                id: true,
+                projectId: true,
+                status: true,
+                progressPct: true,
+                submittedAt: true,
+                gradeValue: true,
+                student: { select: { name: true, username: true } },
+              },
+            },
           },
         },
       },

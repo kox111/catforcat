@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Users, BookOpen, UserPlus, Copy, Check } from "lucide-react";
+import { Users, BookOpen, UserPlus, Copy, Check, LayoutGrid } from "lucide-react";
+import TaskBoard from "@/components/TaskBoard";
 import MemberCard from "@/components/MemberCard";
 import InviteModal from "@/components/InviteModal";
 import NewAssignmentModal from "@/components/NewAssignmentModal";
@@ -32,6 +33,15 @@ interface ClassroomDetail {
     gradingMode: string;
     _count: { submissions: number };
     createdAt: string;
+    submissions?: Array<{
+      id: string;
+      projectId: string;
+      status: string;
+      progressPct: number;
+      submittedAt: string | null;
+      gradeValue: number | null;
+      student: { name: string | null; username: string | null };
+    }>;
   }>;
 }
 
@@ -43,7 +53,7 @@ export default function ClassroomDashboard() {
   const [classroom, setClassroom] = useState<ClassroomDetail | null>(null);
   const [myRole, setMyRole] = useState("");
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"members" | "assignments">("members");
+  const [tab, setTab] = useState<"members" | "assignments" | "board">("members");
   const [showInvite, setShowInvite] = useState(false);
   const [showNewAssignment, setShowNewAssignment] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -134,7 +144,7 @@ export default function ClassroomDashboard() {
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)", marginBottom: 20 }}>
-        {(["members", "assignments"] as const).map((t) => (
+        {(["members", "assignments", "board"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -153,8 +163,8 @@ export default function ClassroomDashboard() {
               gap: 6,
             }}
           >
-            {t === "members" ? <Users size={14} /> : <BookOpen size={14} />}
-            {t === "members" ? `Members (${classroom.members.length})` : `Assignments (${classroom.assignments.length})`}
+            {t === "board" ? <LayoutGrid size={14} /> : t === "members" ? <Users size={14} /> : <BookOpen size={14} />}
+            {t === "board" ? "Task Board" : t === "members" ? `Members (${classroom.members.length})` : `Assignments (${classroom.assignments.length})`}
           </button>
         ))}
       </div>
@@ -290,6 +300,20 @@ export default function ClassroomDashboard() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Task Board Tab */}
+      {tab === "board" && (
+        <TaskBoard
+          assignments={classroom.assignments.map(a => ({
+            id: a.id,
+            title: a.title,
+            status: a.status,
+            dueDate: a.dueDate,
+            submissions: a.submissions || [],
+          }))}
+          totalStudents={classroom.members.filter(m => m.role === "student").length}
+        />
       )}
 
       {showInvite && (
