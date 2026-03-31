@@ -8,15 +8,15 @@
 :root,
 [data-theme="dark"] {
   --bg-deep: #1a1a1d;
-  --bg-gradient: radial-gradient(ellipse at 30% 0%, #28282e 0%, #222226 35%, #1d1d20 65%, #1a1a1d 100%);
-  --bg-panel: rgba(44, 44, 48, 0.88);
-  --bg-card: rgba(52, 52, 56, 0.80);
-  --bg-hover: rgba(255, 255, 255, 0.07);
-  --bg-active: rgba(255, 255, 255, 0.10);
-  --bg-sidebar: rgba(26, 26, 30, 0.90);
+  --bg-deep-gradient: radial-gradient(ellipse at 30% 20%, #252538 0%, #1a1a1d 50%, #12121a 100%);
+  --bg-panel: rgba(37, 37, 40, 0.72);
+  --bg-card: rgba(42, 42, 45, 0.65);
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-active: rgba(255, 255, 255, 0.07);
+  --bg-sidebar: rgba(22, 22, 25, 0.80);
   --bg-paper: #262629;
-  --border: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(255, 255, 255, 0.25);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(255, 255, 255, 0.15);
   --text-primary: #bdb8b2;
   --text-secondary: #8a8580;
   --text-muted: #5a5a5d;
@@ -37,11 +37,11 @@
   --purple-text: #9a8aaa;
 
   --status-bar: rgba(18, 18, 18, 0.85);
-  --segment-divider: rgba(255, 255, 255, 0.08);
-  --paper-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.08);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.08);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 1px rgba(255, 255, 255, 0.10);
+  --segment-divider: rgba(255, 255, 255, 0.04);
+  --paper-shadow: 0 8px 40px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0.5px 0 rgba(255, 255, 255, 0.06);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -105,19 +105,11 @@
   --btn-depth: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
   --btn-depth-hover: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
   --btn-depth-active: inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(0, 0, 0, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.04);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-bg-hover: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(20px) saturate(140%);
-  --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
-  /* Apple Liquid Glass — exact recipe from reference */
-  --glass-container-bg: rgba(0, 0, 0, 0.40);
-  --glass-container-shadow: 0 10px 15px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --glass-container-border: rgba(0, 0, 0, 0.60);
-  --glass-active-bg: rgba(255, 255, 255, 0.12);
-  --glass-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  --glass-active-border: rgba(255, 255, 255, 0.20);
-  --glass-specular: rgba(255, 255, 255, 0.50);
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.20);
+  --glass-bg-hover: rgba(255, 255, 255, 0.18);
+  --glass-blur: blur(15px) saturate(140%);
+  --glass-inset: inset 2px 2px 2px 0 rgba(255, 255, 255, 0.35), inset -2px -2px 2px 0 rgba(255, 255, 255, 0.35);
   --panel-glow: 0 0 24px rgba(160, 144, 144, 0.05);
   --action-gradient: linear-gradient(135deg, rgba(92, 138, 106, 0.15), rgba(92, 138, 106, 0.05));
   --action-border: rgba(92, 138, 106, 0.3);
@@ -147,13 +139,13 @@
    ═══════════════════════════════════════════ */
 [data-theme="sakura"] {
   --bg-deep: #ebbfc8;
-  --bg-gradient: radial-gradient(ellipse at 40% 10%, #f0cad2 0%, #edc4cc 40%, #ebbfc8 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 0%, #f5d4dc 0%, #ebbfc8 40%, #e0a8b4 100%);
   --bg-panel: rgba(245, 212, 220, 0.92);
   --bg-card: rgba(248, 220, 226, 0.88);
   --bg-hover: rgba(255, 255, 255, 0.15);
   --bg-active: rgba(255, 255, 255, 0.10);
   --bg-sidebar: rgba(238, 200, 208, 0.94);
-  --bg-paper: #ebbfc8;
+  --bg-paper: #f5dce2;
   --border: rgba(139, 90, 107, 0.08);
   --border-focus: rgba(139, 90, 107, 0.22);
   --text-primary: #5c4a50;
@@ -181,19 +173,11 @@
   --shadow-sm: 0 2px 8px rgba(139, 90, 107, 0.10), 0 0 1px rgba(255, 255, 255, 0.3);
   --shadow-md: 0 8px 28px rgba(139, 90, 107, 0.14), 0 2px 8px rgba(139, 90, 107, 0.08);
   --shadow-float: 0 12px 40px rgba(139, 90, 107, 0.18), 0 4px 14px rgba(139, 90, 107, 0.10), inset 0 0.5px 0 rgba(255, 255, 255, 0.4);
-  --glass-bg: rgba(255, 255, 255, 0.18);
-  --glass-border: rgba(255, 255, 255, 0.25);
-  --glass-bg-hover: rgba(255, 255, 255, 0.28);
-  --glass-blur: blur(20px) saturate(140%);
-  --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
-  /* Apple Liquid Glass — sakura recipe */
-  --glass-container-bg: rgba(255, 255, 255, 0.18);
-  --glass-container-shadow: 0 10px 15px rgba(139, 90, 107, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.60);
-  --glass-container-border: rgba(139, 90, 107, 0.18);
-  --glass-active-bg: rgba(255, 255, 255, 0.65);
-  --glass-active-shadow: 0 4px 12px rgba(139, 90, 107, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  --glass-active-border: rgba(255, 255, 255, 0.45);
-  --glass-specular: rgba(255, 255, 255, 0.70);
+  --glass-bg: rgba(255, 255, 255, 0.22);
+  --glass-border: rgba(255, 255, 255, 0.30);
+  --glass-bg-hover: rgba(255, 255, 255, 0.32);
+  --glass-blur: blur(15px) saturate(140%);
+  --glass-inset: inset 2px 2px 2px 0 rgba(255, 255, 255, 0.4), inset -2px -2px 2px 0 rgba(255, 255, 255, 0.4);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -250,9 +234,6 @@
   --btn-depth: 0 1px 2px rgba(139, 90, 107, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   --btn-depth-hover: 0 2px 8px rgba(139, 90, 107, 0.18), 0 0 16px rgba(139, 90, 107, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   --btn-depth-active: inset 0 1px 3px rgba(139, 90, 107, 0.3);
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-bg-hover: rgba(255, 255, 255, 0.15);
   --panel-glow: 0 0 20px rgba(139, 90, 107, 0.08);
   --action-gradient: linear-gradient(135deg, rgba(139, 184, 158, 0.18), rgba(139, 184, 158, 0.06));
   --action-border: rgba(139, 184, 158, 0.35);
@@ -280,7 +261,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
   --bg-deep: #f3f3f0;
-  --bg-gradient: radial-gradient(ellipse at 35% 5%, #f8f8f6 0%, #f5f5f2 40%, #f3f3f0 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 70% 30%, #faf8f5 0%, #f3f3f0 50%, #eceae5 100%);
   --bg-panel: rgba(255, 255, 255, 0.92);
   --bg-card: rgba(252, 252, 250, 0.88);
   --bg-hover: rgba(0, 0, 0, 0.03);
@@ -314,19 +295,11 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05), 0 0 1px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.10), 0 4px 14px rgba(0, 0, 0, 0.06), inset 0 0.5px 0 rgba(255, 255, 255, 0.8);
-  --glass-bg: rgba(255, 255, 255, 0.40);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(0, 0, 0, 0.10);
   --glass-bg-hover: rgba(255, 255, 255, 0.55);
-  --glass-blur: blur(20px) saturate(120%);
-  --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.9);
-  /* Apple Liquid Glass — light recipe */
-  --glass-container-bg: rgba(255, 255, 255, 0.20);
-  --glass-container-shadow: 0 10px 15px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  --glass-container-border: rgba(0, 0, 0, 0.10);
-  --glass-active-bg: rgba(255, 255, 255, 0.80);
-  --glass-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  --glass-active-border: rgba(0, 0, 0, 0.08);
-  --glass-specular: rgba(255, 255, 255, 0.95);
+  --glass-blur: blur(15px) saturate(130%);
+  --glass-inset: inset 2px 2px 2px 0 rgba(255, 255, 255, 0.5), inset -2px -2px 2px 0 rgba(255, 255, 255, 0.5);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -418,7 +391,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="linen"] {
   --bg-deep: #F8EDE2;
-  --bg-gradient: radial-gradient(ellipse at 30% 0%, #FCF3EA 0%, #FAF0E6 40%, #F8EDE2 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 40% 20%, #fdf4e8 0%, #F8EDE2 40%, #eedcc8 100%);
   --bg-panel: rgba(245, 235, 224, 0.92);
   --bg-card: rgba(250, 240, 230, 0.88);
   --bg-hover: rgba(164, 119, 100, 0.08);
@@ -452,19 +425,11 @@
   --shadow-sm: 0 2px 8px rgba(92, 64, 51, 0.08), 0 0 1px rgba(255, 255, 255, 0.25);
   --shadow-md: 0 8px 28px rgba(92, 64, 51, 0.12), 0 2px 8px rgba(92, 64, 51, 0.06);
   --shadow-float: 0 12px 40px rgba(92, 64, 51, 0.15), 0 4px 14px rgba(92, 64, 51, 0.08), inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
-  --glass-bg: rgba(255, 255, 255, 0.30);
-  --glass-border: rgba(164, 119, 100, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.32);
+  --glass-border: rgba(164, 119, 100, 0.15);
   --glass-bg-hover: rgba(255, 255, 255, 0.42);
-  --glass-blur: blur(20px) saturate(130%);
-  --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.6);
-  /* Apple Liquid Glass — linen recipe */
-  --glass-container-bg: rgba(255, 255, 255, 0.20);
-  --glass-container-shadow: 0 10px 15px rgba(92, 64, 51, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.60);
-  --glass-container-border: rgba(164, 119, 100, 0.16);
-  --glass-active-bg: rgba(255, 255, 255, 0.72);
-  --glass-active-shadow: 0 4px 12px rgba(92, 64, 51, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  --glass-active-border: rgba(164, 119, 100, 0.12);
-  --glass-specular: rgba(255, 255, 255, 0.80);
+  --glass-blur: blur(15px) saturate(130%);
+  --glass-inset: inset 2px 2px 2px 0 rgba(255, 255, 255, 0.45), inset -2px -2px 2px 0 rgba(255, 255, 255, 0.45);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -553,13 +518,13 @@
    ═══════════════════════════════════════════ */
 [data-theme="forest"] {
   --bg-deep: #251D14;
-  --bg-gradient: radial-gradient(ellipse at 25% 0%, #342A1E 0%, #2E2418 35%, #292015 65%, #251D14 100%);
-  --bg-panel: rgba(55, 46, 36, 0.82);
-  --bg-card: rgba(62, 52, 42, 0.75);
+  --bg-deep-gradient: radial-gradient(ellipse at 30% 30%, #332a20 0%, #251D14 50%, #1a140d 100%);
+  --bg-panel: rgba(51, 42, 32, 0.72);
+  --bg-card: rgba(58, 48, 40, 0.60);
   --bg-hover: rgba(139, 115, 85, 0.08);
   --bg-active: rgba(139, 115, 85, 0.12);
   --bg-sidebar: rgba(36, 28, 20, 0.80);
-  --bg-paper: #352C22;
+  --bg-paper: #2A2118;
   --border: rgba(139, 115, 85, 0.10);
   --border-focus: rgba(139, 115, 85, 0.28);
   --text-primary: #D4C8B8;
@@ -587,19 +552,11 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.30), 0 0 1px rgba(139, 115, 85, 0.08);
   --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.20);
   --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.50), 0 4px 16px rgba(0, 0, 0, 0.30), inset 0 0.5px 0 rgba(139, 115, 85, 0.10);
-  --glass-bg: rgba(139, 115, 85, 0.06);
-  --glass-border: rgba(139, 115, 85, 0.14);
-  --glass-bg-hover: rgba(139, 115, 85, 0.10);
-  --glass-blur: blur(20px) saturate(140%);
-  --glass-inset: inset 0 0.5px 0 rgba(139, 115, 85, 0.12);
-  /* Apple Liquid Glass — forest recipe */
-  --glass-container-bg: rgba(0, 0, 0, 0.35);
-  --glass-container-shadow: 0 10px 15px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(139, 115, 85, 0.08);
-  --glass-container-border: rgba(0, 0, 0, 0.50);
-  --glass-active-bg: rgba(139, 115, 85, 0.18);
-  --glass-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(139, 115, 85, 0.15);
-  --glass-active-border: rgba(139, 115, 85, 0.25);
-  --glass-specular: rgba(255, 255, 255, 0.25);
+  --glass-bg: rgba(139, 115, 85, 0.14);
+  --glass-border: rgba(139, 115, 85, 0.22);
+  --glass-bg-hover: rgba(139, 115, 85, 0.20);
+  --glass-blur: blur(15px) saturate(140%);
+  --glass-inset: inset 2px 2px 2px 0 rgba(255, 255, 255, 0.2), inset -2px -2px 2px 0 rgba(255, 255, 255, 0.2);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -720,7 +677,7 @@ body {
   padding: 0;
 }
 body {
-  background: var(--bg-gradient, var(--bg-deep));
+  background: var(--bg-deep-gradient, var(--bg-deep));
   color: var(--text-primary);
   font-family: var(--font-ui-family);
   font-size: 14px;
@@ -730,80 +687,68 @@ body {
 }
 
 /* ─── Apple Liquid Glass — button & panel effects ─── */
-
-/* Glass button: elevated look with specular highlight */
 .glass-btn {
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  background: var(--glass-active-bg);
-  border: 0.5px solid var(--glass-active-border);
-  box-shadow: var(--glass-active-shadow);
-  transition: all 180ms cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-inset), 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: all 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .glass-btn::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 10%;
-  right: 10%;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(
     to right,
     transparent,
-    var(--glass-specular),
+    rgba(255, 255, 255, 0.45),
     transparent
   );
   pointer-events: none;
 }
 
 .glass-btn:hover {
-  transform: translateY(-1px) scale(1.02);
+  background: var(--glass-bg-hover);
+  box-shadow: var(--glass-inset), 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 255, 255, 0.06);
 }
 
 .glass-btn:active {
-  transform: scale(0.97);
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Glass container: Apple Liquid Glass pill look */
-.glass-container {
-  position: relative;
-  background: var(--glass-container-bg);
-  border: 1px solid var(--glass-container-border);
-  box-shadow: var(--glass-container-shadow);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius-sm);
-  transition: background 500ms, border-color 500ms;
-}
-
-/* Specular highlight on top edge */
-.glass-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 8%;
-  right: 8%;
-  height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--glass-specular, rgba(255, 255, 255, 0.3)),
-    transparent
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Glass panel: floating panel with depth */
+/* Glass panel variant (no hover scale) */
 .glass-panel {
   position: relative;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  border: 0.5px solid var(--glass-border);
   box-shadow: var(--shadow-float);
 }
 
@@ -811,175 +756,47 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: 5%;
-  right: 5%;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(
     to right,
-    transparent,
-    var(--glass-specular, rgba(255, 255, 255, 0.3)),
-    transparent
+    transparent 5%,
+    rgba(255, 255, 255, 0.2),
+    transparent 95%
   );
   pointer-events: none;
   border-radius: inherit;
-  z-index: 1;
 }
 
-/* Glass elevated: active/selected element (brighter glass) */
-.glass-elevated {
+/* ─── Glass card — login, register, payment menus (Glassmorphism Trust Hero style) ─── */
+.glass-card {
   position: relative;
-  background: var(--glass-active-bg) !important;
-  border: 1px solid var(--glass-active-border) !important;
-  box-shadow: var(--glass-active-shadow) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--glass-inset),
+    0 8px 32px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
 }
 
-.glass-elevated::after {
+.glass-card::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 10%;
-  right: 10%;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(
     to right,
-    transparent,
-    var(--glass-specular, rgba(255, 255, 255, 0.3)),
-    transparent
+    transparent 10%,
+    rgba(255, 255, 255, 0.3),
+    transparent 90%
   );
   pointer-events: none;
-  border-radius: inherit;
-  z-index: 1;
-}
-
-/* ─── Desk surface texture per theme ─── */
-/* Dark: slate desk */
-:root .glass-workspace,
-[data-theme="dark"] .glass-workspace {
-  background:
-    repeating-conic-gradient(rgba(255, 255, 255, 0.008) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
-    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.02) 0%, transparent 60%),
-    var(--bg-deep);
-}
-/* Sakura: soft paper */
-[data-theme="sakura"] .glass-workspace {
-  background:
-    repeating-conic-gradient(rgba(139, 90, 107, 0.015) 0% 25%, transparent 0% 50%) 0 0 / 3px 3px,
-    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 50%),
-    var(--bg-deep);
-}
-/* Light: clean surface */
-[data-theme="light"] .glass-workspace {
-  background:
-    repeating-conic-gradient(rgba(0, 0, 0, 0.008) 0% 25%, transparent 0% 50%) 0 0 / 3px 3px,
-    radial-gradient(ellipse at 50% 0%, rgba(0, 0, 0, 0.01) 0%, transparent 50%),
-    var(--bg-deep);
-}
-/* Linen: fabric texture */
-[data-theme="linen"] .glass-workspace {
-  background:
-    repeating-linear-gradient(45deg, rgba(164, 119, 100, 0.02) 0px, transparent 1px, transparent 3px, rgba(164, 119, 100, 0.02) 4px),
-    repeating-linear-gradient(-45deg, rgba(164, 119, 100, 0.015) 0px, transparent 1px, transparent 4px, rgba(164, 119, 100, 0.015) 5px),
-    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
-    var(--bg-deep);
-}
-/* Forest: wood grain */
-[data-theme="forest"] .glass-workspace {
-  background:
-    repeating-linear-gradient(0deg, rgba(139, 115, 85, 0.02) 0px, transparent 2px, transparent 6px, rgba(139, 115, 85, 0.015) 8px),
-    repeating-conic-gradient(rgba(139, 115, 85, 0.008) 0% 25%, transparent 0% 50%) 0 0 / 5px 5px,
-    radial-gradient(ellipse at 50% 0%, rgba(139, 115, 85, 0.03) 0%, transparent 50%),
-    var(--bg-deep);
-}
-
-/* ─── Fading top header — glass edge that dissolves ─── */
-.glass-header-fade {
-  background: linear-gradient(
-    to bottom,
-    rgba(30, 30, 34, 0.95) 0%,
-    rgba(30, 30, 34, 0.6) 40%,
-    rgba(30, 30, 34, 0) 100%
-  ) !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-[data-theme="forest"] .glass-header-fade {
-  background: linear-gradient(
-    to bottom,
-    rgba(37, 29, 20, 0.95) 0%,
-    rgba(37, 29, 20, 0.6) 40%,
-    rgba(37, 29, 20, 0) 100%
-  ) !important;
-}
-[data-theme="sakura"] .glass-header-fade {
-  background: linear-gradient(
-    to bottom,
-    rgba(235, 191, 200, 0.95) 0%,
-    rgba(235, 191, 200, 0.6) 40%,
-    rgba(235, 191, 200, 0) 100%
-  ) !important;
-}
-[data-theme="light"] .glass-header-fade {
-  background: linear-gradient(
-    to bottom,
-    rgba(243, 243, 240, 0.95) 0%,
-    rgba(243, 243, 240, 0.6) 40%,
-    rgba(243, 243, 240, 0) 100%
-  ) !important;
-}
-[data-theme="linen"] .glass-header-fade {
-  background: linear-gradient(
-    to bottom,
-    rgba(248, 237, 226, 0.95) 0%,
-    rgba(248, 237, 226, 0.6) 40%,
-    rgba(248, 237, 226, 0) 100%
-  ) !important;
-}
-
-/* ─── Paper sheet — clean document on desk (NO glass) ─── */
-.paper-sheet {
-  background: var(--bg-paper);
-  border-radius: var(--radius) var(--radius) 0 0;
-  box-shadow: var(--paper-shadow);
-  border: 1px solid var(--border);
-  border-bottom: none;
-  overflow: hidden;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/* ─── Buttons: glass by default (Apple Liquid Glass) ─── */
-button:not(.no-glass):not(.glass-panel button):not(.glass-panel ~ * button),
-[role="button"]:not(.no-glass) {
-  background: var(--glass-container-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-container-border);
-  box-shadow: var(--glass-container-shadow);
-  border-radius: var(--radius-sm);
-  transition: background 200ms, box-shadow 200ms, border-color 200ms;
-}
-button:not(.no-glass):not(.glass-panel button):hover,
-[role="button"]:not(.no-glass):hover {
-  background: var(--glass-active-bg);
-  border-color: var(--glass-active-border);
-  box-shadow: var(--glass-active-shadow);
-}
-/* Buttons inside dropdowns/panels: no glass, just text */
-.glass-panel button,
-.glass-panel a {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-.glass-panel button:hover,
-.glass-panel a:hover {
-  background: var(--bg-hover) !important;
-  box-shadow: none !important;
 }
 
 /* ─── Scrollbar — ultra-thin ─── */
@@ -1047,7 +864,7 @@ textarea:focus:not([data-editor-textarea]) {
 .editor-source,
 .editor-target {
   font-family: var(--font-ui-family);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.7;
   letter-spacing: 0.01em;
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 
 /**
@@ -35,8 +34,6 @@ function CatLogo({ className }: { className?: string }) {
 }
 
 export default function LandingPage() {
-  const [ctaHover, setCtaHover] = useState(false);
-  const [ctaActive, setCtaActive] = useState(false);
 
   return (
     <>
@@ -85,7 +82,6 @@ export default function LandingPage() {
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
-          background: "var(--bg-deep)",
           color: "var(--text-primary)",
         }}
       >
@@ -119,26 +115,13 @@ export default function LandingPage() {
 
           <Link
             href="/login"
-            className="landing-login-btn"
+            className="landing-login-btn glass-btn"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
               color: "var(--text-primary)",
               textDecoration: "none",
               borderRadius: 9999,
-              border: "1px solid var(--border)",
-              transition: "all 150ms",
-              boxShadow: "0 1px 2px rgba(92, 64, 51, 0.06), inset 0 1px 0 rgba(255,255,255,0.5)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--bg-hover)";
-              e.currentTarget.style.borderColor = "var(--accent)";
-              e.currentTarget.style.boxShadow = "0 2px 4px rgba(92, 64, 51, 0.1), inset 0 1px 0 rgba(255,255,255,0.6)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.borderColor = "var(--border)";
-              e.currentTarget.style.boxShadow = "0 1px 2px rgba(92, 64, 51, 0.06), inset 0 1px 0 rgba(255,255,255,0.5)";
             }}
           >
             Log in
@@ -187,35 +170,16 @@ export default function LandingPage() {
 
           <Link
             href="/register"
-            className="landing-cta"
+            className="landing-cta glass-btn"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
               color: "var(--cta-text)",
-              background: ctaHover
-                ? "var(--cta-bg-gradient-hover)"
-                : "var(--cta-bg-gradient)",
-              border: "none",
               borderRadius: 9999,
               textDecoration: "none",
-              transition: "all 200ms ease",
               cursor: "pointer",
               display: "inline-block",
-              boxShadow: ctaActive
-                ? "var(--cta-shadow-active)"
-                : ctaHover
-                  ? "var(--cta-shadow-hover)"
-                  : "var(--cta-shadow)",
-              transform: ctaActive
-                ? "translateY(0)"
-                : ctaHover
-                  ? "translateY(-1px)"
-                  : "translateY(0)",
             }}
-            onMouseEnter={() => setCtaHover(true)}
-            onMouseLeave={() => { setCtaHover(false); setCtaActive(false); }}
-            onMouseDown={() => setCtaActive(true)}
-            onMouseUp={() => setCtaActive(false)}
           >
             Start translating — free
           </Link>
@@ -254,13 +218,15 @@ export default function LandingPage() {
           >
             ·
           </span>
-          <Link
-            href="/faq"
+          <button
             style={{
               fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
               textDecoration: "none",
             }}
             onMouseEnter={(e) =>
@@ -271,19 +237,21 @@ export default function LandingPage() {
             }
           >
             FAQ
-          </Link>
+          </button>
           <span
             style={{ color: "var(--text-muted)", fontSize: 12, opacity: 0.5 }}
           >
             ·
           </span>
-          <Link
-            href="/privacy"
+          <button
             style={{
               fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
               textDecoration: "none",
             }}
             onMouseEnter={(e) =>
@@ -294,7 +262,7 @@ export default function LandingPage() {
             }
           >
             Privacy
-          </Link>
+          </button>
           <span
             style={{ color: "var(--text-muted)", fontSize: 12, opacity: 0.5 }}
           >

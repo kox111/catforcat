@@ -339,7 +339,6 @@ export default function ChangelogPage() {
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
-          background: "var(--bg-deep)",
           color: "var(--text-primary)",
         }}
       >

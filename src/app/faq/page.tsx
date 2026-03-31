@@ -133,7 +133,6 @@ export default function FAQPage() {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: "var(--bg-deep)",
         color: "var(--text-primary)",
       }}
     >

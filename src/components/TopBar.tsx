@@ -149,7 +149,6 @@ export default function TopBar() {
       `}</style>
 
       <header
-        className="glass-container"
         style={{
           height: 44,
           padding: "0 20px",
@@ -157,7 +156,10 @@ export default function TopBar() {
           alignItems: "center",
           justifyContent: "space-between",
           background: "var(--bg-panel)",
-          borderBottom: "0.5px solid var(--glass-container-border)",
+          backdropFilter: "var(--glass-blur)",
+          WebkitBackdropFilter: "var(--glass-blur)",
+          borderBottom: "0.5px solid var(--glass-border)",
+          boxShadow: "0 1px 12px rgba(0, 0, 0, 0.15)",
           position: "relative",
           zIndex: 30,
         }}
@@ -216,7 +218,16 @@ export default function TopBar() {
                 }}
               />
 
-              <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <nav style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                background: "var(--bg-active)",
+                borderRadius: 9999,
+                padding: 2,
+                boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.15)",
+                border: "1px solid var(--border)",
+              }}>
                 {navItems.map((item) => {
                   const isActive =
                     pathname === item.href ||
@@ -226,27 +237,22 @@ export default function TopBar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={isActive ? "glass-elevated" : ""}
+                      className={isActive ? "glass-btn" : ""}
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        padding: "4px 12px",
-                        borderRadius: "var(--radius-sm)",
+                        padding: "5px 14px",
+                        borderRadius: 9999,
                         fontSize: 13,
                         fontFamily: "var(--font-ui-family)",
                         fontWeight: isActive ? 500 : 400,
                         textDecoration: "none",
-                        background: isActive ? "var(--glass-active-bg)" : "transparent",
-                        border: isActive ? "0.5px solid var(--glass-active-border)" : "0.5px solid transparent",
-                        boxShadow: isActive ? "var(--glass-active-shadow)" : "none",
                         color: isActive
                           ? "var(--text-primary)"
                           : "var(--text-muted)",
-                        transition: "all 150ms",
+                        transition: "background 280ms, color 280ms, box-shadow 280ms",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
-                        position: "relative",
-                        overflow: "hidden",
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
@@ -308,16 +314,18 @@ export default function TopBar() {
 
               {menuOpen && (
                 <div
-                  className="glass-panel"
                   style={{
                     position: "absolute",
                     top: 38,
                     left: -4,
                     width: 180,
                     background: "var(--bg-panel)",
+                    border: "0.5px solid var(--glass-border)",
+                    backdropFilter: "blur(16px) saturate(140%)",
                     borderRadius: 10,
                     padding: 8,
                     zIndex: 40,
+                    boxShadow: "var(--shadow-md), var(--panel-glow)",
                     animation: "fadeSlideIn 150ms ease-out",
                   }}
                 >
@@ -465,16 +473,18 @@ export default function TopBar() {
             {/* Avatar dropdown */}
             {avatarOpen && (
               <div
-                className="glass-panel"
                 style={{
                   position: "absolute",
                   top: 38,
                   right: -4,
                   width: 200,
                   background: "var(--bg-panel)",
+                  backdropFilter: "blur(16px) saturate(140%)",
+                  border: "0.5px solid var(--glass-border)",
                   borderRadius: "var(--radius)",
                   padding: 0,
                   zIndex: 40,
+                  boxShadow: "var(--shadow-md), var(--panel-glow)",
                   animation: "fadeSlideIn 150ms ease-out",
                   overflow: "hidden",
                 }}

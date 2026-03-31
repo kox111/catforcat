@@ -81,19 +81,15 @@ export default function RegisterPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "var(--bg-deep)",
         }}
       >
         <div
           suppressHydrationWarning
+          className="glass-card"
           style={{
             width: "100%",
             maxWidth: 420,
             padding: 40,
-            borderRadius: "var(--radius-lg)",
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-md)",
           }}
         >
           <h1
