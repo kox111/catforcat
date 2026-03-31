@@ -8,6 +8,7 @@ import ViewScaleProvider, {
 import ZoomFAB from "@/components/ZoomFAB";
 import Onboarding from "@/components/Onboarding";
 import UserPlanProvider from "@/components/UserPlanProvider";
+import LiquidCursor from "@/components/LiquidCursor";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -42,6 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <CommandPaletteProvider />
         <BreakReminder />
         <Onboarding />
+        <LiquidCursor />
       </ViewScaleProvider>
     </UserPlanProvider>
   );
