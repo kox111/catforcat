@@ -9,7 +9,7 @@
 :root,
 [data-theme="dark"] {
   --bg-deep: #1a1a1d;
-  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #1e1e22 0%, #1a1a1d 60%, #181820 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #1f1f21 0%, #1a1a1d 60%, #161617 100%);
   --bg-panel: rgba(37, 37, 40, 0.72);
   --bg-card: rgba(42, 42, 45, 0.65);
   --bg-hover: rgba(255, 255, 255, 0.05);
