@@ -218,8 +218,8 @@
 
   /* CTA button tokens */
   --cta-bg: var(--btn-primary-bg);
-  --cta-bg-gradient: linear-gradient(180deg, #a06a7e 0%, #8b5a6b 50%, #7a4a5e 100%);
-  --cta-bg-gradient-hover: linear-gradient(180deg, #b07a8e 0%, #a06a7e 50%, #8b5a6b 100%);
+  --cta-bg-gradient: linear-gradient(180deg, rgba(160, 106, 126, 0.28) 0%, rgba(139, 90, 107, 0.22) 50%, rgba(122, 74, 94, 0.16) 100%);
+  --cta-bg-gradient-hover: linear-gradient(180deg, rgba(176, 122, 142, 0.35) 0%, rgba(160, 106, 126, 0.28) 50%, rgba(139, 90, 107, 0.22) 100%);
   --cta-text: var(--btn-primary-text);
   --cta-shadow: var(--btn-primary-shadow);
   --cta-shadow-hover: var(--btn-primary-shadow-hover);
@@ -342,8 +342,8 @@
 
   /* CTA button tokens */
   --cta-bg: var(--btn-primary-bg);
-  --cta-bg-gradient: linear-gradient(180deg, #666666 0%, #555555 50%, #444444 100%);
-  --cta-bg-gradient-hover: linear-gradient(180deg, #777777 0%, #666666 50%, #555555 100%);
+  --cta-bg-gradient: linear-gradient(180deg, rgba(102, 102, 102, 0.22) 0%, rgba(85, 85, 85, 0.16) 50%, rgba(68, 68, 68, 0.12) 100%);
+  --cta-bg-gradient-hover: linear-gradient(180deg, rgba(119, 119, 119, 0.28) 0%, rgba(102, 102, 102, 0.22) 50%, rgba(85, 85, 85, 0.16) 100%);
   --cta-text: var(--btn-primary-text);
   --cta-shadow: var(--btn-primary-shadow);
   --cta-shadow-hover: var(--btn-primary-shadow-hover);
@@ -471,8 +471,8 @@
 
   /* CTA button tokens */
   --cta-bg: var(--btn-primary-bg);
-  --cta-bg-gradient: linear-gradient(180deg, #B08874 0%, #A47764 50%, #946B58 100%);
-  --cta-bg-gradient-hover: linear-gradient(180deg, #B89080 0%, #B08874 50%, #A47764 100%);
+  --cta-bg-gradient: linear-gradient(180deg, rgba(176, 136, 116, 0.28) 0%, rgba(164, 119, 100, 0.22) 50%, rgba(148, 107, 88, 0.16) 100%);
+  --cta-bg-gradient-hover: linear-gradient(180deg, rgba(184, 144, 128, 0.35) 0%, rgba(176, 136, 116, 0.28) 50%, rgba(164, 119, 100, 0.22) 100%);
   --cta-text: var(--btn-primary-text);
   --cta-shadow: var(--btn-primary-shadow);
   --cta-shadow-hover: var(--btn-primary-shadow-hover);
@@ -597,8 +597,8 @@
 
   /* CTA button tokens */
   --cta-bg: var(--btn-primary-bg);
-  --cta-bg-gradient: linear-gradient(180deg, #9A8365 0%, #8B7355 50%, #7A6348 100%);
-  --cta-bg-gradient-hover: linear-gradient(180deg, #AA9375 0%, #9A8365 50%, #8B7355 100%);
+  --cta-bg-gradient: linear-gradient(180deg, rgba(154, 131, 101, 0.25) 0%, rgba(139, 115, 85, 0.18) 50%, rgba(122, 99, 72, 0.14) 100%);
+  --cta-bg-gradient-hover: linear-gradient(180deg, rgba(170, 147, 117, 0.32) 0%, rgba(154, 131, 101, 0.25) 50%, rgba(139, 115, 85, 0.18) 100%);
   --cta-text: var(--btn-primary-text);
   --cta-shadow: var(--btn-primary-shadow);
   --cta-shadow-hover: var(--btn-primary-shadow-hover);
@@ -766,6 +766,12 @@ body {
 /* ─── Cursor: hide native when liquid cursor active ─── */
 *, *::before, *::after {
   cursor: none !important;
+}
+
+/* ─── CTA buttons: add glass blur automatically ─── */
+button, [role="button"] {
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
 }
 
 /* ─── Scrollbar — ultra-thin ─── */
