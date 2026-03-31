@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { Check, MessageSquare, Sparkles, BookOpen } from "lucide-react";
 import type { Segment } from "@/lib/store";
+import SuggestionInline from "@/components/editor/SuggestionInline";
 
 interface TMMatchBadge {
   score: number;
@@ -39,6 +40,16 @@ interface SegmentRowProps {
   // Inline badges
   tmMatches?: TMMatchBadge[];
   glossaryMatchCount?: number;
+  // Suggestions (review mode)
+  suggestions?: Array<{
+    id: string;
+    originalText: string;
+    suggestedText: string;
+    status: string;
+    author: { name: string | null; username: string | null };
+  }>;
+  onAcceptSuggestion?: (id: string) => void;
+  onRejectSuggestion?: (id: string) => void;
 }
 
 /**
@@ -227,6 +238,10 @@ export default function SegmentRow({
   // Inline badges
   tmMatches = [],
   glossaryMatchCount = 0,
+  // Suggestions
+  suggestions = [],
+  onAcceptSuggestion,
+  onRejectSuggestion,
 }: SegmentRowProps) {
   const [tmPopoverOpen, setTmPopoverOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -674,6 +689,21 @@ export default function SegmentRow({
               </button>
             </div>
           )}
+
+        {/* Suggestions (review mode) */}
+        {suggestions.length > 0 && (
+          <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+            {suggestions.filter(s => s.status === "pending").map((s) => (
+              <SuggestionInline
+                key={s.id}
+                suggestion={s}
+                onAccept={(id) => onAcceptSuggestion?.(id)}
+                onReject={(id) => onRejectSuggestion?.(id)}
+                readOnly={!reviewMode}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Confirmed checkmark */}
         {isConfirmed && !isActive && !reviewMode && (
