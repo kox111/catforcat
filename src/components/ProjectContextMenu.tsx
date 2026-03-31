@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { FolderOpen, Pencil, Copy, Download, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -116,7 +117,9 @@ export default function ProjectContextMenu({
     onClose();
   };
 
-  return (
+  // Portal to document.body to escape ViewScaleContainer CSS transform
+  // which breaks position:fixed coordinates
+  const menu = (
     <div ref={ref} style={menuStyle}>
       {renaming ? (
         <div style={{ padding: "8px 14px" }}>
@@ -175,4 +178,9 @@ export default function ProjectContextMenu({
       )}
     </div>
   );
+
+  if (typeof document !== "undefined") {
+    return createPortal(menu, document.body);
+  }
+  return menu;
 }
