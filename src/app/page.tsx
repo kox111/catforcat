@@ -115,13 +115,15 @@ export default function LandingPage() {
 
           <Link
             href="/login"
-            className="landing-login-btn glass-btn-standalone"
+            className="landing-login-btn"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
               color: "var(--text-primary)",
               textDecoration: "none",
               borderRadius: 9999,
+              border: "1px solid var(--border)",
+              background: "transparent",
             }}
           >
             Log in
@@ -170,15 +172,19 @@ export default function LandingPage() {
 
           <Link
             href="/register"
-            className="landing-cta glass-btn-standalone"
+            className="landing-cta"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
               color: "var(--cta-text)",
+              background: "var(--cta-bg)",
               borderRadius: 9999,
               textDecoration: "none",
               cursor: "pointer",
               display: "inline-block",
+              boxShadow: "var(--cta-shadow)",
+              border: "1px solid var(--btn-primary-border)",
+              transition: "all 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
             }}
           >
             Start translating — free
