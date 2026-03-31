@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import NewProjectModal from "@/components/NewProjectModal";
 import PrivacySelector, { PrivacyBadge } from "@/components/PrivacySelector";
+import ProjectContextMenu from "@/components/ProjectContextMenu";
 import type { PrivacyLevel } from "@/lib/privacy";
 
 interface ProjectSummary {
@@ -100,6 +101,12 @@ function ProjectsContent() {
   const [privacyTarget, setPrivacyTarget] = useState<{
     id: string;
     level: PrivacyLevel;
+  } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    projectId: string;
+    projectName: string;
+    x: number;
+    y: number;
   } | null>(null);
 
   // Open new project modal from TopBar ?new=true link
@@ -316,6 +323,15 @@ function ProjectsContent() {
                 textDecoration: "none",
                 transition: "border-color 150ms, box-shadow 150ms",
               }}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                setContextMenu({
+                  projectId: project.id,
+                  projectName: project.name,
+                  x: e.clientX,
+                  y: e.clientY,
+                });
+              }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.borderColor = "var(--border-focus)")
               }
@@ -441,6 +457,24 @@ function ProjectsContent() {
           onCreated={(projectId) => {
             setShowNewProject(false);
             router.push(`/app/projects/${projectId}`);
+          }}
+        />
+      )}
+
+      {contextMenu && (
+        <ProjectContextMenu
+          projectId={contextMenu.projectId}
+          projectName={contextMenu.projectName}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          onRename={(id, newName) => {
+            setProjects((prev) =>
+              prev.map((p) => (p.id === id ? { ...p, name: newName } : p)),
+            );
+          }}
+          onDelete={(id) => {
+            setProjects((prev) => prev.filter((p) => p.id !== id));
           }}
         />
       )}

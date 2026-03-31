@@ -10,6 +10,7 @@ import {
   Star,
   FileText,
 } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
 
@@ -77,6 +78,7 @@ const THEME_DOTS: {
 
 const navItems = [
   { href: "/app/projects", label: "Projects" },
+  { href: "/app/classrooms", label: "Classrooms" },
 ];
 
 export default function TopBar() {
@@ -414,6 +416,9 @@ export default function TopBar() {
               PRO
             </span>
           )}
+
+          {/* Notification Bell */}
+          <NotificationBell />
 
           {/* Avatar with gradient ring */}
           <div ref={avatarRef} style={{ position: "relative" }} data-tour="avatar">

@@ -10,8 +10,10 @@ import PageTransition from "@/components/PageTransition";
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [usernameError, setUsernameError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +28,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({ email, password, name, username }),
       });
 
       const data = await res.json();
@@ -152,6 +154,58 @@ export default function RegisterPage() {
                 style={inputStyle}
                 placeholder="Your name"
               />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  marginBottom: 4,
+                  color: "var(--text-muted)",
+                }}
+              >
+                Username
+              </label>
+              <div style={{ position: "relative" }}>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: 12,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "var(--text-muted)",
+                    fontSize: 15,
+                    pointerEvents: "none",
+                  }}
+                >
+                  @
+                </span>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => {
+                    const val = e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, "");
+                    setUsername(val);
+                    if (val.length > 0 && val.length < 3) {
+                      setUsernameError("Min. 3 characters");
+                    } else if (val.length > 20) {
+                      setUsernameError("Max. 20 characters");
+                    } else {
+                      setUsernameError("");
+                    }
+                  }}
+                  required
+                  minLength={3}
+                  maxLength={20}
+                  style={{ ...inputStyle, paddingLeft: 28 }}
+                  placeholder="your.alias"
+                />
+              </div>
+              {usernameError && (
+                <p style={{ fontSize: 11, color: "var(--red)", marginTop: 2 }}>
+                  {usernameError}
+                </p>
+              )}
             </div>
             <div style={{ marginBottom: 16 }}>
               <label

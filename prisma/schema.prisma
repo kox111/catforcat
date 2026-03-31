@@ -11,6 +11,7 @@ model User {
   id                    String   @id @default(uuid())
   email                 String   @unique
   name                  String?
+  username              String?  @unique
   passwordHash          String?  @map("password_hash")
   plan                  String   @default("free") // free | pro
   stripeCustomerId      String?  @unique @map("stripe_customer_id")
@@ -30,6 +31,17 @@ model User {
   translationMemory TranslationMemory[]
   glossaryTerms     GlossaryTerm[]
 
+  // Classroom & Raid relations
+  projectMembers       ProjectMember[]
+  sentInvitations      Invitation[]       @relation("InvitationFrom")
+  receivedInvitations  Invitation[]       @relation("InvitationTo")
+  classroomsProfessor  Classroom[]
+  classroomMembers     ClassroomMember[]
+  submissions          Submission[]
+  suggestions          Suggestion[]
+  postIts              PostIt[]
+  notifications        Notification[]
+
   @@map("users")
 }
 
@@ -43,12 +55,20 @@ model Project {
   fileFormat String?  @map("file_format")
   status        String   @default("active") // active | completed | archived
   privacyLevel  String   @default("standard") @map("privacy_level") // "standard" | "private" | "confidential"
+  dueDate       DateTime? @map("due_date")
+  isTemplate    Boolean  @default(false) @map("is_template")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   segments Segment[]
   qaRules  QARule[]
+
+  // Classroom & Raid relations
+  members          ProjectMember[]
+  invitations      Invitation[]
+  assignmentSource Assignment[]  @relation("AssignmentTemplate")
+  submissions      Submission[]  @relation("SubmissionProject")
 
   @@map("projects")
 }
@@ -72,7 +92,9 @@ model Segment {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  suggestions Suggestion[]
+  postIts     PostIt[]
 
   @@unique([projectId, position])
   @@map("segments")
@@ -135,4 +157,190 @@ model RateLimit {
   windowStart DateTime @default(now()) @map("window_start")
 
   @@map("rate_limits")
+}
+
+// ═══════════════════════════════════════════
+// Classroom Mode + Raid System (Fase 19+22)
+// ═══════════════════════════════════════════
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  role      String   // 'owner' | 'translator' | 'reviewer' | 'professor' | 'student'
+  color     String   @default("#a09090")
+  canEdit   Boolean  @default(true) @map("can_edit")
+  invitedBy String?  @map("invited_by")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+model Invitation {
+  id          String   @id @default(uuid())
+  fromUserId  String   @map("from_user_id")
+  toEmail     String?  @map("to_email")
+  toUserId    String?  @map("to_user_id")
+  projectId   String?  @map("project_id")
+  classroomId String?  @map("classroom_id")
+  role        String
+  color       String   @default("#a09090")
+  status      String   @default("pending") // 'pending' | 'accepted' | 'declined' | 'expired'
+  token       String   @unique @default(uuid())
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  fromUser  User       @relation("InvitationFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser    User?      @relation("InvitationTo", fields: [toUserId], references: [id])
+  project   Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@map("invitations")
+}
+
+model Classroom {
+  id          String   @id @default(uuid())
+  professorId String   @map("professor_id")
+  name        String
+  description String?
+  srcLang     String   @map("src_lang")
+  tgtLang     String   @map("tgt_lang")
+  inviteCode  String   @unique @map("invite_code")
+  status      String   @default("active") // 'active' | 'archived'
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  professor   User              @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  members     ClassroomMember[]
+  assignments Assignment[]
+  invitations Invitation[]
+  sessions    ClassSession[]
+
+  @@map("classrooms")
+}
+
+model ClassroomMember {
+  id          String   @id @default(uuid())
+  classroomId String   @map("classroom_id")
+  userId      String   @map("user_id")
+  role        String   // 'professor' | 'student'
+  color       String   @default("#a09090")
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, userId])
+  @@map("classroom_members")
+}
+
+model Assignment {
+  id             String   @id @default(uuid())
+  classroomId    String   @map("classroom_id")
+  projectId      String   @map("project_id")
+  title          String
+  instructions   String?
+  dueDate        DateTime? @map("due_date")
+  gradingMode    String   @default("simple") @map("grading_mode") // 'simple' | 'rubric'
+  gradingScale   String   @default("numeric-20") @map("grading_scale") // 'numeric-20' | 'numeric-100' | 'letter'
+  rubricCriteria String?  @map("rubric_criteria") // JSON: ['accuracy', 'fluency', ...]
+  status         String   @default("draft") // 'draft' | 'active' | 'closed'
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  classroom   Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  project     Project      @relation("AssignmentTemplate", fields: [projectId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+  sessions    ClassSession[]
+
+  @@map("assignments")
+}
+
+model Submission {
+  id           String    @id @default(uuid())
+  assignmentId String    @map("assignment_id")
+  studentId    String    @map("student_id")
+  projectId    String    @map("project_id")
+  status       String    @default("in_progress") // 'in_progress' | 'submitted' | 'reviewing' | 'graded'
+  submittedAt  DateTime? @map("submitted_at")
+  gradeValue   Decimal?  @map("grade_value")
+  gradeComment String?   @map("grade_comment")
+  rubricScores String?   @map("rubric_scores") // JSON: {accuracy: 18, fluency: 15, ...}
+  gradedAt     DateTime? @map("graded_at")
+  progressPct  Int       @default(0) @map("progress_pct")
+  lastActiveAt DateTime? @map("last_active_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  project    Project    @relation("SubmissionProject", fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, studentId])
+  @@map("submissions")
+}
+
+model Suggestion {
+  id            String   @id @default(uuid())
+  segmentId     String   @map("segment_id")
+  authorId      String   @map("author_id")
+  originalText  String   @map("original_text")
+  suggestedText String   @map("suggested_text")
+  status        String   @default("pending") // 'pending' | 'accepted' | 'rejected'
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  segment Segment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("suggestions")
+}
+
+model PostIt {
+  id        String   @id @default(uuid())
+  segmentId String   @map("segment_id")
+  authorId  String   @map("author_id")
+  charStart Int      @map("char_start")
+  charEnd   Int      @map("char_end")
+  content   String
+  severity  String   @default("suggestion") // 'error' | 'suggestion' | 'good'
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  segment Segment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("post_its")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // 'invitation' | 'submission' | 'review' | 'grade' | 'deadline'
+  title     String
+  body      String
+  link      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ClassSession {
+  id           String    @id @default(uuid())
+  classroomId  String    @map("classroom_id")
+  assignmentId String?   @map("assignment_id")
+  startedAt    DateTime  @default(now()) @map("started_at")
+  endedAt      DateTime? @map("ended_at")
+  status       String    @default("active") // 'active' | 'ended'
+
+  classroom  Classroom   @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  assignment Assignment? @relation(fields: [assignmentId], references: [id])
+
+  @@map("class_sessions")
 }

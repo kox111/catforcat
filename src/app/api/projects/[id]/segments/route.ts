@@ -19,12 +19,21 @@ export async function PATCH(
 
   const { id } = await params;
 
-  // Verify project ownership
-  const project = await prisma.project.findFirst({
-    where: { id, userId: user.id },
+  // Verify project ownership or membership
+  const project = await prisma.project.findUnique({
+    where: { id },
   });
   if (!project) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  if (project.userId !== user.id) {
+    const member = await prisma.projectMember.findUnique({
+      where: { projectId_userId: { projectId: id, userId: user.id } },
+    });
+    if (!member || !member.canEdit) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   try {
@@ -50,6 +59,22 @@ export async function PATCH(
         }),
       ),
     );
+
+    // Update submission progress if this project belongs to a submission
+    const submission = await prisma.submission.findFirst({
+      where: { projectId: id, studentId: user.id },
+    });
+    if (submission) {
+      const total = await prisma.segment.count({ where: { projectId: id } });
+      const confirmed = await prisma.segment.count({
+        where: { projectId: id, status: "confirmed" },
+      });
+      const pct = total > 0 ? Math.round((confirmed / total) * 100) : 0;
+      await prisma.submission.update({
+        where: { id: submission.id },
+        data: { progressPct: pct, lastActiveAt: new Date() },
+      });
+    }
 
     return NextResponse.json({ updated: updates.length });
   } catch (error) {
