@@ -221,7 +221,7 @@ function ProjectsContent() {
           <div
             style={{
               display: "flex",
-              gap: 12,
+              gap: 8,
               overflowX: "auto",
               paddingBottom: 4,
             }}
@@ -232,24 +232,29 @@ function ProjectsContent() {
                 href={`/app/projects/${p.id}`}
                 style={{
                   flexShrink: 0,
-                  borderRadius: "var(--radius)",
-                  padding: "12px 16px",
+                  borderRadius: 9999,
+                  padding: "6px 14px",
                   background: "var(--bg-panel)",
                   border: "1px solid var(--border)",
-                  minWidth: 200,
                   textDecoration: "none",
-                  transition: "border-color 150ms",
+                  transition: "border-color 150ms, background 150ms",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  maxWidth: 260,
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.borderColor = "var(--accent)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.borderColor = "var(--border)")
-                }
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--accent)";
+                  e.currentTarget.style.background = "var(--bg-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border)";
+                  e.currentTarget.style.background = "var(--bg-panel)";
+                }}
               >
-                <div
+                <span
                   style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 500,
                     color: "var(--text-primary)",
                     overflow: "hidden",
@@ -258,37 +263,16 @@ function ProjectsContent() {
                   }}
                 >
                   {p.name}
-                </div>
-                <div
+                </span>
+                <span
                   style={{
-                    fontSize: 11,
-                    marginTop: 4,
+                    fontSize: 10,
                     color: "var(--text-muted)",
+                    flexShrink: 0,
                   }}
                 >
-                  {p.progress}% —{" "}
-                  {LANG_LABELS[p.srcLang]?.slice(0, 2) || p.srcLang}→
-                  {LANG_LABELS[p.tgtLang]?.slice(0, 2) || p.tgtLang}
-                </div>
-                <div
-                  style={{
-                    width: "100%",
-                    height: 4,
-                    borderRadius: 2,
-                    marginTop: 8,
-                    background: "var(--bg-deep)",
-                  }}
-                >
-                  <div
-                    style={{
-                      height: 4,
-                      borderRadius: 2,
-                      width: `${p.progress}%`,
-                      background:
-                        p.progress === 100 ? "var(--green)" : "var(--accent)",
-                    }}
-                  />
-                </div>
+                  {p.progress}%
+                </span>
               </Link>
             ))}
           </div>
