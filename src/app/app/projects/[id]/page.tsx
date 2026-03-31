@@ -390,9 +390,11 @@ export default function EditorPage({
         const errorCount = data.errors || 0;
         const skipped = data.skippedDueToQuota || 0;
 
-        let msg = `Pre-translated: ${tmCount} from TM, ${apiCount} via API`;
-        if (errorCount > 0) msg += `, ${errorCount} errors`;
-        if (skipped > 0) msg += `, ${skipped} skipped (quota limit)`;
+        let msg = data.message
+          ? data.message
+          : `Pre-translated: ${tmCount} from TM, ${apiCount} via API`;
+        if (!data.message && errorCount > 0) msg += `, ${errorCount} errors`;
+        if (!data.message && skipped > 0) msg += `, ${skipped} skipped (quota limit)`;
 
         setPreTranslateToast(msg);
         setPreTranslateProgress({

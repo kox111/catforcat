@@ -138,6 +138,30 @@ export async function POST(
   }
 
   // ── PASS 2: API Translation (uses AI quota) ──
+  // Check if any translation API is configured
+  const deeplAvailable = !!process.env.DEEPL_API_KEY;
+  const googleAvailable = !!process.env.GOOGLE_TRANSLATE_API_KEY;
+
+  if (!deeplAvailable && !googleAvailable) {
+    return NextResponse.json({
+      type: "done",
+      tmFilled: tmResults.length,
+      apiFilled: 0,
+      errors: 0,
+      results: tmResults.map((r) => ({
+        segmentId: r.segmentId,
+        targetText: r.targetText,
+        status: r.status,
+        source: "tm" as const,
+      })),
+      remaining: remainingForApi.length,
+      message:
+        remainingForApi.length > 0
+          ? `Translation API not configured. ${tmResults.length} segments filled from TM. ${remainingForApi.length} segments need a DeepL or Google Translate API key.`
+          : undefined,
+    });
+  }
+
   // Check monthly limits
   const AI_LIMITS: Record<string, number> = { free: 5000, pro: 999999999 };
   const monthlyLimit = AI_LIMITS[user.plan] || AI_LIMITS.free;
@@ -159,7 +183,6 @@ export async function POST(
   const segmentsToTranslate = remainingForApi.slice(0, availableQuota);
 
   // Pro → DeepL if configured, otherwise Google as fallback
-  const deeplAvailable = !!process.env.DEEPL_API_KEY;
   const provider = user.plan === "pro" && deeplAvailable ? "deepl" : "google";
   const apiResults: Array<{
     segmentId: string;
