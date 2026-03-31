@@ -4,6 +4,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { Check, MessageSquare, Sparkles, BookOpen } from "lucide-react";
 import type { Segment } from "@/lib/store";
 import SuggestionInline from "@/components/editor/SuggestionInline";
+import PostItAnchor from "@/components/editor/PostItAnchor";
 
 interface TMMatchBadge {
   score: number;
@@ -50,6 +51,18 @@ interface SegmentRowProps {
   }>;
   onAcceptSuggestion?: (id: string) => void;
   onRejectSuggestion?: (id: string) => void;
+  // Post-its (review mode)
+  postIts?: Array<{
+    id: string;
+    charStart: number;
+    charEnd: number;
+    content: string;
+    severity: string;
+    resolved: boolean;
+    author: { name: string | null; username: string | null };
+  }>;
+  onResolvePostIt?: (id: string) => void;
+  onDeletePostIt?: (id: string) => void;
 }
 
 /**
@@ -242,6 +255,10 @@ export default function SegmentRow({
   suggestions = [],
   onAcceptSuggestion,
   onRejectSuggestion,
+  // Post-its
+  postIts = [],
+  onResolvePostIt,
+  onDeletePostIt,
 }: SegmentRowProps) {
   const [tmPopoverOpen, setTmPopoverOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -486,6 +503,17 @@ export default function SegmentRow({
             G·{glossaryMatchCount}
           </div>
         )}
+
+        {/* Post-it indicators */}
+        {postIts.filter(p => !p.resolved).map((p) => (
+          <PostItAnchor
+            key={p.id}
+            postIt={p}
+            onResolve={(id) => onResolvePostIt?.(id)}
+            onDelete={(id) => onDeletePostIt?.(id)}
+            readOnly={!reviewMode}
+          />
+        ))}
       </div>
 
       {/* Source paragraph */}
