@@ -485,8 +485,9 @@ export default function SegmentRow({
           letterSpacing: "0.01em",
           userSelect: isActive ? "text" : "none",
           cursor: isActive ? "text" : "pointer",
-          background: isActive ? "var(--bg-active)" : "transparent",
-          borderRadius: 0,
+          background: isActive ? "var(--bg-active)" : "var(--bg-paper)",
+          borderLeft: "1px solid var(--border)",
+          borderRight: "1px solid var(--border)",
         }}
       >
         <HighlightedSource
@@ -512,8 +513,9 @@ export default function SegmentRow({
           flex: 1 - columnRatio,
           padding: "14px 24px",
           position: "relative",
-          background: isActive ? "var(--bg-active)" : "transparent",
-          borderRadius: 0,
+          background: isActive ? "var(--bg-active)" : "var(--bg-paper)",
+          borderLeft: "1px solid var(--border)",
+          borderRight: "1px solid var(--border)",
         }}
       >
         {/* AI Loading indicator */}

@@ -2059,8 +2059,8 @@ export default function EditorPage({
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              padding: "8px 12px 0 12px",
+              alignItems: "flex-end",
+              padding: "16px 24px 0 24px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2070,74 +2070,33 @@ export default function EditorPage({
               textTransform: "uppercase",
             }}
           >
+            {/* Gutter spacer — matches segment row gutter */}
+            <div style={{ width: 36, minWidth: 36, flexShrink: 0 }} />
             <div
               style={{
                 flex: columnRatio,
-                padding: "5px 14px",
+                padding: "6px 14px",
                 background: "var(--bg-paper)",
                 borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
                 border: "1px solid var(--border)",
                 borderBottom: "none",
-                boxShadow: "var(--paper-shadow)",
+                boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
               }}
             >
               Source — {getLangLabel(project.srcLang)}
             </div>
             {/* Gap between sheets */}
-            <div style={{ width: 32, flexShrink: 0 }} />
-            {/* Drag handle */}
-            <div
-              style={{
-                width: 2,
-                height: 12,
-                borderRadius: 1,
-                background: "var(--border)",
-                cursor: "col-resize",
-                flexShrink: 0,
-                margin: "0 4px",
-                display: "none",
-              }}
-              title="Drag to resize columns"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                isDraggingRef.current = true;
-                const contentEl = e.currentTarget.closest(
-                  "[data-editor-content]",
-                );
-                const handleMove = (ev: MouseEvent) => {
-                  if (!isDraggingRef.current || !contentEl) return;
-                  const rect = contentEl.getBoundingClientRect();
-                  const relX = ev.clientX - rect.left - 56;
-                  const availW = rect.width - 56;
-                  const ratio = Math.max(0.25, Math.min(0.75, relX / availW));
-                  setColumnRatio(ratio);
-                };
-                const handleUp = () => {
-                  isDraggingRef.current = false;
-                  try {
-                    localStorage.setItem(
-                      "tp-column-ratio",
-                      String(columnRatio),
-                    );
-                  } catch {
-                    /* ignore */
-                  }
-                  window.removeEventListener("mousemove", handleMove);
-                  window.removeEventListener("mouseup", handleUp);
-                };
-                window.addEventListener("mousemove", handleMove);
-                window.addEventListener("mouseup", handleUp);
-              }}
-            />
+            <div style={{ width: 24, flexShrink: 0 }} />
+            {/* Drag handle — hidden for now */}
             <div
               style={{
                 flex: 1 - columnRatio,
-                padding: "5px 14px",
+                padding: "6px 14px",
                 background: "var(--bg-paper)",
                 borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
                 border: "1px solid var(--border)",
                 borderBottom: "none",
-                boxShadow: "var(--paper-shadow)",
+                boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
               }}
             >
               Target — {getLangLabel(project.tgtLang)}
