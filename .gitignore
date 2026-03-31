@@ -48,6 +48,20 @@ prisma/*.db-journal
 # claude code skills / IDE config
 .claude/
 
+# project management docs (private methodology — never push)
+ESTADO.md
+DECISIONES.md
+IDEAS.md
+CLAUDE.md
+*.BRIEF*.md
+FASE*.md
+MEJORAS*.md
+PROMPT*.md
+TranslatePro*.md
+CATFORCAT_*.md
+CORRECCION_*.md
+_mission/
+
 # python cache
 __pycache__/
 *.pyc
