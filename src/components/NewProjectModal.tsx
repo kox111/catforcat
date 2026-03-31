@@ -193,7 +193,9 @@ function LanguagePicker({
         alignItems: "center",
         justifyContent: "center",
         background: visible ? "var(--overlay)" : "transparent",
-        transition: "background 0.25s ease",
+        backdropFilter: visible ? "var(--overlay-blur)" : "none",
+        WebkitBackdropFilter: visible ? "var(--overlay-blur)" : "none",
+        transition: "background 0.25s ease, backdrop-filter 0.25s ease",
       }}
     >
       <div
@@ -201,16 +203,18 @@ function LanguagePicker({
         style={{
           width: 300,
           maxHeight: 420,
-          borderRadius: 14,
-          border: "0.5px solid var(--border)",
-          background: "var(--bg-sidebar)",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: 16,
+          border: "0.5px solid var(--glass-border)",
+          background: "var(--bg-panel)",
+          backdropFilter: "var(--glass-blur)",
+          WebkitBackdropFilter: "var(--glass-blur)",
+          boxShadow: "var(--shadow-float)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          transform: visible ? "scale(1)" : "scale(0.95)",
+          transform: visible ? "scale(1) translateY(0)" : "scale(0.96) translateY(8px)",
           opacity: visible ? 1 : 0,
-          transition: "transform 0.25s ease, opacity 0.25s ease",
+          transition: "transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.4), opacity 0.2s ease",
         }}
       >
         {/* Search bar */}

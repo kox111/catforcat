@@ -155,8 +155,11 @@ export default function TopBar() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          background: "var(--bg-deep)",
-          borderBottom: "0.5px solid var(--border)",
+          background: "var(--bg-panel)",
+          backdropFilter: "var(--glass-blur)",
+          WebkitBackdropFilter: "var(--glass-blur)",
+          borderBottom: "0.5px solid var(--glass-border)",
+          boxShadow: "0 1px 12px rgba(0, 0, 0, 0.15)",
           position: "relative",
           zIndex: 30,
         }}

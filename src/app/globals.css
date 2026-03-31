@@ -7,15 +7,15 @@
    ═══════════════════════════════════════════ */
 :root,
 [data-theme="dark"] {
-  --bg-deep: #202124;
-  --bg-panel: #252528;
-  --bg-card: #2a2a2d;
-  --bg-hover: rgba(255, 255, 255, 0.04);
-  --bg-active: rgba(255, 255, 255, 0.06);
-  --bg-sidebar: #1a1a1d;
-  --bg-paper: #202124;
-  --border: #3c3c3f;
-  --border-focus: #6e6e6e;
+  --bg-deep: #1a1a1d;
+  --bg-panel: rgba(37, 37, 40, 0.72);
+  --bg-card: rgba(42, 42, 45, 0.65);
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-active: rgba(255, 255, 255, 0.07);
+  --bg-sidebar: rgba(22, 22, 25, 0.80);
+  --bg-paper: #1a1a1d;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(255, 255, 255, 0.15);
   --text-primary: #bdb8b2;
   --text-secondary: #8a8580;
   --text-muted: #5a5a5d;
@@ -35,21 +35,23 @@
   --purple-soft: rgba(122, 106, 138, 0.1);
   --purple-text: #9a8aaa;
 
-  --status-bar: #181818;
-  --segment-divider: #2d2d30;
-  --paper-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 16px;
+  --status-bar: rgba(18, 18, 18, 0.85);
+  --segment-divider: rgba(255, 255, 255, 0.04);
+  --paper-shadow: 0 8px 40px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0.5px 0 rgba(255, 255, 255, 0.06);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 18px;
 
   --scrollbar-thumb: rgba(255, 255, 255, 0.08);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.15);
 
   --brand-wordmark: #bdb8b2;
 
-  --overlay: rgba(0, 0, 0, 0.5);
+  --overlay: rgba(0, 0, 0, 0.4);
+  --overlay-blur: blur(8px);
 
   --mark-bg: rgba(184, 154, 108, 0.3);
   --mark-text: #bdb8b2;
@@ -65,13 +67,13 @@
   --btn-primary-shadow: 0 2px 8px rgba(160, 144, 144, 0.3);
   --btn-primary-shadow-hover: 0 4px 16px rgba(160, 144, 144, 0.4);
 
-  /* Secondary: transparent bg, subtle border — toolbar icons, search, QA, glossary */
-  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
-  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.1);
+  /* Secondary: glass bg, subtle border — toolbar icons, search, QA, glossary */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.09);
   --btn-secondary-text: var(--text-secondary);
   --btn-secondary-text-hover: var(--text-primary);
-  --btn-secondary-border: rgba(255, 255, 255, 0.1);
-  --btn-secondary-border-hover: rgba(255, 255, 255, 0.2);
+  --btn-secondary-border: rgba(255, 255, 255, 0.07);
+  --btn-secondary-border-hover: rgba(255, 255, 255, 0.14);
 
   /* Ghost: no bg, no border — links, cancel, sign out, A-/A+ */
   --btn-ghost-bg: transparent;
@@ -101,10 +103,12 @@
   --btn-depth: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   --btn-depth-hover: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 16px rgba(160, 144, 144, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --btn-depth-active: inset 0 1px 3px rgba(0, 0, 0, 0.4);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-bg-hover: rgba(255, 255, 255, 0.07);
-  --panel-glow: 0 0 20px rgba(160, 144, 144, 0.06);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(20px) saturate(140%);
+  --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+  --panel-glow: 0 0 24px rgba(160, 144, 144, 0.05);
   --action-gradient: linear-gradient(135deg, rgba(92, 138, 106, 0.15), rgba(92, 138, 106, 0.05));
   --action-border: rgba(92, 138, 106, 0.3);
   --action-glow: 0 0 14px rgba(92, 138, 106, 0.15);
@@ -132,15 +136,15 @@
    bg: rosa pastel · text: gris rosado cálido
    ═══════════════════════════════════════════ */
 [data-theme="sakura"] {
-  --bg-deep: #efc4cc;
-  --bg-panel: #f2ccd3;
-  --bg-card: #f5d4da;
-  --bg-hover: rgba(255, 255, 255, 0.12);
-  --bg-active: rgba(255, 255, 255, 0.08);
-  --bg-sidebar: #e8bac2;
-  --bg-paper: #efc4cc;
-  --border: rgba(255, 255, 255, 0.15);
-  --border-focus: rgba(255, 255, 255, 0.4);
+  --bg-deep: #ebbfc8;
+  --bg-panel: rgba(242, 204, 211, 0.72);
+  --bg-card: rgba(245, 212, 218, 0.60);
+  --bg-hover: rgba(255, 255, 255, 0.15);
+  --bg-active: rgba(255, 255, 255, 0.10);
+  --bg-sidebar: rgba(232, 186, 194, 0.78);
+  --bg-paper: #ebbfc8;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(255, 255, 255, 0.30);
   --text-primary: #5c4a50;
   --text-secondary: #7a6a70;
   --text-muted: #b0a0a6;
@@ -250,15 +254,15 @@
    bg: #F5F5F2 · text: #1A1A1A
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
-  --bg-deep: #f5f5f2;
-  --bg-panel: #ffffff;
-  --bg-card: #fafaf8;
-  --bg-hover: rgba(0, 0, 0, 0.06);
-  --bg-active: #ebe9e4;
-  --bg-sidebar: #f0efec;
+  --bg-deep: #f3f3f0;
+  --bg-panel: rgba(255, 255, 255, 0.72);
+  --bg-card: rgba(250, 250, 248, 0.65);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.06);
+  --bg-sidebar: rgba(240, 239, 236, 0.78);
   --bg-paper: #ffffff;
-  --border: rgba(0, 0, 0, 0.12);
-  --border-focus: #1a1a1a;
+  --border: rgba(0, 0, 0, 0.06);
+  --border-focus: rgba(0, 0, 0, 0.18);
   --text-primary: #1a1a1a;
   --text-secondary: #555555;
   --text-muted: #aaaaaa;
@@ -373,15 +377,15 @@
    Brand identity theme — DEFAULT for new users
    ═══════════════════════════════════════════ */
 [data-theme="linen"] {
-  --bg-deep: #FAF0E6;
-  --bg-panel: #F0E0D6;
-  --bg-card: #F5EBE0;
-  --bg-hover: rgba(164, 119, 100, 0.09);
-  --bg-active: rgba(164, 119, 100, 0.14);
-  --bg-sidebar: #E8DACE;
+  --bg-deep: #F8EDE2;
+  --bg-panel: rgba(240, 224, 214, 0.72);
+  --bg-card: rgba(245, 235, 224, 0.60);
+  --bg-hover: rgba(164, 119, 100, 0.08);
+  --bg-active: rgba(164, 119, 100, 0.12);
+  --bg-sidebar: rgba(232, 218, 206, 0.78);
   --bg-paper: #FAF0E6;
-  --border: #D8C8BA;
-  --border-focus: #A47764;
+  --border: rgba(164, 119, 100, 0.12);
+  --border-focus: rgba(164, 119, 100, 0.35);
   --text-primary: #5C4033;
   --text-secondary: #8B7355;
   --text-muted: #B8A898;
@@ -493,15 +497,15 @@
    Nature-inspired, warm dark, Pantone Mocha Mousse
    ═══════════════════════════════════════════ */
 [data-theme="forest"] {
-  --bg-deep: #2A2118;
-  --bg-panel: #332A20;
-  --bg-card: #3A3028;
+  --bg-deep: #251D14;
+  --bg-panel: rgba(51, 42, 32, 0.72);
+  --bg-card: rgba(58, 48, 40, 0.60);
   --bg-hover: rgba(139, 115, 85, 0.08);
   --bg-active: rgba(139, 115, 85, 0.12);
-  --bg-sidebar: #241C14;
+  --bg-sidebar: rgba(36, 28, 20, 0.80);
   --bg-paper: #2A2118;
-  --border: #4A3E32;
-  --border-focus: #8B7355;
+  --border: rgba(139, 115, 85, 0.10);
+  --border-focus: rgba(139, 115, 85, 0.28);
   --text-primary: #D4C8B8;
   --text-secondary: #A89880;
   --text-muted: #6B5E50;

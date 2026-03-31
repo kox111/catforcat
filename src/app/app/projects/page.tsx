@@ -302,10 +302,12 @@ function ProjectsContent() {
                 borderRadius: "var(--radius)",
                 padding: 16,
                 background: "var(--bg-card)",
-                border: "1px solid var(--border)",
+                backdropFilter: "var(--glass-blur)",
+                WebkitBackdropFilter: "var(--glass-blur)",
+                border: "0.5px solid var(--glass-border)",
                 boxShadow: "var(--shadow-sm)",
                 textDecoration: "none",
-                transition: "border-color 150ms, box-shadow 150ms",
+                transition: "transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease",
               }}
               onContextMenu={(e) => {
                 e.preventDefault();
@@ -316,12 +318,16 @@ function ProjectsContent() {
                   y: e.clientY,
                 });
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.borderColor = "var(--border-focus)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.borderColor = "var(--border)")
-              }
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "var(--shadow-float)";
+                e.currentTarget.style.borderColor = "var(--border-focus)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "var(--shadow-sm)";
+                e.currentTarget.style.borderColor = "var(--glass-border)";
+              }}
             >
               <h3
                 style={{
