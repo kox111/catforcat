@@ -230,8 +230,11 @@ export default function EditorToolbar({
         justifyContent: "space-between",
         padding: "0 16px",
         height: 44,
-        background: "var(--bg-deep)",
-        borderBottom: "0.5px solid var(--border)",
+        background: "var(--bg-panel)",
+        backdropFilter: "var(--glass-blur)",
+        WebkitBackdropFilter: "var(--glass-blur)",
+        borderBottom: "0.5px solid var(--glass-border)",
+        boxShadow: "0 1px 8px rgba(0, 0, 0, 0.1)",
         flexShrink: 0,
       }}
     >

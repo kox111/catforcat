@@ -2056,12 +2056,12 @@ export default function EditorPage({
             overflow: "hidden",
           }}
         >
-          {/* Document header — language labels */}
+          {/* Document header — language labels (floating over desk) */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              padding: "4px 16px 4px 52px",
+              padding: "6px 16px 6px 52px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2071,7 +2071,18 @@ export default function EditorPage({
               textTransform: "uppercase",
             }}
           >
-            <div style={{ flex: columnRatio, paddingRight: 8 }}>
+            <div
+              style={{
+                flex: columnRatio,
+                paddingRight: 8,
+                padding: "4px 12px",
+                background: "var(--glass-bg)",
+                borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
+                backdropFilter: "blur(8px)",
+                border: "0.5px solid var(--glass-border)",
+                borderBottom: "none",
+              }}
+            >
               Source — {getLangLabel(project.srcLang)}
             </div>
             {/* Drag handle */}
@@ -2083,7 +2094,7 @@ export default function EditorPage({
                 background: "var(--border)",
                 cursor: "col-resize",
                 flexShrink: 0,
-                margin: "0 8px",
+                margin: "0 4px",
               }}
               title="Drag to resize columns"
               onMouseDown={(e) => {
@@ -2117,7 +2128,18 @@ export default function EditorPage({
                 window.addEventListener("mouseup", handleUp);
               }}
             />
-            <div style={{ flex: 1 - columnRatio, paddingLeft: 8 }}>
+            <div
+              style={{
+                flex: 1 - columnRatio,
+                paddingLeft: 8,
+                padding: "4px 12px",
+                background: "var(--glass-bg)",
+                borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
+                backdropFilter: "blur(8px)",
+                border: "0.5px solid var(--glass-border)",
+                borderBottom: "none",
+              }}
+            >
               Target — {getLangLabel(project.tgtLang)}
             </div>
           </div>
@@ -2249,20 +2271,24 @@ export default function EditorPage({
               );
             })()}
 
-          {/* Bottom Panels: Collapsible TM + Glossary */}
+          {/* Bottom Panels: Floating TM + Glossary */}
           <div
             style={{
-              background: "var(--bg-sidebar)",
+              background: "var(--bg-panel)",
+              backdropFilter: "var(--glass-blur)",
+              WebkitBackdropFilter: "var(--glass-blur)",
               height: bottomPanelCollapsed ? 28 : bottomPanelHeight,
               minHeight: 28,
               maxHeight: 300,
               display: "flex",
               flexDirection: "column",
-              margin: "0 20px 8px 20px",
-              borderRadius: "var(--radius-sm)",
+              margin: "0 16px 8px 16px",
+              borderRadius: "var(--radius)",
               overflow: "hidden",
               flexShrink: 0,
               transition: bottomDragRef.current ? "none" : "height 150ms ease",
+              border: "0.5px solid var(--glass-border)",
+              boxShadow: "var(--shadow-sm)",
             }}
           >
             {/* Drag handle */}
