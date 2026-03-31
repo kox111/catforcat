@@ -43,6 +43,21 @@ interface VirtualSegmentListProps {
   onContextMenu: (e: React.MouseEvent, segmentId: string) => void;
   tmMatchesBySegment?: Record<string, { score: number; targetText: string }[]>;
   glossaryMatchCountBySegment?: Record<string, number>;
+  // Review mode data
+  reviewMode?: boolean;
+  suggestionsBySegment?: Record<string, Array<{
+    id: string; originalText: string; suggestedText: string; status: string;
+    author: { name: string | null; username: string | null };
+  }>>;
+  postItsBySegment?: Record<string, Array<{
+    id: string; charStart: number; charEnd: number; content: string;
+    severity: string; resolved: boolean;
+    author: { name: string | null; username: string | null };
+  }>>;
+  onAcceptSuggestion?: (id: string) => void;
+  onRejectSuggestion?: (id: string) => void;
+  onResolvePostIt?: (id: string) => void;
+  onDeletePostIt?: (id: string) => void;
 }
 
 function getSegmentComment(segment: EditorSegment): string {
@@ -77,6 +92,13 @@ const VirtualSegmentList = forwardRef<
     onContextMenu,
     tmMatchesBySegment = {},
     glossaryMatchCountBySegment = {},
+    reviewMode = false,
+    suggestionsBySegment = {},
+    postItsBySegment = {},
+    onAcceptSuggestion,
+    onRejectSuggestion,
+    onResolvePostIt,
+    onDeletePostIt,
   } = props;
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -182,6 +204,13 @@ const VirtualSegmentList = forwardRef<
                 dimmed={focusMode && !isActive}
                 tmMatches={tmMatchesBySegment[segment.id] || []}
                 glossaryMatchCount={glossaryMatchCountBySegment[segment.id] || 0}
+                reviewMode={reviewMode}
+                suggestions={suggestionsBySegment[segment.id] || []}
+                postIts={postItsBySegment[segment.id] || []}
+                onAcceptSuggestion={onAcceptSuggestion}
+                onRejectSuggestion={onRejectSuggestion}
+                onResolvePostIt={onResolvePostIt}
+                onDeletePostIt={onDeletePostIt}
               />
             </div>
           );

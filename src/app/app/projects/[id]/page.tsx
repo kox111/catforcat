@@ -132,6 +132,20 @@ export default function EditorPage({
   const [recoveryBanner, setRecoveryBanner] = useState(false);
   const [concordanceOpen, setConcordanceOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
+  // Review mode: suggestions + post-its per segment
+  const [suggestionsBySegment, setSuggestionsBySegment] = useState<
+    Record<string, Array<{
+      id: string; originalText: string; suggestedText: string; status: string;
+      author: { name: string | null; username: string | null };
+    }>>
+  >({});
+  const [postItsBySegment, setPostItsBySegment] = useState<
+    Record<string, Array<{
+      id: string; charStart: number; charEnd: number; content: string;
+      severity: string; resolved: boolean;
+      author: { name: string | null; username: string | null };
+    }>>
+  >({});
   // B1: Auto-Glossary Detection
   const confirmCountRef = useRef<number>(0);
   const [autoGlossarySuggestions, setAutoGlossarySuggestions] = useState<
@@ -590,6 +604,73 @@ export default function EditorPage({
     }
     fetchProject();
   }, [id, authStatus, router, setProject, setSegments]);
+
+  // Fetch review data (suggestions + post-its) for the project
+  const fetchReviewData = useCallback(async () => {
+    if (!id) return;
+    try {
+      const [sugRes, piRes] = await Promise.all([
+        fetch(`/api/projects/${id}/suggestions`),
+        fetch(`/api/projects/${id}/post-its`),
+      ]);
+      if (sugRes.ok) {
+        const data = await sugRes.json();
+        const grouped: Record<string, typeof suggestionsBySegment[string]> = {};
+        for (const s of data.suggestions || []) {
+          const segId = s.segment?.id || s.segmentId;
+          if (segId) (grouped[segId] ||= []).push(s);
+        }
+        setSuggestionsBySegment(grouped);
+      }
+      if (piRes.ok) {
+        const data = await piRes.json();
+        const grouped: Record<string, typeof postItsBySegment[string]> = {};
+        for (const p of data.postIts || []) {
+          const segId = p.segment?.id || p.segmentId;
+          if (segId) (grouped[segId] ||= []).push(p);
+        }
+        setPostItsBySegment(grouped);
+      }
+    } catch { /* review data is optional */ }
+  }, [id]);
+
+  // Load review data after segments are available
+  useEffect(() => {
+    if (segments.length > 0) fetchReviewData();
+  }, [segments.length > 0, fetchReviewData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Review mode callbacks
+  const handleAcceptSuggestion = useCallback(async (suggestionId: string) => {
+    const res = await fetch(`/api/suggestions/${suggestionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "accepted" }),
+    });
+    if (res.ok) fetchReviewData();
+  }, [fetchReviewData]);
+
+  const handleRejectSuggestion = useCallback(async (suggestionId: string) => {
+    const res = await fetch(`/api/suggestions/${suggestionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "rejected" }),
+    });
+    if (res.ok) fetchReviewData();
+  }, [fetchReviewData]);
+
+  const handleResolvePostIt = useCallback(async (postItId: string) => {
+    const res = await fetch(`/api/post-its/${postItId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resolved: true }),
+    });
+    if (res.ok) fetchReviewData();
+  }, [fetchReviewData]);
+
+  const handleDeletePostIt = useCallback(async (postItId: string) => {
+    const res = await fetch(`/api/post-its/${postItId}`, { method: "DELETE" });
+    if (res.ok) fetchReviewData();
+  }, [fetchReviewData]);
 
   // Session recovery: restore drafts from localStorage
   useEffect(() => {
@@ -2139,6 +2220,12 @@ export default function EditorPage({
             focusMode={focusMode}
             tmMatchesBySegment={tmMatchesBySegment}
             glossaryMatchCountBySegment={glossaryMatchCountBySegment}
+            suggestionsBySegment={suggestionsBySegment}
+            postItsBySegment={postItsBySegment}
+            onAcceptSuggestion={handleAcceptSuggestion}
+            onRejectSuggestion={handleRejectSuggestion}
+            onResolvePostIt={handleResolvePostIt}
+            onDeletePostIt={handleDeletePostIt}
             onActivate={(segmentId) => setActiveSegment(segmentId)}
             onTargetChange={(segmentId, text) => {
               trackUndoHistory(segmentId, text);
