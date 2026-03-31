@@ -14,7 +14,7 @@
   --bg-hover: rgba(255, 255, 255, 0.07);
   --bg-active: rgba(255, 255, 255, 0.10);
   --bg-sidebar: rgba(26, 26, 30, 0.90);
-  --bg-paper: #1a1a1d;
+  --bg-paper: #262629;
   --border: rgba(255, 255, 255, 0.12);
   --border-focus: rgba(255, 255, 255, 0.25);
   --text-primary: #bdb8b2;
@@ -559,7 +559,7 @@
   --bg-hover: rgba(139, 115, 85, 0.08);
   --bg-active: rgba(139, 115, 85, 0.12);
   --bg-sidebar: rgba(36, 28, 20, 0.80);
-  --bg-paper: #2A2118;
+  --bg-paper: #352C22;
   --border: rgba(139, 115, 85, 0.10);
   --border-focus: rgba(139, 115, 85, 0.28);
   --text-primary: #D4C8B8;
@@ -897,20 +897,43 @@ body {
 .glass-header-fade {
   background: linear-gradient(
     to bottom,
-    var(--bg-panel) 0%,
-    rgba(0, 0, 0, 0) 100%
+    rgba(30, 30, 34, 0.95) 0%,
+    rgba(30, 30, 34, 0.6) 40%,
+    rgba(30, 30, 34, 0) 100%
   ) !important;
   border: none !important;
   box-shadow: none !important;
 }
-/* Light themes need different fade */
-[data-theme="sakura"] .glass-header-fade,
-[data-theme="light"] .glass-header-fade,
+[data-theme="forest"] .glass-header-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(37, 29, 20, 0.95) 0%,
+    rgba(37, 29, 20, 0.6) 40%,
+    rgba(37, 29, 20, 0) 100%
+  ) !important;
+}
+[data-theme="sakura"] .glass-header-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(235, 191, 200, 0.95) 0%,
+    rgba(235, 191, 200, 0.6) 40%,
+    rgba(235, 191, 200, 0) 100%
+  ) !important;
+}
+[data-theme="light"] .glass-header-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(243, 243, 240, 0.95) 0%,
+    rgba(243, 243, 240, 0.6) 40%,
+    rgba(243, 243, 240, 0) 100%
+  ) !important;
+}
 [data-theme="linen"] .glass-header-fade {
   background: linear-gradient(
     to bottom,
-    var(--bg-panel) 0%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(248, 237, 226, 0.95) 0%,
+    rgba(248, 237, 226, 0.6) 40%,
+    rgba(248, 237, 226, 0) 100%
   ) !important;
 }
 
