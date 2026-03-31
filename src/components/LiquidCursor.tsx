@@ -16,6 +16,9 @@ export default function LiquidCursor({ size = 36 }: LiquidCursorProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Hide native cursor on the entire page
+    document.body.style.cursor = "none";
+
     const handleMove = (e: MouseEvent) => {
       target.current = { x: e.clientX, y: e.clientY };
       if (!visible) setVisible(true);
@@ -84,6 +87,7 @@ export default function LiquidCursor({ size = 36 }: LiquidCursorProps) {
       window.removeEventListener("mouseenter", handleEnter);
       window.removeEventListener("click", handleClick);
       cancelAnimationFrame(animRef.current);
+      document.body.style.cursor = "";
     };
   }, [size, visible]);
 

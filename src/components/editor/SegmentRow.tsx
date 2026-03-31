@@ -473,18 +473,20 @@ export default function SegmentRow({
         )}
       </div>
 
-      {/* Source paragraph */}
+      {/* Source sheet */}
       <div
         className="segment-source"
         style={{
           flex: columnRatio,
-          padding: "16px 24px 16px 16px",
+          padding: "16px 20px 16px 16px",
           color: "var(--text-primary)",
           fontSize: `${fontSize}px`,
           lineHeight: "1.7",
           letterSpacing: "0.01em",
           userSelect: isActive ? "text" : "none",
           cursor: isActive ? "text" : "pointer",
+          background: isActive ? "var(--bg-card)" : "transparent",
+          borderRadius: isActive ? "var(--radius-sm) 0 0 var(--radius-sm)" : "0",
         }}
       >
         <HighlightedSource
@@ -494,25 +496,45 @@ export default function SegmentRow({
         />
       </div>
 
-      {/* Subtle vertical divider between source and target */}
+      {/* Gap between sheets */}
       <div
         style={{
-          width: 1,
-          background: "var(--segment-divider)",
-          margin: "12px 0",
-          alignSelf: "stretch",
-          opacity: 0.5,
+          width: 10,
           flexShrink: 0,
+          position: "relative",
         }}
-      />
+      >
+        {/* Soft edge fade left */}
+        <div style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 5,
+          background: "linear-gradient(to right, var(--glass-border), transparent)",
+          opacity: 0.5,
+        }} />
+        {/* Soft edge fade right */}
+        <div style={{
+          position: "absolute",
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: 5,
+          background: "linear-gradient(to left, var(--glass-border), transparent)",
+          opacity: 0.5,
+        }} />
+      </div>
 
-      {/* Target paragraph — editable */}
+      {/* Target sheet — editable */}
       <div
         className="segment-target"
         style={{
           flex: 1 - columnRatio,
           padding: "12px 20px 12px 16px",
           position: "relative",
+          background: isActive ? "var(--bg-card)" : "transparent",
+          borderRadius: isActive ? "0 var(--radius-sm) var(--radius-sm) 0" : "0",
         }}
       >
         {/* AI Loading indicator */}

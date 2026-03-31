@@ -2056,12 +2056,12 @@ export default function EditorPage({
             overflow: "hidden",
           }}
         >
-          {/* Document header — language labels (floating over desk) */}
+          {/* Document header — two sheet tabs */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              padding: "6px 16px 6px 52px",
+              padding: "6px 12px 0 48px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2074,17 +2074,19 @@ export default function EditorPage({
             <div
               style={{
                 flex: columnRatio,
-                paddingRight: 8,
-                padding: "4px 12px",
-                background: "var(--glass-bg)",
+                padding: "5px 14px",
+                background: "var(--bg-card)",
+                backdropFilter: "var(--glass-blur)",
                 borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-                backdropFilter: "blur(8px)",
                 border: "0.5px solid var(--glass-border)",
                 borderBottom: "none",
+                boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.06)",
               }}
             >
               Source — {getLangLabel(project.srcLang)}
             </div>
+            {/* Gap between sheets */}
+            <div style={{ width: 10, flexShrink: 0 }} />
             {/* Drag handle */}
             <div
               style={{
@@ -2095,6 +2097,7 @@ export default function EditorPage({
                 cursor: "col-resize",
                 flexShrink: 0,
                 margin: "0 4px",
+                display: "none",
               }}
               title="Drag to resize columns"
               onMouseDown={(e) => {
@@ -2131,13 +2134,13 @@ export default function EditorPage({
             <div
               style={{
                 flex: 1 - columnRatio,
-                paddingLeft: 8,
-                padding: "4px 12px",
-                background: "var(--glass-bg)",
+                padding: "5px 14px",
+                background: "var(--bg-card)",
+                backdropFilter: "var(--glass-blur)",
                 borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-                backdropFilter: "blur(8px)",
                 border: "0.5px solid var(--glass-border)",
                 borderBottom: "none",
+                boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.06)",
               }}
             >
               Target — {getLangLabel(project.tgtLang)}

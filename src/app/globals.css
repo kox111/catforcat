@@ -763,6 +763,11 @@ body {
   border-radius: inherit;
 }
 
+/* ─── Cursor: hide native when liquid cursor active ─── */
+*, *::before, *::after {
+  cursor: none !important;
+}
+
 /* ─── Scrollbar — ultra-thin ─── */
 ::-webkit-scrollbar {
   width: 5px;
