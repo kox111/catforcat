@@ -110,6 +110,7 @@ export default function StatusBar({
 }: StatusBarProps) {
   return (
     <div
+      className="glass-container"
       style={{
         height: 28,
         minHeight: 28,
@@ -118,9 +119,7 @@ export default function StatusBar({
         justifyContent: "space-between",
         padding: "0 14px",
         background: "var(--status-bar)",
-        backdropFilter: "var(--glass-blur)",
-        WebkitBackdropFilter: "var(--glass-blur)",
-        borderTop: "0.5px solid var(--glass-border)",
+        borderTop: "0.5px solid var(--glass-container-border)",
         fontSize: 10,
         fontFamily: "var(--font-editor-family)",
         color: "var(--text-secondary)",

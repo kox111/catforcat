@@ -297,15 +297,12 @@ function ProjectsContent() {
               key={project.id}
               href={`/app/projects/${project.id}`}
               data-tour={idx === 0 ? "first-project" : undefined}
+              className="glass-container"
               style={{
                 display: "block",
                 borderRadius: "var(--radius)",
                 padding: 16,
                 background: "var(--bg-card)",
-                backdropFilter: "var(--glass-blur)",
-                WebkitBackdropFilter: "var(--glass-blur)",
-                border: "0.5px solid var(--glass-border)",
-                boxShadow: "var(--shadow-sm)",
                 textDecoration: "none",
                 transition: "transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease",
               }}
@@ -320,13 +317,13 @@ function ProjectsContent() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "var(--shadow-float)";
-                e.currentTarget.style.borderColor = "var(--border-focus)";
+                e.currentTarget.style.boxShadow = "var(--glass-active-shadow)";
+                e.currentTarget.style.borderColor = "var(--glass-active-border)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "var(--shadow-sm)";
-                e.currentTarget.style.borderColor = "var(--glass-border)";
+                e.currentTarget.style.boxShadow = "var(--glass-container-shadow)";
+                e.currentTarget.style.borderColor = "var(--glass-container-border)";
               }}
             >
               <h3

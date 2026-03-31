@@ -223,7 +223,7 @@ export default function EditorToolbar({
 
   return (
     <div
-      className="editor-header"
+      className="editor-header glass-container"
       style={{
         display: "flex",
         alignItems: "center",
@@ -231,10 +231,7 @@ export default function EditorToolbar({
         padding: "0 16px",
         height: 44,
         background: "var(--bg-panel)",
-        backdropFilter: "var(--glass-blur)",
-        WebkitBackdropFilter: "var(--glass-blur)",
-        borderBottom: "0.5px solid var(--glass-border)",
-        boxShadow: "0 1px 8px rgba(0, 0, 0, 0.1)",
+        borderBottom: "0.5px solid var(--glass-container-border)",
         flexShrink: 0,
       }}
     >
@@ -420,18 +417,16 @@ export default function EditorToolbar({
           {/* Export dropdown */}
           {exportOpen && (
             <div
+              className="glass-panel"
               style={{
                 position: "absolute",
                 top: 36,
                 right: 0,
                 width: 220,
                 background: "var(--bg-panel)",
-                backdropFilter: "blur(16px) saturate(140%)",
-                border: "0.5px solid var(--glass-border)",
                 borderRadius: "var(--radius)",
                 padding: "6px 0",
                 zIndex: 40,
-                boxShadow: "var(--shadow-md), var(--panel-glow)",
                 animation: "fadeSlideIn 150ms ease-out",
               }}
             >
@@ -567,17 +562,15 @@ export default function EditorToolbar({
           {/* Avatar dropdown */}
           {avatarOpen && (
             <div
+              className="glass-panel"
               style={{
                 position: "absolute",
                 top: 38,
                 right: 0,
                 width: 220,
                 background: "var(--bg-panel)",
-                backdropFilter: "blur(16px) saturate(140%)",
-                border: "0.5px solid var(--glass-border)",
                 borderRadius: "var(--radius)",
                 zIndex: 40,
-                boxShadow: "var(--shadow-md), var(--panel-glow)",
                 animation: "fadeSlideIn 150ms ease-out",
                 overflow: "hidden",
               }}

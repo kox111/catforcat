@@ -149,6 +149,7 @@ export default function TopBar() {
       `}</style>
 
       <header
+        className="glass-container"
         style={{
           height: 44,
           padding: "0 20px",
@@ -156,10 +157,7 @@ export default function TopBar() {
           alignItems: "center",
           justifyContent: "space-between",
           background: "var(--bg-panel)",
-          backdropFilter: "var(--glass-blur)",
-          WebkitBackdropFilter: "var(--glass-blur)",
-          borderBottom: "0.5px solid var(--glass-border)",
-          boxShadow: "0 1px 12px rgba(0, 0, 0, 0.15)",
+          borderBottom: "0.5px solid var(--glass-container-border)",
           position: "relative",
           zIndex: 30,
         }}
@@ -228,22 +226,27 @@ export default function TopBar() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      className={isActive ? "glass-elevated" : ""}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         padding: "4px 12px",
-                        borderRadius: 6,
+                        borderRadius: "var(--radius-sm)",
                         fontSize: 13,
                         fontFamily: "var(--font-ui-family)",
                         fontWeight: isActive ? 500 : 400,
                         textDecoration: "none",
-                        background: isActive ? "var(--bg-card)" : "transparent",
+                        background: isActive ? "var(--glass-active-bg)" : "transparent",
+                        border: isActive ? "0.5px solid var(--glass-active-border)" : "0.5px solid transparent",
+                        boxShadow: isActive ? "var(--glass-active-shadow)" : "none",
                         color: isActive
                           ? "var(--text-primary)"
                           : "var(--text-muted)",
-                        transition: "background 150ms, color 150ms",
+                        transition: "all 150ms",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
+                        position: "relative",
+                        overflow: "hidden",
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
@@ -305,18 +308,16 @@ export default function TopBar() {
 
               {menuOpen && (
                 <div
+                  className="glass-panel"
                   style={{
                     position: "absolute",
                     top: 38,
                     left: -4,
                     width: 180,
                     background: "var(--bg-panel)",
-                    border: "0.5px solid var(--glass-border)",
-                    backdropFilter: "blur(16px) saturate(140%)",
                     borderRadius: 10,
                     padding: 8,
                     zIndex: 40,
-                    boxShadow: "var(--shadow-md), var(--panel-glow)",
                     animation: "fadeSlideIn 150ms ease-out",
                   }}
                 >
@@ -464,18 +465,16 @@ export default function TopBar() {
             {/* Avatar dropdown */}
             {avatarOpen && (
               <div
+                className="glass-panel"
                 style={{
                   position: "absolute",
                   top: 38,
                   right: -4,
                   width: 200,
                   background: "var(--bg-panel)",
-                  backdropFilter: "blur(16px) saturate(140%)",
-                  border: "0.5px solid var(--glass-border)",
                   borderRadius: "var(--radius)",
                   padding: 0,
                   zIndex: 40,
-                  boxShadow: "var(--shadow-md), var(--panel-glow)",
                   animation: "fadeSlideIn 150ms ease-out",
                   overflow: "hidden",
                 }}

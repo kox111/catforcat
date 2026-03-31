@@ -2072,15 +2072,12 @@ export default function EditorPage({
             }}
           >
             <div
+              className="glass-elevated"
               style={{
                 flex: columnRatio,
                 padding: "5px 14px",
-                background: "var(--bg-card)",
-                backdropFilter: "var(--glass-blur)",
                 borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-                border: "0.5px solid var(--glass-border)",
                 borderBottom: "none",
-                boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.06)",
               }}
             >
               Source — {getLangLabel(project.srcLang)}
@@ -2132,15 +2129,12 @@ export default function EditorPage({
               }}
             />
             <div
+              className="glass-elevated"
               style={{
                 flex: 1 - columnRatio,
                 padding: "5px 14px",
-                background: "var(--bg-card)",
-                backdropFilter: "var(--glass-blur)",
                 borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-                border: "0.5px solid var(--glass-border)",
                 borderBottom: "none",
-                boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.06)",
               }}
             >
               Target — {getLangLabel(project.tgtLang)}
@@ -2276,10 +2270,9 @@ export default function EditorPage({
 
           {/* Bottom Panels: Floating TM + Glossary */}
           <div
+            className="glass-container"
             style={{
               background: "var(--bg-panel)",
-              backdropFilter: "var(--glass-blur)",
-              WebkitBackdropFilter: "var(--glass-blur)",
               height: bottomPanelCollapsed ? 28 : bottomPanelHeight,
               minHeight: 28,
               maxHeight: 300,
@@ -2290,8 +2283,6 @@ export default function EditorPage({
               overflow: "hidden",
               flexShrink: 0,
               transition: bottomDragRef.current ? "none" : "height 150ms ease",
-              border: "0.5px solid var(--glass-border)",
-              boxShadow: "var(--shadow-sm)",
             }}
           >
             {/* Drag handle */}

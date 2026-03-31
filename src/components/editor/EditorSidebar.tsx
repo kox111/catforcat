@@ -68,14 +68,13 @@ export default function EditorSidebar({
 
   return (
     <div
+      className="glass-container"
       style={{
         width: 44,
         minWidth: 44,
         height: "100%",
         background: "var(--bg-sidebar)",
-        backdropFilter: "var(--glass-blur)",
-        WebkitBackdropFilter: "var(--glass-blur)",
-        borderRight: "0.5px solid var(--glass-border)",
+        borderRight: "0.5px solid var(--glass-container-border)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -123,12 +122,12 @@ export default function EditorSidebar({
                   height: 34,
                   borderRadius: 8,
                   border: active
-                    ? "0.5px solid var(--accent)"
+                    ? "0.5px solid var(--glass-active-border)"
                     : hovered
                       ? "0.5px solid var(--glass-border)"
                       : "0.5px solid transparent",
                   background: active
-                    ? "var(--glass-bg-hover)"
+                    ? "var(--glass-active-bg)"
                     : hovered
                       ? "var(--glass-bg)"
                       : "transparent",
@@ -146,7 +145,7 @@ export default function EditorSidebar({
                   transition: "all 160ms ease-out",
                   opacity: disabled ? 0.4 : 1,
                   boxShadow: active
-                    ? "var(--btn-depth-hover)"
+                    ? "var(--glass-active-shadow)"
                     : hovered
                       ? "var(--btn-glow-hover)"
                       : "none",

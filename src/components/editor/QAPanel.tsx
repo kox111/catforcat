@@ -224,9 +224,9 @@ export default function QAPanel({
         background: "var(--bg-panel)",
         backdropFilter: "var(--glass-blur)",
         WebkitBackdropFilter: "var(--glass-blur)",
-        border: "0.5px solid var(--glass-border)",
+        border: "0.5px solid var(--glass-container-border)",
         boxShadow: visible
-          ? "var(--shadow-float)"
+          ? "var(--glass-container-shadow), var(--shadow-float)"
           : "var(--shadow-sm)",
         opacity: visible ? 1 : 0,
         transform: visible ? "scale(1) translateY(0)" : "scale(0.96) translateY(6px)",

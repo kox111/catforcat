@@ -8,6 +8,7 @@
 :root,
 [data-theme="dark"] {
   --bg-deep: #1a1a1d;
+  --bg-gradient: radial-gradient(ellipse at 30% 0%, #222228 0%, #1e1e22 40%, #1a1a1d 100%);
   --bg-panel: rgba(37, 37, 40, 0.72);
   --bg-card: rgba(42, 42, 45, 0.65);
   --bg-hover: rgba(255, 255, 255, 0.05);
@@ -105,10 +106,18 @@
   --btn-depth-hover: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
   --btn-depth-active: inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(0, 0, 0, 0.1);
   --glass-bg: rgba(255, 255, 255, 0.04);
-  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.12);
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+  /* Apple Liquid Glass: container (sunken) + active (raised) */
+  --glass-container-bg: rgba(255, 255, 255, 0.03);
+  --glass-container-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.04);
+  --glass-container-border: rgba(255, 255, 255, 0.10);
+  --glass-active-bg: rgba(255, 255, 255, 0.10);
+  --glass-active-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --glass-active-border: rgba(255, 255, 255, 0.18);
+  --glass-specular: rgba(255, 255, 255, 0.40);
   --panel-glow: 0 0 24px rgba(160, 144, 144, 0.05);
   --action-gradient: linear-gradient(135deg, rgba(92, 138, 106, 0.15), rgba(92, 138, 106, 0.05));
   --action-border: rgba(92, 138, 106, 0.3);
@@ -138,6 +147,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="sakura"] {
   --bg-deep: #ebbfc8;
+  --bg-gradient: radial-gradient(ellipse at 40% 10%, #f0cad2 0%, #edc4cc 40%, #ebbfc8 100%);
   --bg-panel: rgba(245, 212, 220, 0.92);
   --bg-card: rgba(248, 220, 226, 0.88);
   --bg-hover: rgba(255, 255, 255, 0.15);
@@ -176,6 +186,13 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.28);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
+  --glass-container-bg: rgba(139, 90, 107, 0.06);
+  --glass-container-shadow: inset 0 2px 6px rgba(139, 90, 107, 0.25), inset 0 1px 2px rgba(0, 0, 0, 0.10), inset 0 -1px 1px rgba(255, 255, 255, 0.20);
+  --glass-container-border: rgba(139, 90, 107, 0.15);
+  --glass-active-bg: rgba(255, 255, 255, 0.55);
+  --glass-active-shadow: 0 4px 14px rgba(139, 90, 107, 0.18), 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.70);
+  --glass-active-border: rgba(255, 255, 255, 0.40);
+  --glass-specular: rgba(255, 255, 255, 0.65);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -262,6 +279,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
   --bg-deep: #f3f3f0;
+  --bg-gradient: radial-gradient(ellipse at 35% 5%, #f8f8f6 0%, #f5f5f2 40%, #f3f3f0 100%);
   --bg-panel: rgba(255, 255, 255, 0.92);
   --bg-card: rgba(252, 252, 250, 0.88);
   --bg-hover: rgba(0, 0, 0, 0.03);
@@ -296,10 +314,17 @@
   --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.10), 0 4px 14px rgba(0, 0, 0, 0.06), inset 0 0.5px 0 rgba(255, 255, 255, 0.8);
   --glass-bg: rgba(255, 255, 255, 0.40);
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --glass-bg-hover: rgba(255, 255, 255, 0.55);
   --glass-blur: blur(20px) saturate(120%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.9);
+  --glass-container-bg: rgba(0, 0, 0, 0.03);
+  --glass-container-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 -1px 1px rgba(255, 255, 255, 0.60);
+  --glass-container-border: rgba(0, 0, 0, 0.08);
+  --glass-active-bg: rgba(255, 255, 255, 0.85);
+  --glass-active-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-active-border: rgba(0, 0, 0, 0.06);
+  --glass-specular: rgba(255, 255, 255, 0.90);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -391,6 +416,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="linen"] {
   --bg-deep: #F8EDE2;
+  --bg-gradient: radial-gradient(ellipse at 30% 0%, #FCF3EA 0%, #FAF0E6 40%, #F8EDE2 100%);
   --bg-panel: rgba(245, 235, 224, 0.92);
   --bg-card: rgba(250, 240, 230, 0.88);
   --bg-hover: rgba(164, 119, 100, 0.08);
@@ -425,10 +451,17 @@
   --shadow-md: 0 8px 28px rgba(92, 64, 51, 0.12), 0 2px 8px rgba(92, 64, 51, 0.06);
   --shadow-float: 0 12px 40px rgba(92, 64, 51, 0.15), 0 4px 14px rgba(92, 64, 51, 0.08), inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
   --glass-bg: rgba(255, 255, 255, 0.30);
-  --glass-border: rgba(164, 119, 100, 0.10);
+  --glass-border: rgba(164, 119, 100, 0.12);
   --glass-bg-hover: rgba(255, 255, 255, 0.42);
   --glass-blur: blur(20px) saturate(130%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.6);
+  --glass-container-bg: rgba(164, 119, 100, 0.05);
+  --glass-container-shadow: inset 0 2px 6px rgba(92, 64, 51, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.06), inset 0 -1px 1px rgba(255, 255, 255, 0.40);
+  --glass-container-border: rgba(164, 119, 100, 0.14);
+  --glass-active-bg: rgba(255, 255, 255, 0.70);
+  --glass-active-shadow: 0 4px 14px rgba(92, 64, 51, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  --glass-active-border: rgba(164, 119, 100, 0.10);
+  --glass-specular: rgba(255, 255, 255, 0.75);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -517,6 +550,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="forest"] {
   --bg-deep: #251D14;
+  --bg-gradient: radial-gradient(ellipse at 25% 0%, #2E2518 0%, #2A2016 40%, #251D14 100%);
   --bg-panel: rgba(51, 42, 32, 0.72);
   --bg-card: rgba(58, 48, 40, 0.60);
   --bg-hover: rgba(139, 115, 85, 0.08);
@@ -551,10 +585,17 @@
   --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.20);
   --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.50), 0 4px 16px rgba(0, 0, 0, 0.30), inset 0 0.5px 0 rgba(139, 115, 85, 0.10);
   --glass-bg: rgba(139, 115, 85, 0.06);
-  --glass-border: rgba(139, 115, 85, 0.10);
+  --glass-border: rgba(139, 115, 85, 0.14);
   --glass-bg-hover: rgba(139, 115, 85, 0.10);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(139, 115, 85, 0.12);
+  --glass-container-bg: rgba(139, 115, 85, 0.04);
+  --glass-container-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(0, 0, 0, 0.30), inset 0 -1px 1px rgba(139, 115, 85, 0.06);
+  --glass-container-border: rgba(139, 115, 85, 0.14);
+  --glass-active-bg: rgba(139, 115, 85, 0.15);
+  --glass-active-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(139, 115, 85, 0.18);
+  --glass-active-border: rgba(139, 115, 85, 0.22);
+  --glass-specular: rgba(255, 255, 255, 0.25);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -675,7 +716,7 @@ body {
   padding: 0;
 }
 body {
-  background: var(--bg-deep);
+  background: var(--bg-gradient, var(--bg-deep));
   color: var(--text-primary);
   font-family: var(--font-ui-family);
   font-size: 14px;
@@ -685,45 +726,30 @@ body {
 }
 
 /* ─── Apple Liquid Glass — button & panel effects ─── */
+
+/* Glass button: elevated look with specular highlight */
 .glass-btn {
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.2);
-}
-
-.glass-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 100%
-  );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  background: var(--glass-active-bg);
+  border: 0.5px solid var(--glass-active-border);
+  box-shadow: var(--glass-active-shadow);
+  transition: all 180ms cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
 
 .glass-btn::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 10%;
+  right: 10%;
   height: 1px;
   background: linear-gradient(
     to right,
     transparent,
-    rgba(255, 255, 255, 0.45),
+    var(--glass-specular),
     transparent
   );
   pointer-events: none;
@@ -734,10 +760,21 @@ body {
 }
 
 .glass-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Glass panel variant (no hover scale) */
+/* Glass container: sunken/recessed look (like the Apple Liquid Glass Switcher pill) */
+.glass-container {
+  position: relative;
+  background: var(--glass-container-bg);
+  border: 0.5px solid var(--glass-container-border);
+  box-shadow: var(--glass-container-shadow);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+/* Glass panel: floating panel with depth */
 .glass-panel {
   position: relative;
   backdrop-filter: var(--glass-blur);
@@ -750,14 +787,41 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 5%;
+  right: 5%;
   height: 1px;
   background: linear-gradient(
     to right,
-    transparent 5%,
-    rgba(255, 255, 255, 0.2),
-    transparent 95%
+    transparent,
+    var(--glass-specular, rgba(255, 255, 255, 0.3)),
+    transparent
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Glass elevated: active/raised element inside a container */
+.glass-elevated {
+  position: relative;
+  background: var(--glass-active-bg);
+  border: 0.5px solid var(--glass-active-border);
+  box-shadow: var(--glass-active-shadow);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+
+.glass-elevated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--glass-specular, rgba(255, 255, 255, 0.3)),
+    transparent
   );
   pointer-events: none;
   border-radius: inherit;
