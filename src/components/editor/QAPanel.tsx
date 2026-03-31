@@ -170,7 +170,7 @@ export default function QAPanel({
                   fontFamily: "var(--font-ui-family)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  e.currentTarget.style.background = "var(--bg-hover)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent";
@@ -184,7 +184,7 @@ export default function QAPanel({
                     fontFamily: "var(--font-editor-family)",
                     padding: "0px 4px",
                     borderRadius: 3,
-                    background: "rgba(255,255,255,0.04)",
+                    background: "var(--glass-bg)",
                     flexShrink: 0,
                   }}
                 >
@@ -220,14 +220,14 @@ export default function QAPanel({
         maxHeight: 360,
         display: "flex",
         flexDirection: "column",
-        borderRadius: 14,
-        background: "rgba(var(--bg-card-rgb, 42, 42, 45), 0.82)",
-        backdropFilter: "blur(24px) saturate(150%)",
-        WebkitBackdropFilter: "blur(24px) saturate(150%)",
-        border: "0.5px solid rgba(255, 255, 255, 0.08)",
+        borderRadius: "var(--radius-lg)",
+        background: "var(--bg-panel)",
+        backdropFilter: "var(--glass-blur)",
+        WebkitBackdropFilter: "var(--glass-blur)",
+        border: "0.5px solid var(--glass-border)",
         boxShadow: visible
-          ? "0 8px 40px rgba(0, 0, 0, 0.35), 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 0.5px 0 rgba(255, 255, 255, 0.06)"
-          : "0 4px 20px rgba(0, 0, 0, 0.2)",
+          ? "var(--shadow-float)"
+          : "var(--shadow-sm)",
         opacity: visible ? 1 : 0,
         transform: visible ? "scale(1) translateY(0)" : "scale(0.96) translateY(6px)",
         transition: "opacity 200ms ease-out, transform 200ms ease-out, box-shadow 300ms ease",
@@ -244,7 +244,7 @@ export default function QAPanel({
           padding: "7px 12px",
           cursor: dragging ? "grabbing" : "grab",
           flexShrink: 0,
-          borderBottom: "0.5px solid rgba(255, 255, 255, 0.06)",
+          borderBottom: "0.5px solid var(--glass-border)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -293,7 +293,7 @@ export default function QAPanel({
                 padding: "2px 7px",
                 borderRadius: 6,
                 color: "var(--text-muted)",
-                border: "0.5px solid rgba(255, 255, 255, 0.08)",
+                border: "0.5px solid var(--glass-border)",
                 background: "transparent",
                 cursor: "pointer",
                 fontFamily: "var(--font-ui-family)",
@@ -322,7 +322,7 @@ export default function QAPanel({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = "var(--text-primary)";
-              e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+              e.currentTarget.style.background = "var(--glass-bg-hover)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = "var(--text-muted)";
