@@ -763,11 +763,6 @@ body {
   border-radius: inherit;
 }
 
-/* ─── Cursor: hide native when liquid cursor active ─── */
-*, *::before, *::after {
-  cursor: none !important;
-}
-
 /* ─── CTA buttons: add glass blur automatically ─── */
 button, [role="button"] {
   backdrop-filter: blur(12px) saturate(130%);
