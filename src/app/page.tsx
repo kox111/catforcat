@@ -254,15 +254,13 @@ export default function LandingPage() {
           >
             ·
           </span>
-          <button
+          <Link
+            href="/faq"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
               textDecoration: "none",
             }}
             onMouseEnter={(e) =>
@@ -273,21 +271,19 @@ export default function LandingPage() {
             }
           >
             FAQ
-          </button>
+          </Link>
           <span
             style={{ color: "var(--text-muted)", fontSize: 12, opacity: 0.5 }}
           >
             ·
           </span>
-          <button
+          <Link
+            href="/privacy"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontSize: 12,
               fontWeight: 400,
               color: "var(--text-muted)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
               textDecoration: "none",
             }}
             onMouseEnter={(e) =>
@@ -298,7 +294,7 @@ export default function LandingPage() {
             }
           >
             Privacy
-          </button>
+          </Link>
           <span
             style={{ color: "var(--text-muted)", fontSize: 12, opacity: 0.5 }}
           >
