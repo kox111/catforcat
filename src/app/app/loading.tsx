@@ -6,7 +6,6 @@ export default function Loading() {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        background: "var(--bg-deep)",
       }}
     >
       <div

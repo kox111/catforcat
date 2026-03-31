@@ -16,7 +16,6 @@ export default function EditorError({
         justifyContent: "center",
         height: "100vh",
         gap: 16,
-        background: "var(--bg-deep)",
         color: "var(--text-primary)",
       }}
     >

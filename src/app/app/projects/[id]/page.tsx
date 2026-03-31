@@ -1320,7 +1320,6 @@ export default function EditorPage({
         flexDirection: "column",
         flex: 1,
         minHeight: 0,
-        background: "var(--bg-deep)",
       }}
     >
       {/* ─── Minimal Toolbar ─── */}

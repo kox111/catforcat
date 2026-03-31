@@ -6,7 +6,6 @@ export default function EditorLoading() {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        background: "var(--bg-deep)",
         gap: 12,
       }}
     >
