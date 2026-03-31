@@ -115,7 +115,7 @@ export default function LandingPage() {
 
           <Link
             href="/login"
-            className="landing-login-btn glass-btn"
+            className="landing-login-btn glass-btn-standalone"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,
@@ -170,7 +170,7 @@ export default function LandingPage() {
 
           <Link
             href="/register"
-            className="landing-cta glass-btn"
+            className="landing-cta glass-btn-standalone"
             style={{
               fontFamily: "var(--font-ui-family)",
               fontWeight: 500,

@@ -215,16 +215,7 @@ export default function TopBar() {
                 }}
               />
 
-              <nav style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                background: "var(--bg-active)",
-                borderRadius: 9999,
-                padding: 2,
-                boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.15)",
-                border: "1px solid var(--border)",
-              }}>
+              <nav className="glass-pill">
                 {navItems.map((item) => {
                   const isActive =
                     pathname === item.href ||
@@ -245,7 +236,7 @@ export default function TopBar() {
                         fontWeight: isActive ? 500 : 400,
                         textDecoration: "none",
                         color: isActive
-                          ? "var(--text-primary)"
+                          ? "#ffffff"
                           : "var(--text-muted)",
                         transition: "background 280ms, color 280ms, box-shadow 280ms",
                         cursor: "pointer",
