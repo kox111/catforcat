@@ -274,12 +274,12 @@ export default function SegmentRow({
         position: "relative",
         cursor: "pointer",
         transition: "background 180ms ease, opacity 0.3s ease, box-shadow 180ms ease",
-        background: "transparent",
-        borderRadius: 0,
+        background: isActive ? "var(--bg-card)" : "transparent",
+        borderRadius: "var(--radius-sm)",
         opacity: dimmed ? 0.25 : 1,
-        margin: 0,
+        margin: "0 6px",
         borderLeft: isActive ? "2.5px solid var(--accent)" : "2.5px solid transparent",
-        boxShadow: "none",
+        boxShadow: isActive ? "var(--shadow-sm)" : "none",
       }}
       onMouseEnter={(e) => {
         if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
@@ -473,21 +473,18 @@ export default function SegmentRow({
         )}
       </div>
 
-      {/* Source sheet */}
+      {/* Source paragraph */}
       <div
         className="segment-source"
         style={{
           flex: columnRatio,
-          padding: "14px 24px",
+          padding: "16px 24px 16px 16px",
           color: "var(--text-primary)",
           fontSize: `${fontSize}px`,
           lineHeight: "1.7",
           letterSpacing: "0.01em",
           userSelect: isActive ? "text" : "none",
           cursor: isActive ? "text" : "pointer",
-          background: isActive ? "var(--bg-active)" : "var(--bg-paper)",
-          borderLeft: "1px solid var(--border)",
-          borderRight: "1px solid var(--border)",
         }}
       >
         <HighlightedSource
@@ -497,25 +494,25 @@ export default function SegmentRow({
         />
       </div>
 
-      {/* Gap between sheets — desk background shows through */}
+      {/* Subtle vertical divider between source and target */}
       <div
         style={{
-          width: 24,
+          width: 1,
+          background: "var(--segment-divider)",
+          margin: "12px 0",
+          alignSelf: "stretch",
+          opacity: 0.5,
           flexShrink: 0,
-          background: "transparent",
         }}
       />
 
-      {/* Target sheet — editable */}
+      {/* Target paragraph — editable */}
       <div
         className="segment-target"
         style={{
           flex: 1 - columnRatio,
-          padding: "14px 24px",
+          padding: "12px 20px 12px 16px",
           position: "relative",
-          background: isActive ? "var(--bg-active)" : "var(--bg-paper)",
-          borderLeft: "1px solid var(--border)",
-          borderRight: "1px solid var(--border)",
         }}
       >
         {/* AI Loading indicator */}

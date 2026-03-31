@@ -155,8 +155,8 @@ export default function TopBar() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          background: "transparent",
-          borderBottom: "1px solid var(--border)",
+          background: "var(--bg-deep)",
+          borderBottom: "0.5px solid var(--border)",
           position: "relative",
           zIndex: 30,
         }}
@@ -215,7 +215,7 @@ export default function TopBar() {
                 }}
               />
 
-              <nav className="glass-pill">
+              <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 {navItems.map((item) => {
                   const isActive =
                     pathname === item.href ||
@@ -225,20 +225,20 @@ export default function TopBar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={isActive ? "glass-btn" : ""}
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        padding: "5px 14px",
-                        borderRadius: 9999,
+                        padding: "4px 12px",
+                        borderRadius: 6,
                         fontSize: 13,
                         fontFamily: "var(--font-ui-family)",
                         fontWeight: isActive ? 500 : 400,
                         textDecoration: "none",
+                        background: isActive ? "var(--bg-card)" : "transparent",
                         color: isActive
-                          ? "#ffffff"
+                          ? "var(--text-primary)"
                           : "var(--text-muted)",
-                        transition: "background 280ms, color 280ms, box-shadow 280ms",
+                        transition: "background 150ms, color 150ms",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
                       }}

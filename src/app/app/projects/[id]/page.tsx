@@ -1320,6 +1320,7 @@ export default function EditorPage({
         flexDirection: "column",
         flex: 1,
         minHeight: 0,
+        background: "var(--bg-deep)",
       }}
     >
       {/* ─── Minimal Toolbar ─── */}
@@ -2055,12 +2056,12 @@ export default function EditorPage({
             overflow: "hidden",
           }}
         >
-          {/* Document header — two sheet tabs */}
+          {/* Document header — language labels */}
           <div
             style={{
               display: "flex",
-              alignItems: "flex-end",
-              padding: "16px 24px 0 24px",
+              alignItems: "center",
+              padding: "4px 16px 4px 52px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2070,35 +2071,53 @@ export default function EditorPage({
               textTransform: "uppercase",
             }}
           >
-            {/* Gutter spacer — matches segment row gutter */}
-            <div style={{ width: 36, minWidth: 36, flexShrink: 0 }} />
-            <div
-              style={{
-                flex: columnRatio,
-                padding: "6px 14px",
-                background: "var(--bg-paper)",
-                borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-                border: "1px solid var(--border)",
-                borderBottom: "none",
-                boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
-              }}
-            >
+            <div style={{ flex: columnRatio, paddingRight: 8 }}>
               Source — {getLangLabel(project.srcLang)}
             </div>
-            {/* Gap between sheets */}
-            <div style={{ width: 24, flexShrink: 0 }} />
-            {/* Drag handle — hidden for now */}
+            {/* Drag handle */}
             <div
               style={{
-                flex: 1 - columnRatio,
-                padding: "6px 14px",
-                background: "var(--bg-paper)",
-                borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-                border: "1px solid var(--border)",
-                borderBottom: "none",
-                boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
+                width: 2,
+                height: 12,
+                borderRadius: 1,
+                background: "var(--border)",
+                cursor: "col-resize",
+                flexShrink: 0,
+                margin: "0 8px",
               }}
-            >
+              title="Drag to resize columns"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                isDraggingRef.current = true;
+                const contentEl = e.currentTarget.closest(
+                  "[data-editor-content]",
+                );
+                const handleMove = (ev: MouseEvent) => {
+                  if (!isDraggingRef.current || !contentEl) return;
+                  const rect = contentEl.getBoundingClientRect();
+                  const relX = ev.clientX - rect.left - 56;
+                  const availW = rect.width - 56;
+                  const ratio = Math.max(0.25, Math.min(0.75, relX / availW));
+                  setColumnRatio(ratio);
+                };
+                const handleUp = () => {
+                  isDraggingRef.current = false;
+                  try {
+                    localStorage.setItem(
+                      "tp-column-ratio",
+                      String(columnRatio),
+                    );
+                  } catch {
+                    /* ignore */
+                  }
+                  window.removeEventListener("mousemove", handleMove);
+                  window.removeEventListener("mouseup", handleUp);
+                };
+                window.addEventListener("mousemove", handleMove);
+                window.addEventListener("mouseup", handleUp);
+              }}
+            />
+            <div style={{ flex: 1 - columnRatio, paddingLeft: 8 }}>
               Target — {getLangLabel(project.tgtLang)}
             </div>
           </div>
@@ -2230,24 +2249,20 @@ export default function EditorPage({
               );
             })()}
 
-          {/* Bottom Panels: Floating TM + Glossary */}
+          {/* Bottom Panels: Collapsible TM + Glossary */}
           <div
             style={{
-              background: "var(--bg-panel)",
-              backdropFilter: "var(--glass-blur)",
-              WebkitBackdropFilter: "var(--glass-blur)",
+              background: "var(--bg-sidebar)",
               height: bottomPanelCollapsed ? 28 : bottomPanelHeight,
               minHeight: 28,
               maxHeight: 300,
               display: "flex",
               flexDirection: "column",
-              margin: "0 16px 8px 16px",
-              borderRadius: "var(--radius)",
+              margin: "0 20px 8px 20px",
+              borderRadius: "var(--radius-sm)",
               overflow: "hidden",
               flexShrink: 0,
               transition: bottomDragRef.current ? "none" : "height 150ms ease",
-              border: "0.5px solid var(--glass-border)",
-              boxShadow: "var(--shadow-sm)",
             }}
           >
             {/* Drag handle */}
