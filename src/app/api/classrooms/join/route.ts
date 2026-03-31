@@ -28,6 +28,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired invite code" }, { status: 404 });
     }
 
+    // Invite codes expire 30 days after classroom creation
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    if (Date.now() - new Date(classroom.createdAt).getTime() > thirtyDaysMs) {
+      return NextResponse.json(
+        { error: "Invite code expired. Ask the professor for a new one." },
+        { status: 410 },
+      );
+    }
+
     // Check if already a member
     const existing = await prisma.classroomMember.findUnique({
       where: { classroomId_userId: { classroomId: classroom.id, userId: user!.id } },
