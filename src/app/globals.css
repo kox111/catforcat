@@ -9,7 +9,7 @@
 :root,
 [data-theme="dark"] {
   --bg-deep: #1a1a1d;
-  --bg-deep-gradient: radial-gradient(ellipse at 30% 20%, #252538 0%, #1a1a1d 50%, #12121a 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #1e1e22 0%, #1a1a1d 60%, #181820 100%);
   --bg-panel: rgba(37, 37, 40, 0.72);
   --bg-card: rgba(42, 42, 45, 0.65);
   --bg-hover: rgba(255, 255, 255, 0.05);
@@ -140,7 +140,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="sakura"] {
   --bg-deep: #ebbfc8;
-  --bg-deep-gradient: radial-gradient(ellipse at 50% 0%, #f5d4dc 0%, #ebbfc8 40%, #e0a8b4 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #edcad2 0%, #ebbfc8 60%, #e8bcc5 100%);
   --bg-panel: rgba(245, 212, 220, 0.92);
   --bg-card: rgba(248, 220, 226, 0.88);
   --bg-hover: rgba(255, 255, 255, 0.15);
@@ -262,7 +262,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
   --bg-deep: #f3f3f0;
-  --bg-deep-gradient: radial-gradient(ellipse at 70% 30%, #faf8f5 0%, #f3f3f0 50%, #eceae5 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #f5f5f2 0%, #f3f3f0 60%, #f0f0ed 100%);
   --bg-panel: rgba(255, 255, 255, 0.92);
   --bg-card: rgba(252, 252, 250, 0.88);
   --bg-hover: rgba(0, 0, 0, 0.03);
@@ -392,7 +392,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="linen"] {
   --bg-deep: #F8EDE2;
-  --bg-deep-gradient: radial-gradient(ellipse at 40% 20%, #fdf4e8 0%, #F8EDE2 40%, #eedcc8 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #faf0e5 0%, #F8EDE2 60%, #f5eadf 100%);
   --bg-panel: rgba(245, 235, 224, 0.92);
   --bg-card: rgba(250, 240, 230, 0.88);
   --bg-hover: rgba(164, 119, 100, 0.08);
@@ -519,7 +519,7 @@
    ═══════════════════════════════════════════ */
 [data-theme="forest"] {
   --bg-deep: #251D14;
-  --bg-deep-gradient: radial-gradient(ellipse at 30% 30%, #332a20 0%, #251D14 50%, #1a140d 100%);
+  --bg-deep-gradient: radial-gradient(ellipse at 50% 30%, #292017 0%, #251D14 60%, #221a11 100%);
   --bg-panel: rgba(51, 42, 32, 0.72);
   --bg-card: rgba(58, 48, 40, 0.60);
   --bg-hover: rgba(139, 115, 85, 0.08);
