@@ -73,11 +73,12 @@ export default function EditorSidebar({
         minWidth: 44,
         height: "100%",
         background: "transparent",
+        borderRight: "none",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         padding: "10px 0",
-        gap: 2,
+        gap: 4,
         flexShrink: 0,
       }}
     >

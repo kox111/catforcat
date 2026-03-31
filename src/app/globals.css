@@ -825,14 +825,14 @@ body {
   z-index: 1;
 }
 
-/* Glass elevated: active/raised element inside a container */
+/* Glass elevated: active/selected element (brighter glass) */
 .glass-elevated {
   position: relative;
-  background: var(--glass-active-bg);
-  border: 1px solid var(--glass-active-border);
-  box-shadow: var(--glass-active-shadow);
-  backdrop-filter: blur(12px) saturate(130%);
-  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  background: var(--glass-active-bg) !important;
+  border: 1px solid var(--glass-active-border) !important;
+  box-shadow: var(--glass-active-shadow) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .glass-elevated::after {
@@ -937,19 +937,49 @@ body {
   ) !important;
 }
 
-/* ─── Paper sheet — floating document on desk ─── */
+/* ─── Paper sheet — clean document on desk (NO glass) ─── */
 .paper-sheet {
   background: var(--bg-paper);
   border-radius: var(--radius) var(--radius) 0 0;
   box-shadow: var(--paper-shadow);
   border: 1px solid var(--border);
+  border-bottom: none;
   overflow: hidden;
-}
-
-/* ─── Buttons: transparent by default, only glass-btn gets blur ─── */
-button, [role="button"] {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+
+/* ─── Buttons: glass by default (Apple Liquid Glass) ─── */
+button:not(.no-glass):not(.glass-panel button):not(.glass-panel ~ * button),
+[role="button"]:not(.no-glass) {
+  background: var(--glass-container-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-container-border);
+  box-shadow: var(--glass-container-shadow);
+  border-radius: var(--radius-sm);
+  transition: background 200ms, box-shadow 200ms, border-color 200ms;
+}
+button:not(.no-glass):not(.glass-panel button):hover,
+[role="button"]:not(.no-glass):hover {
+  background: var(--glass-active-bg);
+  border-color: var(--glass-active-border);
+  box-shadow: var(--glass-active-shadow);
+}
+/* Buttons inside dropdowns/panels: no glass, just text */
+.glass-panel button,
+.glass-panel a {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.glass-panel button:hover,
+.glass-panel a:hover {
+  background: var(--bg-hover) !important;
+  box-shadow: none !important;
 }
 
 /* ─── Scrollbar — ultra-thin ─── */
