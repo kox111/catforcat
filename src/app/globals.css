@@ -1047,7 +1047,7 @@ textarea:focus:not([data-editor-textarea]) {
 .editor-source,
 .editor-target {
   font-family: var(--font-ui-family);
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.7;
   letter-spacing: 0.01em;
 }

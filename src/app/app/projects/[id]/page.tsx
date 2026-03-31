@@ -2062,7 +2062,7 @@ export default function EditorPage({
             style={{
               display: "flex",
               alignItems: "stretch",
-              padding: "12px 16px 0 16px",
+              padding: "16px 32px 0 32px",
               fontSize: 9,
               fontFamily: "var(--font-ui-family)",
               color: "var(--text-muted)",
@@ -2086,7 +2086,7 @@ export default function EditorPage({
               Source — {getLangLabel(project.srcLang)}
             </div>
             {/* Gap between sheets — desk shows through */}
-            <div style={{ width: 10, flexShrink: 0 }} />
+            <div style={{ width: 24, flexShrink: 0 }} />
             {/* Drag handle */}
             <div
               style={{
@@ -2283,7 +2283,7 @@ export default function EditorPage({
               maxHeight: 300,
               display: "flex",
               flexDirection: "column",
-              margin: "0 16px 8px 16px",
+              margin: "0 32px 12px 32px",
               borderRadius: "var(--radius)",
               overflow: "hidden",
               flexShrink: 0,

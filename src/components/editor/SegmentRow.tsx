@@ -478,7 +478,7 @@ export default function SegmentRow({
         className="segment-source"
         style={{
           flex: columnRatio,
-          padding: "16px 20px 16px 16px",
+          padding: "14px 24px",
           color: "var(--text-primary)",
           fontSize: `${fontSize}px`,
           lineHeight: "1.7",
@@ -496,42 +496,21 @@ export default function SegmentRow({
         />
       </div>
 
-      {/* Gap between sheets */}
+      {/* Gap between sheets — desk background shows through */}
       <div
         style={{
-          width: 10,
+          width: 24,
           flexShrink: 0,
-          position: "relative",
+          background: "transparent",
         }}
-      >
-        {/* Soft edge fade left */}
-        <div style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 5,
-          background: "linear-gradient(to right, var(--glass-border), transparent)",
-          opacity: 0.5,
-        }} />
-        {/* Soft edge fade right */}
-        <div style={{
-          position: "absolute",
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: 5,
-          background: "linear-gradient(to left, var(--glass-border), transparent)",
-          opacity: 0.5,
-        }} />
-      </div>
+      />
 
       {/* Target sheet — editable */}
       <div
         className="segment-target"
         style={{
           flex: 1 - columnRatio,
-          padding: "12px 20px 12px 16px",
+          padding: "14px 24px",
           position: "relative",
           background: isActive ? "var(--bg-active)" : "transparent",
           borderRadius: 0,
