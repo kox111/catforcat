@@ -8,15 +8,15 @@
 :root,
 [data-theme="dark"] {
   --bg-deep: #1a1a1d;
-  --bg-gradient: radial-gradient(ellipse at 30% 0%, #222228 0%, #1e1e22 40%, #1a1a1d 100%);
-  --bg-panel: rgba(37, 37, 40, 0.72);
-  --bg-card: rgba(42, 42, 45, 0.65);
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  --bg-active: rgba(255, 255, 255, 0.07);
-  --bg-sidebar: rgba(22, 22, 25, 0.80);
+  --bg-gradient: radial-gradient(ellipse at 30% 0%, #28282e 0%, #222226 35%, #1d1d20 65%, #1a1a1d 100%);
+  --bg-panel: rgba(44, 44, 48, 0.88);
+  --bg-card: rgba(52, 52, 56, 0.80);
+  --bg-hover: rgba(255, 255, 255, 0.07);
+  --bg-active: rgba(255, 255, 255, 0.10);
+  --bg-sidebar: rgba(26, 26, 30, 0.90);
   --bg-paper: #1a1a1d;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(255, 255, 255, 0.25);
   --text-primary: #bdb8b2;
   --text-secondary: #8a8580;
   --text-muted: #5a5a5d;
@@ -37,11 +37,11 @@
   --purple-text: #9a8aaa;
 
   --status-bar: rgba(18, 18, 18, 0.85);
-  --segment-divider: rgba(255, 255, 255, 0.04);
-  --paper-shadow: 0 8px 40px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.05);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0.5px 0 rgba(255, 255, 255, 0.06);
+  --segment-divider: rgba(255, 255, 255, 0.08);
+  --paper-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-float: 0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 1px rgba(255, 255, 255, 0.10);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -111,13 +111,13 @@
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
   /* Apple Liquid Glass: container (sunken) + active (raised) */
-  --glass-container-bg: rgba(255, 255, 255, 0.03);
-  --glass-container-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.04);
-  --glass-container-border: rgba(255, 255, 255, 0.10);
-  --glass-active-bg: rgba(255, 255, 255, 0.10);
-  --glass-active-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  --glass-active-border: rgba(255, 255, 255, 0.18);
-  --glass-specular: rgba(255, 255, 255, 0.40);
+  --glass-container-bg: rgba(255, 255, 255, 0.05);
+  --glass-container-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 rgba(255, 255, 255, 0.03), inset 0 2px 12px rgba(0, 0, 0, 0.8);
+  --glass-container-border: rgba(255, 255, 255, 0.14);
+  --glass-active-bg: rgba(255, 255, 255, 0.14);
+  --glass-active-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  --glass-active-border: rgba(255, 255, 255, 0.22);
+  --glass-specular: rgba(255, 255, 255, 0.50);
   --panel-glow: 0 0 24px rgba(160, 144, 144, 0.05);
   --action-gradient: linear-gradient(135deg, rgba(92, 138, 106, 0.15), rgba(92, 138, 106, 0.05));
   --action-border: rgba(92, 138, 106, 0.3);
@@ -550,9 +550,9 @@
    ═══════════════════════════════════════════ */
 [data-theme="forest"] {
   --bg-deep: #251D14;
-  --bg-gradient: radial-gradient(ellipse at 25% 0%, #2E2518 0%, #2A2016 40%, #251D14 100%);
-  --bg-panel: rgba(51, 42, 32, 0.72);
-  --bg-card: rgba(58, 48, 40, 0.60);
+  --bg-gradient: radial-gradient(ellipse at 25% 0%, #342A1E 0%, #2E2418 35%, #292015 65%, #251D14 100%);
+  --bg-panel: rgba(55, 46, 36, 0.82);
+  --bg-card: rgba(62, 52, 42, 0.75);
   --bg-hover: rgba(139, 115, 85, 0.08);
   --bg-active: rgba(139, 115, 85, 0.12);
   --bg-sidebar: rgba(36, 28, 20, 0.80);
@@ -589,13 +589,13 @@
   --glass-bg-hover: rgba(139, 115, 85, 0.10);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(139, 115, 85, 0.12);
-  --glass-container-bg: rgba(139, 115, 85, 0.04);
-  --glass-container-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(0, 0, 0, 0.30), inset 0 -1px 1px rgba(139, 115, 85, 0.06);
-  --glass-container-border: rgba(139, 115, 85, 0.14);
-  --glass-active-bg: rgba(139, 115, 85, 0.15);
-  --glass-active-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(139, 115, 85, 0.18);
-  --glass-active-border: rgba(139, 115, 85, 0.22);
-  --glass-specular: rgba(255, 255, 255, 0.25);
+  --glass-container-bg: rgba(139, 115, 85, 0.06);
+  --glass-container-shadow: inset 0 1px 0 rgba(139, 115, 85, 0.10), inset 0 -1px 0 rgba(139, 115, 85, 0.05), inset 0 2px 12px rgba(0, 0, 0, 0.7);
+  --glass-container-border: rgba(139, 115, 85, 0.20);
+  --glass-active-bg: rgba(139, 115, 85, 0.20);
+  --glass-active-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 1px rgba(139, 115, 85, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --glass-active-border: rgba(139, 115, 85, 0.28);
+  --glass-specular: rgba(255, 255, 255, 0.30);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -768,10 +768,28 @@ body {
 .glass-container {
   position: relative;
   background: var(--glass-container-bg);
-  border: 0.5px solid var(--glass-container-border);
+  border: 1px solid var(--glass-container-border);
   box-shadow: var(--glass-container-shadow);
   backdrop-filter: blur(16px) saturate(130%);
   -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+/* Specular highlight on top edge */
+.glass-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--glass-specular, rgba(255, 255, 255, 0.3)),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Glass panel: floating panel with depth */
@@ -779,7 +797,7 @@ body {
   position: relative;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 0.5px solid var(--glass-border);
+  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-float);
 }
 
@@ -798,13 +816,14 @@ body {
   );
   pointer-events: none;
   border-radius: inherit;
+  z-index: 1;
 }
 
 /* Glass elevated: active/raised element inside a container */
 .glass-elevated {
   position: relative;
   background: var(--glass-active-bg);
-  border: 0.5px solid var(--glass-active-border);
+  border: 1px solid var(--glass-active-border);
   box-shadow: var(--glass-active-shadow);
   backdrop-filter: blur(12px) saturate(130%);
   -webkit-backdrop-filter: blur(12px) saturate(130%);
@@ -814,8 +833,8 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: 15%;
-  right: 15%;
+  left: 10%;
+  right: 10%;
   height: 1px;
   background: linear-gradient(
     to right,
@@ -825,6 +844,7 @@ body {
   );
   pointer-events: none;
   border-radius: inherit;
+  z-index: 1;
 }
 
 /* ─── CTA buttons: add glass blur automatically ─── */
