@@ -110,13 +110,13 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
-  /* Apple Liquid Glass: container (sunken) + active (raised) */
-  --glass-container-bg: rgba(255, 255, 255, 0.05);
-  --glass-container-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 rgba(255, 255, 255, 0.03), inset 0 2px 12px rgba(0, 0, 0, 0.8);
-  --glass-container-border: rgba(255, 255, 255, 0.14);
-  --glass-active-bg: rgba(255, 255, 255, 0.14);
-  --glass-active-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
-  --glass-active-border: rgba(255, 255, 255, 0.22);
+  /* Apple Liquid Glass — exact recipe from reference */
+  --glass-container-bg: rgba(0, 0, 0, 0.40);
+  --glass-container-shadow: 0 10px 15px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-container-border: rgba(0, 0, 0, 0.60);
+  --glass-active-bg: rgba(255, 255, 255, 0.12);
+  --glass-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --glass-active-border: rgba(255, 255, 255, 0.20);
   --glass-specular: rgba(255, 255, 255, 0.50);
   --panel-glow: 0 0 24px rgba(160, 144, 144, 0.05);
   --action-gradient: linear-gradient(135deg, rgba(92, 138, 106, 0.15), rgba(92, 138, 106, 0.05));
@@ -186,13 +186,14 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.28);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
-  --glass-container-bg: rgba(139, 90, 107, 0.06);
-  --glass-container-shadow: inset 0 2px 6px rgba(139, 90, 107, 0.25), inset 0 1px 2px rgba(0, 0, 0, 0.10), inset 0 -1px 1px rgba(255, 255, 255, 0.20);
-  --glass-container-border: rgba(139, 90, 107, 0.15);
-  --glass-active-bg: rgba(255, 255, 255, 0.55);
-  --glass-active-shadow: 0 4px 14px rgba(139, 90, 107, 0.18), 0 1px 4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.70);
-  --glass-active-border: rgba(255, 255, 255, 0.40);
-  --glass-specular: rgba(255, 255, 255, 0.65);
+  /* Apple Liquid Glass — sakura recipe */
+  --glass-container-bg: rgba(255, 255, 255, 0.18);
+  --glass-container-shadow: 0 10px 15px rgba(139, 90, 107, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.60);
+  --glass-container-border: rgba(139, 90, 107, 0.18);
+  --glass-active-bg: rgba(255, 255, 255, 0.65);
+  --glass-active-shadow: 0 4px 12px rgba(139, 90, 107, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  --glass-active-border: rgba(255, 255, 255, 0.45);
+  --glass-specular: rgba(255, 255, 255, 0.70);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -318,13 +319,14 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.55);
   --glass-blur: blur(20px) saturate(120%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.9);
-  --glass-container-bg: rgba(0, 0, 0, 0.03);
-  --glass-container-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 -1px 1px rgba(255, 255, 255, 0.60);
-  --glass-container-border: rgba(0, 0, 0, 0.08);
-  --glass-active-bg: rgba(255, 255, 255, 0.85);
-  --glass-active-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  --glass-active-border: rgba(0, 0, 0, 0.06);
-  --glass-specular: rgba(255, 255, 255, 0.90);
+  /* Apple Liquid Glass — light recipe */
+  --glass-container-bg: rgba(255, 255, 255, 0.20);
+  --glass-container-shadow: 0 10px 15px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  --glass-container-border: rgba(0, 0, 0, 0.10);
+  --glass-active-bg: rgba(255, 255, 255, 0.80);
+  --glass-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-active-border: rgba(0, 0, 0, 0.08);
+  --glass-specular: rgba(255, 255, 255, 0.95);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -455,13 +457,14 @@
   --glass-bg-hover: rgba(255, 255, 255, 0.42);
   --glass-blur: blur(20px) saturate(130%);
   --glass-inset: inset 0 0.5px 0 rgba(255, 255, 255, 0.6);
-  --glass-container-bg: rgba(164, 119, 100, 0.05);
-  --glass-container-shadow: inset 0 2px 6px rgba(92, 64, 51, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.06), inset 0 -1px 1px rgba(255, 255, 255, 0.40);
-  --glass-container-border: rgba(164, 119, 100, 0.14);
-  --glass-active-bg: rgba(255, 255, 255, 0.70);
-  --glass-active-shadow: 0 4px 14px rgba(92, 64, 51, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.80);
-  --glass-active-border: rgba(164, 119, 100, 0.10);
-  --glass-specular: rgba(255, 255, 255, 0.75);
+  /* Apple Liquid Glass — linen recipe */
+  --glass-container-bg: rgba(255, 255, 255, 0.20);
+  --glass-container-shadow: 0 10px 15px rgba(92, 64, 51, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.60);
+  --glass-container-border: rgba(164, 119, 100, 0.16);
+  --glass-active-bg: rgba(255, 255, 255, 0.72);
+  --glass-active-shadow: 0 4px 12px rgba(92, 64, 51, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glass-active-border: rgba(164, 119, 100, 0.12);
+  --glass-specular: rgba(255, 255, 255, 0.80);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -589,13 +592,14 @@
   --glass-bg-hover: rgba(139, 115, 85, 0.10);
   --glass-blur: blur(20px) saturate(140%);
   --glass-inset: inset 0 0.5px 0 rgba(139, 115, 85, 0.12);
-  --glass-container-bg: rgba(139, 115, 85, 0.06);
-  --glass-container-shadow: inset 0 1px 0 rgba(139, 115, 85, 0.10), inset 0 -1px 0 rgba(139, 115, 85, 0.05), inset 0 2px 12px rgba(0, 0, 0, 0.7);
-  --glass-container-border: rgba(139, 115, 85, 0.20);
-  --glass-active-bg: rgba(139, 115, 85, 0.20);
-  --glass-active-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 1px rgba(139, 115, 85, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-  --glass-active-border: rgba(139, 115, 85, 0.28);
-  --glass-specular: rgba(255, 255, 255, 0.30);
+  /* Apple Liquid Glass — forest recipe */
+  --glass-container-bg: rgba(0, 0, 0, 0.35);
+  --glass-container-shadow: 0 10px 15px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(139, 115, 85, 0.08);
+  --glass-container-border: rgba(0, 0, 0, 0.50);
+  --glass-active-bg: rgba(139, 115, 85, 0.18);
+  --glass-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(139, 115, 85, 0.15);
+  --glass-active-border: rgba(139, 115, 85, 0.25);
+  --glass-specular: rgba(255, 255, 255, 0.25);
   --radius: 14px;
   --radius-sm: 10px;
   --radius-lg: 18px;
@@ -764,14 +768,16 @@ body {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Glass container: sunken/recessed look (like the Apple Liquid Glass Switcher pill) */
+/* Glass container: Apple Liquid Glass pill look */
 .glass-container {
   position: relative;
   background: var(--glass-container-bg);
   border: 1px solid var(--glass-container-border);
   box-shadow: var(--glass-container-shadow);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-sm);
+  transition: background 500ms, border-color 500ms;
 }
 
 /* Specular highlight on top edge */
