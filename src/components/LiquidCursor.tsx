@@ -104,14 +104,14 @@ export default function LiquidCursor({ size = 36 }: LiquidCursorProps) {
         transition: "opacity 200ms ease",
         willChange: "transform",
         background: `radial-gradient(circle,
-          rgba(255, 255, 255, 0.20) 0%,
-          rgba(255, 255, 255, 0.08) 60%,
+          rgba(255, 255, 255, 0.30) 0%,
+          rgba(255, 255, 255, 0.12) 50%,
           transparent 100%
         )`,
-        border: "1px solid rgba(255, 255, 255, 0.15)",
-        backdropFilter: "blur(2px) saturate(160%)",
-        WebkitBackdropFilter: "blur(2px) saturate(160%)",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
+        border: "1px solid rgba(255, 255, 255, 0.25)",
+        backdropFilter: "blur(6px) saturate(180%)",
+        WebkitBackdropFilter: "blur(6px) saturate(180%)",
+        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.25), 0 0 8px rgba(255, 255, 255, 0.06)",
       }}
     />
   );
