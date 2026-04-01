@@ -516,18 +516,18 @@ export default function SettingsPage() {
                 {[
                   {
                     id: "dark" as const,
-                    color: "#202124",
-                    border: "0.5px solid #3C3C3F",
+                    color: "#1a1a1e",
+                    border: "0.5px solid #3e3e42",
                   },
                   {
                     id: "sakura" as const,
-                    color: "#EFC4CC",
-                    border: "0.5px solid rgba(255,255,255,0.2)",
+                    color: "#e4c8cc",
+                    border: "0.5px solid rgba(120,90,100,0.14)",
                   },
                   {
                     id: "light" as const,
-                    color: "#F7F6F3",
-                    border: "0.5px solid #ECEAE5",
+                    color: "#f5f5f2",
+                    border: "0.5px solid rgba(0,0,0,0.12)",
                   },
                   {
                     id: "linen" as const,

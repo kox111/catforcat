@@ -83,9 +83,9 @@ const THEME_DOTS: {
   border: string;
   label: string;
 }[] = [
-  { id: "dark", color: "#202124", border: "0.5px solid #3C3C3F", label: "Dark" },
-  { id: "sakura", color: "#EFC4CC", border: "0.5px solid #ffffff33", label: "Sakura" },
-  { id: "light", color: "#F7F6F3", border: "0.5px solid #ECEAE5", label: "Light" },
+  { id: "dark", color: "#1a1a1e", border: "0.5px solid #3e3e42", label: "Dark" },
+  { id: "sakura", color: "#e4c8cc", border: "0.5px solid rgba(120,90,100,0.14)", label: "Sakura" },
+  { id: "light", color: "#f5f5f2", border: "0.5px solid rgba(0,0,0,0.12)", label: "Light" },
   { id: "linen", color: "#C4AA90", border: "0.5px solid #B09878", label: "Linen" },
   { id: "forest", color: "#3A3028", border: "0.5px solid #4A3E32", label: "Forest" },
 ];
