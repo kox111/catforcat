@@ -109,8 +109,9 @@ export default function SettingsPage() {
     try {
       const res = await fetch("/api/settings");
       if (res.ok) {
-        const data: SettingsData = await res.json();
-        setSettings(data);
+        const data = await res.json();
+        setSettings(data as SettingsData);
+        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
       }
     } catch {
       // silent
