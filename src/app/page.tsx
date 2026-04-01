@@ -128,17 +128,17 @@ export default function LandingPage() {
               borderRadius: 9999,
               border: "1px solid var(--border)",
               transition: "all 150ms",
-              boxShadow: "0 1px 2px rgba(92, 64, 51, 0.06), inset 0 1px 0 rgba(255,255,255,0.5)",
+              boxShadow: "var(--btn-depth)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "var(--bg-hover)";
               e.currentTarget.style.borderColor = "var(--accent)";
-              e.currentTarget.style.boxShadow = "0 2px 4px rgba(92, 64, 51, 0.1), inset 0 1px 0 rgba(255,255,255,0.6)";
+              e.currentTarget.style.boxShadow = "var(--btn-depth-hover)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
               e.currentTarget.style.borderColor = "var(--border)";
-              e.currentTarget.style.boxShadow = "0 1px 2px rgba(92, 64, 51, 0.06), inset 0 1px 0 rgba(255,255,255,0.5)";
+              e.currentTarget.style.boxShadow = "var(--btn-depth)";
             }}
           >
             Log in

@@ -70,7 +70,7 @@ function SpotlightOverlay({
           position: "fixed",
           inset: 0,
           zIndex: 9998,
-          background: "rgba(0, 0, 0, 0.75)",
+          background: "var(--overlay)",
           transition: "all 500ms cubic-bezier(0.4, 0, 0.2, 1)",
           cursor: "pointer",
         }}
@@ -117,7 +117,7 @@ function SpotlightOverlay({
         <rect
           width="100%"
           height="100%"
-          fill="rgba(0, 0, 0, 0.75)"
+          fill="rgba(0, 0, 0, 0.7)"
           mask="url(#spotlight-mask)"
         />
       </svg>
@@ -131,7 +131,7 @@ function SpotlightOverlay({
           height: h + 4,
           borderRadius: radius + 2,
           border: "1px solid var(--accent)",
-          boxShadow: "0 0 20px rgba(164, 119, 100, 0.3), 0 0 40px rgba(164, 119, 100, 0.1)",
+          boxShadow: "0 0 20px var(--glow-accent-strong), 0 0 40px var(--glow-accent)",
           transition: "all 500ms cubic-bezier(0.4, 0, 0.2, 1)",
           pointerEvents: "none",
           animation: "spotlightPulse 2s ease-in-out infinite",
