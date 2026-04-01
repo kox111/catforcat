@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
+import { canEditSegments } from "@/lib/roles";
 
 // PATCH /api/suggestions/[id] — accept/reject
 export async function PATCH(
@@ -30,7 +31,7 @@ export async function PATCH(
       const member = await prisma.projectMember.findUnique({
         where: { projectId_userId: { projectId: suggestion.segment.projectId, userId: user!.id } },
       });
-      canAccept = member?.role === "translator" || member?.role === "student";
+      canAccept = !!member && canEditSegments(member.role);
     }
 
     if (!isOwner && !canAccept) {

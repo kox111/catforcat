@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { canCreateSuggestions } from "@/lib/roles";
 
 // POST /api/segments/[segId]/suggestions — create suggestion
 export async function POST(
@@ -35,7 +36,7 @@ export async function POST(
       const member = await prisma.projectMember.findUnique({
         where: { projectId_userId: { projectId: segment.projectId, userId: user!.id } },
       });
-      hasRole = member?.role === "professor" || member?.role === "reviewer";
+      hasRole = !!member && canCreateSuggestions(member.role);
     }
 
     if (!isOwner && !hasRole) {
