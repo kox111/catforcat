@@ -48,7 +48,7 @@ export default function ProjectContextMenu({
     borderRadius: "var(--radius-sm)",
     background: "var(--bg-card)",
     border: "1px solid var(--border)",
-    boxShadow: "var(--shadow-md)",
+    boxShadow: "var(--shadow-float)",
   };
 
   const itemStyle: React.CSSProperties = {

@@ -144,7 +144,7 @@ export default function InviteModal({ projectId, classroomId, onClose }: InviteM
           borderRadius: "var(--radius-lg)",
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)",
+          boxShadow: "var(--shadow-float)",
         }}
       >
         {/* Header */}

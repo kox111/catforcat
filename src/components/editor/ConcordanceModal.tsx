@@ -142,7 +142,7 @@ export default function ConcordanceModal({
           width: "100%",
           maxWidth: "48rem",
           borderRadius: "0.5rem",
-          boxShadow: "var(--shadow-md)",
+          boxShadow: "var(--shadow-float)",
           overflow: "hidden",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",

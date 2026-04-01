@@ -53,7 +53,7 @@ export default function GoToSegmentModal({
           position: "relative",
           zIndex: 10,
           borderRadius: "0.5rem",
-          boxShadow: "var(--shadow-md)",
+          boxShadow: "var(--shadow-float)",
           width: "18rem",
           padding: "1rem",
           background: "var(--bg-panel)",

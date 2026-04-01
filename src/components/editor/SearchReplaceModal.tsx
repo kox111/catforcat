@@ -197,7 +197,7 @@ export default function SearchReplaceModal({
         left: "60px",
         zIndex: 50,
         borderRadius: "var(--radius)",
-        boxShadow: "var(--shadow-md), var(--panel-glow)",
+        boxShadow: "var(--shadow-float), var(--panel-glow)",
         width: "22rem",
         background: "var(--bg-panel)",
         border: "0.5px solid var(--glass-border)",

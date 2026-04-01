@@ -87,7 +87,7 @@ export default function PostItAnchor({ postIt, onResolve, onDelete, readOnly = f
             borderRadius: "var(--radius-sm)",
             background: "var(--bg-card)",
             border: `1px solid ${style.color}`,
-            boxShadow: "var(--shadow-md)",
+            boxShadow: "var(--shadow-float)",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>

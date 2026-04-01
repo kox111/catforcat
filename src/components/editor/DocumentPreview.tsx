@@ -52,7 +52,7 @@ export default function DocumentPreview({
           borderRadius: "var(--radius-lg)",
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)",
+          boxShadow: "var(--shadow-float)",
           overflow: "hidden",
         }}
       >

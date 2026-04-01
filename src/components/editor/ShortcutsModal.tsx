@@ -92,7 +92,7 @@ export default function ShortcutsModal({ onClose }: ShortcutsModalProps) {
           maxWidth: "32rem",
           maxHeight: "80vh",
           overflowY: "auto",
-          boxShadow: "var(--shadow-md)",
+          boxShadow: "var(--shadow-float)",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",
         }}

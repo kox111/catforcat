@@ -125,7 +125,7 @@ export default function NotificationBell() {
             borderRadius: "var(--radius)",
             background: "var(--bg-card)",
             border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-md)",
+            boxShadow: "var(--shadow-float)",
             zIndex: 100,
           }}
         >

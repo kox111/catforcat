@@ -97,7 +97,7 @@ export default function GradeModal({
           borderRadius: "var(--radius-lg)",
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
-          boxShadow: "var(--shadow-md)",
+          boxShadow: "var(--shadow-float)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>

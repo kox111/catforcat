@@ -43,6 +43,7 @@ export default function NoteModal({
           maxWidth: "28rem",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",
+          boxShadow: "var(--shadow-float)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
