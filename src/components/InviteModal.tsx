@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Search, Send } from "lucide-react";
 import UserPreviewCard from "./UserPreviewCard";
+import { PROJECT_ROLES, CLASSROOM_ROLES } from "@/lib/roles";
 
 interface InviteModalProps {
   projectId?: string;
@@ -17,12 +18,6 @@ interface SearchUser {
   avatarUrl: string | null;
   plan: string;
 }
-
-const ROLE_OPTIONS = [
-  { value: "translator", label: "Translator" },
-  { value: "reviewer", label: "Reviewer" },
-  { value: "student", label: "Student" },
-];
 
 const COLOR_OPTIONS = [
   "#E57373", "#F06292", "#BA68C8", "#9575CD",
@@ -238,7 +233,7 @@ export default function InviteModal({ projectId, classroomId, onClose }: InviteM
               onChange={(e) => setRole(e.target.value)}
               style={{ ...inputStyle, cursor: "pointer" }}
             >
-              {ROLE_OPTIONS.map((r) => (
+              {(classroomId ? CLASSROOM_ROLES : PROJECT_ROLES).map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
               ))}
             </select>
