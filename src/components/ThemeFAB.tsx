@@ -11,7 +11,7 @@ const THEMES: { id: Theme; label: string; color: string; border: string }[] = [
     color: "#e4c8cc",
     border: "rgba(120,90,100,0.14)",
   },
-  { id: "dark", label: "Dark", color: "#1a1a1e", border: "#3e3e42" },
+  { id: "dark", label: "Dark", color: "#121214", border: "#3a3a40" },
   { id: "light", label: "Light", color: "#f5f5f2", border: "rgba(0,0,0,0.12)" },
   { id: "linen", label: "Linen", color: "#C4AA90", border: "#B09878" },
   { id: "forest", label: "Forest", color: "#3A3028", border: "#4A3E32" },

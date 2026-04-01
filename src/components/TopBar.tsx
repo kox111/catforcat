@@ -46,8 +46,8 @@ const THEME_DOTS: {
 }[] = [
   {
     id: "dark",
-    color: "#1a1a1e",
-    border: "0.5px solid #3e3e42",
+    color: "#121214",
+    border: "0.5px solid #3a3a40",
     label: "Dark",
   },
   {

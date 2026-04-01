@@ -43,7 +43,7 @@ const TOUR_STEPS: TourStep[] = [
 ];
 
 const THEME_DOTS: { id: Theme; color: string; border: string }[] = [
-  { id: "dark", color: "#1a1a1e", border: "1px solid #3e3e42" },
+  { id: "dark", color: "#121214", border: "1px solid #3a3a40" },
   { id: "sakura", color: "#e4c8cc", border: "1px solid rgba(120,90,100,0.14)" },
   { id: "light", color: "#f5f5f2", border: "1px solid rgba(0,0,0,0.12)" },
   { id: "linen", color: "#C4AA90", border: "1px solid #B09878" },

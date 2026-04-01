@@ -83,7 +83,7 @@ const THEME_DOTS: {
   border: string;
   label: string;
 }[] = [
-  { id: "dark", color: "#1a1a1e", border: "0.5px solid #3e3e42", label: "Dark" },
+  { id: "dark", color: "#121214", border: "0.5px solid #3a3a40", label: "Dark" },
   { id: "sakura", color: "#e4c8cc", border: "0.5px solid rgba(120,90,100,0.14)", label: "Sakura" },
   { id: "light", color: "#f5f5f2", border: "0.5px solid rgba(0,0,0,0.12)", label: "Light" },
   { id: "linen", color: "#C4AA90", border: "0.5px solid #B09878", label: "Linen" },

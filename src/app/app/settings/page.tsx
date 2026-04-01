@@ -516,8 +516,8 @@ export default function SettingsPage() {
                 {[
                   {
                     id: "dark" as const,
-                    color: "#1a1a1e",
-                    border: "0.5px solid #3e3e42",
+                    color: "#121214",
+                    border: "0.5px solid #3a3a40",
                   },
                   {
                     id: "sakura" as const,
