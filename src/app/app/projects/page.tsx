@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import NewProjectModal from "@/components/NewProjectModal";
+import TaskBoard from "@/components/TaskBoard";
 import PrivacySelector, { PrivacyBadge } from "@/components/PrivacySelector";
 import ProjectContextMenu from "@/components/ProjectContextMenu";
 import type { PrivacyLevel } from "@/lib/privacy";
@@ -108,6 +109,22 @@ function ProjectsContent() {
     x: number;
     y: number;
   } | null>(null);
+  const [myAssignments, setMyAssignments] = useState<Array<{
+    id: string;
+    title: string;
+    status: string;
+    dueDate: string | null;
+    classroomName: string;
+    submissions: Array<{
+      id: string;
+      projectId: string;
+      status: string;
+      progressPct: number;
+      submittedAt: string | null;
+      gradeValue: number | null;
+      student: { name: string | null; username: string | null };
+    }>;
+  }>>([]);
 
   // Open new project modal from TopBar ?new=true link
   useEffect(() => {
@@ -132,13 +149,24 @@ function ProjectsContent() {
     }
   }, []);
 
+  const fetchMyAssignments = useCallback(async () => {
+    try {
+      const res = await fetch("/api/my-assignments");
+      if (res.ok) {
+        const data = await res.json();
+        setMyAssignments(data.assignments || []);
+      }
+    } catch { /* silent */ }
+  }, []);
+
   useEffect(() => {
     if (authStatus === "unauthenticated") {
       router.push("/login");
     } else if (authStatus === "authenticated") {
       fetchProjects();
+      fetchMyAssignments();
     }
-  }, [authStatus, router, fetchProjects]);
+  }, [authStatus, router, fetchProjects, fetchMyAssignments]);
 
   if (authStatus === "loading" || loading) {
     return (
@@ -204,6 +232,34 @@ function ProjectsContent() {
           + New Project
         </button>
       </div>
+
+      {/* My Assignments (student kanban) */}
+      {myAssignments.length > 0 && (
+        <div style={{ marginBottom: 28 }}>
+          <h2
+            style={{
+              fontSize: 11,
+              fontWeight: 500,
+              marginBottom: 12,
+              color: "var(--text-muted)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            My Assignments
+          </h2>
+          <TaskBoard
+            assignments={myAssignments.map(a => ({
+              id: a.id,
+              title: `${a.title} · ${a.classroomName}`,
+              status: a.status,
+              dueDate: a.dueDate,
+              submissions: a.submissions,
+            }))}
+            totalStudents={1}
+          />
+        </div>
+      )}
 
       {/* Recent Projects Widget */}
       {projects.length > 0 && (
