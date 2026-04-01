@@ -37,7 +37,7 @@ export default function InviteModal({ projectId, classroomId, onClose }: InviteM
   const [selectedUser, setSelectedUser] = useState<SearchUser | null>(null);
   const [emailMode, setEmailMode] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("translator");
+  const [role, setRole] = useState(classroomId ? "student" : "translator");
   const [color, setColor] = useState(COLOR_OPTIONS[0]);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState("");
