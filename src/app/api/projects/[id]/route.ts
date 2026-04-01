@@ -87,3 +87,25 @@ export async function PATCH(
 
   return NextResponse.json({ project: updated });
 }
+
+// DELETE /api/projects/[id] — delete project and all related data (cascade)
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { user, error } = await getAuthenticatedUser();
+  if (error) return error;
+
+  const { id } = await params;
+
+  const project = await prisma.project.findFirst({
+    where: { id, userId: user.id },
+  });
+  if (!project) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  await prisma.project.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
+}
