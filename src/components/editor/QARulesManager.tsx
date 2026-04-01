@@ -164,26 +164,24 @@ export default function QARulesManager({
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 0, borderBottom: "1px solid var(--border)", marginBottom: 16 }}>
           {(["wordlist", "regex"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               style={{
-                padding: "6px 14px",
-                borderRadius: 8,
+                padding: "8px 16px",
+                borderRadius: 0,
                 fontSize: 12,
                 fontWeight: 500,
-                background: tab === t ? "var(--accent-soft)" : "var(--bg-card)",
+                background: "none",
                 color:
-                  tab === t ? "var(--text-primary)" : "var(--text-secondary)",
-                border:
-                  tab === t
-                    ? "0.5px solid var(--accent)"
-                    : "1px solid var(--border)",
+                  tab === t ? "var(--text-primary)" : "var(--text-muted)",
+                border: "none",
+                borderBottom: tab === t ? "2px solid var(--accent)" : "2px solid transparent",
                 cursor: "pointer",
-                fontFamily: "inherit",
-                transition: "background 150ms",
+                fontFamily: "var(--font-ui-family)",
+                transition: "color 150ms, border-color 150ms",
               }}
             >
               {t === "wordlist" ? "Word List" : "Regex Patterns"}
