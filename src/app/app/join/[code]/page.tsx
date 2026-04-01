@@ -82,7 +82,7 @@ export default function JoinPage() {
               style={{
                 marginTop: 16,
                 padding: "10px 24px",
-                borderRadius: 9999,
+                borderRadius: "var(--radius-sm)",
                 fontSize: 13,
                 fontWeight: 600,
                 background: "var(--btn-secondary-bg)",

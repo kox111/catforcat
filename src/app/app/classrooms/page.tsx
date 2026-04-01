@@ -43,7 +43,7 @@ export default function ClassroomsPage() {
             alignItems: "center",
             gap: 6,
             padding: "10px 20px",
-            borderRadius: 9999,
+            borderRadius: "var(--radius-sm)",
             fontSize: 13,
             fontWeight: 600,
             background: "var(--cta-bg-gradient)",

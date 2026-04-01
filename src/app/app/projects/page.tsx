@@ -208,7 +208,7 @@ function ProjectsContent() {
           onClick={() => setShowNewProject(true)}
           style={{
             padding: "8px 20px",
-            borderRadius: 22,
+            borderRadius: "var(--radius-sm)",
             fontSize: 13,
             fontWeight: 500,
             fontFamily: "var(--font-ui-family)",

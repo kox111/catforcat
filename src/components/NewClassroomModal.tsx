@@ -173,7 +173,7 @@ export default function NewClassroomModal({ onClose }: NewClassroomModalProps) {
             style={{
               width: "100%",
               padding: "12px 0",
-              borderRadius: 9999,
+              borderRadius: "var(--radius-sm)",
               fontSize: 14,
               fontWeight: 600,
               background: "var(--cta-bg-gradient)",

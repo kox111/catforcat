@@ -270,7 +270,7 @@ export default function InviteModal({ projectId, classroomId, onClose }: InviteM
           onClick={handleInvite}
           disabled={sending || (!selectedUser && !emailMode) || (emailMode && !email)}
           style={{
-            width: "100%", padding: "12px 0", borderRadius: 9999, fontSize: 14, fontWeight: 600,
+            width: "100%", padding: "12px 0", borderRadius: "var(--radius-sm)", fontSize: 14, fontWeight: 600,
             background: "var(--cta-bg-gradient)", color: "var(--cta-text)", border: "none",
             cursor: sending ? "not-allowed" : "pointer", opacity: sending ? 0.6 : 1,
             fontFamily: "var(--font-ui-family)", display: "flex", alignItems: "center",

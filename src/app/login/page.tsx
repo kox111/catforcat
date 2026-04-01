@@ -256,7 +256,7 @@ export default function LoginPage() {
               style={{
                 width: "100%",
                 padding: "14px 0",
-                borderRadius: 9999,
+                borderRadius: "var(--radius-sm)",
                 fontSize: 15,
                 fontWeight: 600,
                 background: submitHover

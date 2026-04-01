@@ -125,7 +125,7 @@ export default function LandingPage() {
               fontWeight: 500,
               color: "var(--text-primary)",
               textDecoration: "none",
-              borderRadius: 9999,
+              borderRadius: "var(--radius-sm)",
               border: "1px solid var(--border)",
               transition: "all 150ms",
               boxShadow: "var(--btn-depth)",
@@ -196,7 +196,7 @@ export default function LandingPage() {
                 ? "var(--cta-bg-gradient-hover)"
                 : "var(--cta-bg-gradient)",
               border: "none",
-              borderRadius: 9999,
+              borderRadius: "var(--radius-sm)",
               textDecoration: "none",
               transition: "all 200ms ease",
               cursor: "pointer",

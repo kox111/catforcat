@@ -160,7 +160,7 @@ export default function GradeModal({
           style={{
             width: "100%",
             padding: "12px 0",
-            borderRadius: 9999,
+            borderRadius: "var(--radius-sm)",
             fontSize: 14,
             fontWeight: 600,
             background: "var(--cta-bg-gradient)",

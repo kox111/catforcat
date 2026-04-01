@@ -373,7 +373,7 @@ function TourTooltip({
             style={{
               width: "100%",
               padding: "10px 0",
-              borderRadius: 9999,
+              borderRadius: "var(--radius-sm)",
               background: "var(--accent)",
               border: "none",
               color: "var(--btn-primary-text, #fff)",
