@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
+import { VALID_PROJECT_ROLES } from "@/lib/roles";
 
 // PATCH /api/projects/[id]/members/[uid] — change color/role
 export async function PATCH(
@@ -26,8 +27,7 @@ export async function PATCH(
     const data: Record<string, unknown> = {};
     if (body.color) data.color = body.color;
     if (body.role) {
-      const validRoles = ["owner", "translator", "reviewer", "professor", "student"];
-      if (!validRoles.includes(body.role)) {
+      if (!VALID_PROJECT_ROLES.includes(body.role)) {
         return NextResponse.json({ error: "Invalid role" }, { status: 400 });
       }
       data.role = body.role;
