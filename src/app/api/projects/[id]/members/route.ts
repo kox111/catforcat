@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeProjectRole } from "@/lib/roles";
 
 // GET /api/projects/[id]/members — list project members
 export async function GET(
@@ -76,7 +77,7 @@ export async function POST(
       if (found) targetId = found.id;
     }
 
-    const assignedRole = role || "translator";
+    const assignedRole = normalizeProjectRole(role || "translator");
     const assignedColor = color || "#a09090";
 
     if (targetId) {

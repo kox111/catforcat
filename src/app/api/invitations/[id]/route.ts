@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeProjectRole } from "@/lib/roles";
 
 // PATCH /api/invitations/[id] — accept or decline
 export async function PATCH(
@@ -44,12 +45,13 @@ export async function PATCH(
     if (action === "accept") {
       // Accept: create membership (upsert to avoid duplicate constraint errors)
       if (invitation.projectId) {
+        const projectRole = normalizeProjectRole(invitation.role);
         await prisma.projectMember.upsert({
           where: { projectId_userId: { projectId: invitation.projectId, userId: user!.id } },
           create: {
             projectId: invitation.projectId,
             userId: user!.id,
-            role: invitation.role,
+            role: projectRole,
             color: invitation.color,
             invitedBy: invitation.fromUserId,
           },
