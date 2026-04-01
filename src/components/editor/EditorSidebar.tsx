@@ -8,6 +8,7 @@ import {
   StickyNote,
   FileCheck,
   BarChart3,
+  Languages,
 } from "lucide-react";
 
 interface EditorSidebarProps {
@@ -24,6 +25,7 @@ interface EditorSidebarProps {
 const SIDEBAR_ITEMS = [
   { id: "concordance", icon: TextSearch, label: "Search translations", shortcut: "Ctrl+K" },
   { id: "search", icon: Search, label: "Find & replace", shortcut: "Ctrl+H" },
+  { id: "tm", icon: Languages, label: "TM Matches" },
   { id: "glossary", icon: Book, label: "Glossary" },
   { id: "notes", icon: StickyNote, label: "Notes" },
   { id: "qa", icon: FileCheck, label: "QA check", shortcut: "Ctrl+Q" },
@@ -57,6 +59,7 @@ export default function EditorSidebar({
   const actionMap: Record<string, (() => void) | undefined> = {
     concordance: onConcordanceOpen,
     search: onSearchOpen,
+    tm: () => onPanelToggle?.("tm"),
     glossary: () => onPanelToggle?.("glossary"),
     notes: onNotesOpen,
     qa: onRunQA,
@@ -64,7 +67,7 @@ export default function EditorSidebar({
   };
 
   const isDisabled = (id: string) => id === "qa" && qaRunning;
-  const isActive = (id: string) => id === "glossary" && activePanel === "glossary";
+  const isActive = (id: string) => (id === "glossary" || id === "tm") && activePanel === id;
 
   return (
     <div
@@ -90,7 +93,7 @@ export default function EditorSidebar({
         const disabled = isDisabled(item.id);
 
         // Add separator between groups: after search (idx 1), after notes (idx 3)
-        const showSep = i === 2 || i === 4;
+        const showSep = i === 2 || i === 5;
 
         return (
           <div key={item.id} style={{ display: "contents" }}>
