@@ -359,6 +359,8 @@ function ProjectsContent() {
                 borderRadius: "var(--radius)",
                 padding: 16,
                 background: "var(--bg-card)",
+                border: "1px solid var(--glass-container-border)",
+                boxShadow: "var(--glass-container-shadow)",
                 textDecoration: "none",
                 transition: "transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease",
               }}

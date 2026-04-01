@@ -43,16 +43,17 @@ export default function SubmissionCard({ submission, dueDate }: SubmissionCardPr
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
         cursor: "pointer",
+        boxShadow: "var(--shadow-card)",
         transition: "border-color 150ms, box-shadow 150ms",
         minWidth: 200,
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = "var(--border-focus)";
-        e.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e.currentTarget.style.boxShadow = "var(--shadow-card-hover)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "var(--border)";
-        e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.boxShadow = "var(--shadow-card)";
       }}
     >
       {/* Header: name + status */}

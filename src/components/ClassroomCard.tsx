@@ -28,16 +28,19 @@ export default function ClassroomCard({ classroom, myRole }: ClassroomCardProps)
         borderRadius: "var(--radius)",
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
+        boxShadow: "var(--shadow-card)",
         cursor: "pointer",
-        transition: "border-color 150ms, box-shadow 150ms",
+        transition: "border-color 150ms, box-shadow 150ms, transform 200ms ease",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = "var(--border-focus)";
-        e.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e.currentTarget.style.boxShadow = "var(--shadow-card-hover)";
+        e.currentTarget.style.transform = "translateY(-1px)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "var(--border)";
-        e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.boxShadow = "var(--shadow-card)";
+        e.currentTarget.style.transform = "translateY(0)";
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>

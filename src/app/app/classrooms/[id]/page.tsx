@@ -265,14 +265,15 @@ export default function ClassroomDashboard() {
                     borderRadius: "var(--radius-sm)",
                     background: "var(--bg-card)",
                     border: "1px solid var(--border)",
+                    boxShadow: "var(--shadow-card)",
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    transition: "border-color 150ms",
+                    transition: "border-color 150ms, box-shadow 150ms",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-focus)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-focus)"; e.currentTarget.style.boxShadow = "var(--shadow-card-hover)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.boxShadow = "var(--shadow-card)"; }}
                 >
                   <div>
                     <h4 style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", margin: 0 }}>{a.title}</h4>
