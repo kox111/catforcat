@@ -675,7 +675,7 @@ export default function SettingsPage() {
                     width: 16,
                     height: 16,
                     borderRadius: "50%",
-                    background: "#fff",
+                    background: "var(--bg-panel)",
                     position: "absolute",
                     top: 2,
                     left: breakEnabled ? 20 : 2,

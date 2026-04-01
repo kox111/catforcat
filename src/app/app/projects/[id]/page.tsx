@@ -1965,7 +1965,7 @@ export default function EditorPage({
                     background: "var(--accent)",
                     border: "none",
                     borderRadius: "var(--radius-sm)",
-                    color: "#fff",
+                    color: "var(--btn-primary-text)",
                     cursor: "pointer",
                     fontWeight: 500,
                   }}
