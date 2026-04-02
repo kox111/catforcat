@@ -35,6 +35,9 @@ export async function POST(
       newCode = generateInviteCode();
       attempts++;
     }
+    if (attempts >= 10) {
+      return NextResponse.json({ error: "Failed to generate unique code" }, { status: 500 });
+    }
 
     const updated = await prisma.classroom.update({
       where: { id },
