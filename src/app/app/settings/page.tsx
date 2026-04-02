@@ -540,6 +540,11 @@ export default function SettingsPage() {
                     color: "#3A3028",
                     border: "0.5px solid #4A3E32",
                   },
+                  {
+                    id: "midnight" as const,
+                    color: "#0a0a0c",
+                    border: "0.5px solid #2a2a30",
+                  },
                 ].map((t) => (
                   <div
                     key={t.id}

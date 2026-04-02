@@ -8,7 +8,7 @@ import {
   useCallback,
 } from "react";
 
-export type Theme = "sakura" | "dark" | "light" | "linen" | "forest";
+export type Theme = "sakura" | "dark" | "light" | "linen" | "forest" | "midnight";
 
 const ThemeContext = createContext<{
   theme: Theme;
@@ -34,7 +34,8 @@ export default function ThemeProvider({
         saved === "dark" ||
         saved === "light" ||
         saved === "linen" ||
-        saved === "forest"
+        saved === "forest" ||
+        saved === "midnight"
       ) {
         setThemeState(saved);
         document.documentElement.setAttribute("data-theme", saved);

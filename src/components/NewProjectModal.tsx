@@ -92,6 +92,7 @@ const ACCENT_CODE_COLOR: Record<Theme, string> = {
   light: "var(--accent)",
   linen: "#A47864",
   forest: "#8AAA70",
+  midnight: "#8a8594",
 };
 
 const GRADIENT_COLORS: Record<Theme, [string, string]> = {
@@ -100,6 +101,7 @@ const GRADIENT_COLORS: Record<Theme, [string, string]> = {
   light: ["#6B6B6B", "#AAAAAA"],
   linen: ["#A47864", "#C4A898"],
   forest: ["#8B7355", "#6A8A58"],
+  midnight: ["#8a8594", "#6a6574"],
 };
 
 const ACCEPTED_EXTENSIONS = [

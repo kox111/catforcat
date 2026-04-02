@@ -648,6 +648,136 @@
 }
 
 /* ═══════════════════════════════════════════
+   MIDNIGHT — Deep space with transparency layers
+   bg: #0a0a0c (void black) · text: cool desaturated
+   Depth through rgba transparency, NOT just darker Dark
+   ═══════════════════════════════════════════ */
+[data-theme="midnight"] {
+  --bg-deep: #0a0a0c;
+  --bg-panel: rgba(255, 255, 255, 0.03);
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(255, 255, 255, 0.08);
+  --bg-sidebar: #060608;
+  --bg-paper: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(255, 255, 255, 0.20);
+  --text-primary: #b0adb5;
+  --text-secondary: #706e78;
+  --text-muted: #48464e;
+  --accent: #8a8594;
+  --accent-soft: rgba(138, 133, 148, 0.12);
+
+  --green: #4a7a5a;
+  --green-soft: rgba(74, 122, 90, 0.12);
+  --green-text: #6a9a7a;
+  --amber: #b09050;
+  --amber-soft: rgba(176, 144, 80, 0.10);
+  --amber-text: #c8a870;
+  --red: #8a4a4c;
+  --red-soft: rgba(138, 74, 76, 0.10);
+  --red-text: #a86a6c;
+  --purple: #7a6a8a;
+  --purple-soft: rgba(122, 106, 138, 0.12);
+  --purple-text: #9a8aaa;
+
+  --status-bar: #060608;
+  --segment-divider: rgba(255, 255, 255, 0.06);
+  --paper-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 2px 8px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.25);
+  --glass-container-shadow: var(--shadow-card);
+  --glass-container-border: var(--border);
+  --glass-active-shadow: var(--shadow-card-hover);
+  --glass-active-border: var(--border-focus);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+
+  --scrollbar-thumb: rgba(255, 255, 255, 0.06);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.12);
+
+  --brand-wordmark: #8a8590;
+
+  --overlay: rgba(0, 0, 0, 0.7);
+
+  --mark-bg: rgba(176, 144, 80, 0.25);
+  --mark-text: #b0adb5;
+  --mark-delete-bg: rgba(138, 74, 76, 0.25);
+  --mark-insert-bg: rgba(74, 122, 90, 0.25);
+
+  /* ── Button System: Primary / Secondary / Ghost ── */
+  --btn-primary-bg: var(--accent);
+  --btn-primary-bg-hover: #9a95a4;
+  --btn-primary-text: #0a0a0c;
+  --btn-primary-border: transparent;
+  --btn-primary-shadow: 0 2px 8px rgba(138, 133, 148, 0.25);
+  --btn-primary-shadow-hover: 0 4px 16px rgba(138, 133, 148, 0.35);
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-bg-hover: rgba(255, 255, 255, 0.08);
+  --btn-secondary-text: var(--text-secondary);
+  --btn-secondary-text-hover: var(--text-primary);
+  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-border-hover: rgba(255, 255, 255, 0.15);
+
+  --btn-ghost-bg: transparent;
+  --btn-ghost-bg-hover: rgba(255, 255, 255, 0.05);
+  --btn-ghost-text: var(--text-muted);
+  --btn-ghost-text-hover: var(--text-secondary);
+
+  --btn-bg: var(--btn-secondary-bg);
+  --btn-border: var(--btn-secondary-border);
+  --btn-bg-hover: var(--btn-secondary-bg-hover);
+
+  /* CTA button tokens */
+  --cta-bg: var(--btn-primary-bg);
+  --cta-bg-gradient: linear-gradient(180deg, #9a95a4 0%, #8a8594 50%, #7a7584 100%);
+  --cta-bg-gradient-hover: linear-gradient(180deg, #aaa5b4 0%, #9a95a4 50%, #8a8594 100%);
+  --cta-text: var(--btn-primary-text);
+  --cta-shadow: var(--btn-primary-shadow);
+  --cta-shadow-hover: var(--btn-primary-shadow-hover);
+  --cta-shadow-active: 0 1px 4px rgba(138, 133, 148, 0.15);
+
+  /* Glow & micro-interaction tokens */
+  --glow-accent: rgba(138, 133, 148, 0.20);
+  --glow-accent-strong: rgba(138, 133, 148, 0.40);
+  --btn-glow: 0 0 0 transparent;
+  --btn-glow-hover: 0 0 12px rgba(138, 133, 148, 0.12);
+  --btn-depth: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --btn-depth-hover: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 16px rgba(138, 133, 148, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --btn-depth-active: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-bg-hover: rgba(255, 255, 255, 0.05);
+  --panel-glow: 0 0 20px rgba(138, 133, 148, 0.04);
+  --action-gradient: linear-gradient(135deg, rgba(74, 122, 90, 0.12), rgba(74, 122, 90, 0.04));
+  --action-border: rgba(74, 122, 90, 0.25);
+  --action-glow: 0 0 14px rgba(74, 122, 90, 0.10);
+
+  /* ── Classroom & Review Mode ── */
+  --suggestion-original-bg: rgba(138, 74, 76, 0.12);
+  --suggestion-original-text: #a06a6c;
+  --suggestion-proposed-bg: rgba(74, 122, 90, 0.12);
+  --suggestion-proposed-text: #6a9a7a;
+  --postit-error: #8a4a4c;
+  --postit-error-bg: rgba(138, 74, 76, 0.10);
+  --postit-suggestion: #b09050;
+  --postit-suggestion-bg: rgba(176, 144, 80, 0.10);
+  --postit-good: #4a7a5a;
+  --postit-good-bg: rgba(74, 122, 90, 0.10);
+  --pro-gradient-start: #8a8594;
+  --pro-gradient-end: #6a6574;
+  --pro-glow: rgba(138, 133, 148, 0.25);
+  --live-indicator: #4a7a5a;
+  --live-pulse: rgba(74, 122, 90, 0.35);
+}
+
+/* ═══════════════════════════════════════════
    DESIGN SYSTEM TOKENS — shared across themes
    ═══════════════════════════════════════════ */
 :root {

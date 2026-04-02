@@ -36,6 +36,10 @@ const AVATAR_RING: Record<Theme, { gradient: string; bg: string }> = {
     gradient: "linear-gradient(135deg, #8B7355, #6A8A58)",
     bg: "var(--bg-deep)",
   },
+  midnight: {
+    gradient: "linear-gradient(135deg, #8a8594, #6a6574)",
+    bg: "var(--bg-deep)",
+  },
 };
 
 const THEME_DOTS: {
@@ -73,6 +77,12 @@ const THEME_DOTS: {
     color: "#3A3028",
     border: "0.5px solid #4A3E32",
     label: "Forest",
+  },
+  {
+    id: "midnight",
+    color: "#0a0a0c",
+    border: "0.5px solid #2a2a30",
+    label: "Midnight",
   },
 ];
 
