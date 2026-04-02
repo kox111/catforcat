@@ -2136,23 +2136,39 @@ export default function EditorPage({
             overflow: "hidden",
           }}
         >
-          {/* Document header — language labels */}
+          {/* Document header — language labels as notebook tabs */}
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              padding: "4px 16px 4px 52px",
-              fontSize: 9,
-              fontFamily: "var(--font-ui-family)",
-              color: "var(--text-muted)",
+              alignItems: "flex-end",
+              paddingLeft: 52,
+              paddingRight: 16,
               userSelect: "none",
               background: "transparent",
-              letterSpacing: "1px",
-              textTransform: "uppercase",
             }}
           >
             <div style={{ flex: columnRatio, paddingRight: 8 }}>
-              Source — {getLangLabel(project.srcLang)}
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "8px 16px",
+                  fontFamily: "var(--font-ui-family)",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--text-secondary)",
+                  background: "var(--bg-panel)",
+                  borderRadius: "6px 6px 0 0",
+                  borderTop: "1px solid var(--border)",
+                  borderLeft: "1px solid var(--border)",
+                  borderRight: "1px solid var(--border)",
+                  borderBottom: "2px solid var(--accent)",
+                  marginBottom: -1,
+                }}
+              >
+                Source — {getLangLabel(project.srcLang)}
+              </div>
             </div>
             {/* Drag handle */}
             <div
@@ -2164,6 +2180,7 @@ export default function EditorPage({
                 cursor: "col-resize",
                 flexShrink: 0,
                 margin: "0 8px",
+                alignSelf: "center",
               }}
               title="Drag to resize columns"
               onMouseDown={(e) => {
@@ -2198,7 +2215,27 @@ export default function EditorPage({
               }}
             />
             <div style={{ flex: 1 - columnRatio, paddingLeft: 8 }}>
-              Target — {getLangLabel(project.tgtLang)}
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "8px 16px",
+                  fontFamily: "var(--font-ui-family)",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--text-secondary)",
+                  background: "var(--bg-panel)",
+                  borderRadius: "6px 6px 0 0",
+                  borderTop: "1px solid var(--border)",
+                  borderLeft: "1px solid var(--border)",
+                  borderRight: "1px solid var(--border)",
+                  borderBottom: "2px solid var(--accent)",
+                  marginBottom: -1,
+                }}
+              >
+                Target — {getLangLabel(project.tgtLang)}
+              </div>
             </div>
           </div>
 
@@ -2338,14 +2375,15 @@ export default function EditorPage({
           {/* Bottom Panels: Collapsible TM + Glossary */}
           <div
             style={{
-              background: "var(--bg-sidebar)",
+              background: "var(--bg-deep)",
               height: bottomPanelCollapsed ? 28 : bottomPanelHeight,
               minHeight: 28,
               maxHeight: 300,
               display: "flex",
               flexDirection: "column",
-              margin: "0 20px 8px 20px",
-              borderRadius: "var(--radius-sm)",
+              margin: 0,
+              borderRadius: 0,
+              borderTop: "1px solid var(--border)",
               overflow: "hidden",
               flexShrink: 0,
               transition: bottomDragRef.current ? "none" : "height 150ms ease",
