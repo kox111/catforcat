@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import {
   Settings,
   LogOut,
-  Star,
+  Sparkles,
   FileText,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
@@ -686,25 +686,22 @@ export default function TopBar() {
                 {/* Upgrade to Pro (only for free users) */}
                 {!isPro && (
                   <>
-                    <button
-                      onClick={() => {
-                        setAvatarOpen(false);
-                        router.push("/app/settings");
-                      }}
+                    <Link
+                      href="/app/upgrade"
+                      onClick={() => setAvatarOpen(false)}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: 8,
                         padding: "6px 12px",
                         fontSize: 13,
+                        textDecoration: "none",
                         color: "var(--accent)",
                         background: "transparent",
-                        border: "none",
-                        width: "100%",
-                        textAlign: "left",
+                        transition: "background 150ms",
                         cursor: "pointer",
                         fontFamily: "var(--font-ui-family)",
-                        transition: "background 150ms",
+                        fontWeight: 500,
                       }}
                       onMouseEnter={(e) =>
                         (e.currentTarget.style.background = "var(--bg-hover)")
@@ -713,9 +710,9 @@ export default function TopBar() {
                         (e.currentTarget.style.background = "transparent")
                       }
                     >
-                      <Star size={13} style={{ color: "var(--accent)" }} />
-                      <span>Upgrade to Pro</span>
-                    </button>
+                      <Sparkles size={13} style={{ color: "var(--accent)" }} />
+                      <span>Upgrade to PRO</span>
+                    </Link>
                     <div style={{ borderTop: "0.5px solid var(--border)" }} />
                   </>
                 )}
