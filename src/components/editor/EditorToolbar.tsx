@@ -377,7 +377,7 @@ export default function EditorToolbar({
             gap: 4,
             flex: 1,
             justifyContent: "flex-end",
-            overflow: "hidden",
+            overflow: "visible",
           }}
         >
           {/* Pre-translate icon (AI accent color) */}
@@ -471,7 +471,28 @@ export default function EditorToolbar({
             <FileCheck size={15} />
           </button>
 
-          {/* ── Secondary icons (push animation container) ── */}
+          {/* Expand/collapse arrow (before secondary icons so they expand to the right) */}
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            style={{
+              ...toolIconStyle(false),
+              width: 24,
+              height: 24,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+            title={expanded ? "Collapse toolbar" : "Expand toolbar"}
+          >
+            <ChevronRight
+              size={13}
+              style={{
+                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 200ms ease",
+              }}
+            />
+          </button>
+
+          {/* ── Secondary icons (push animation container — expands to the right) ── */}
           <div
             style={{
               display: "flex",
@@ -523,27 +544,6 @@ export default function EditorToolbar({
               <BarChart3 size={15} />
             </button>
           </div>
-
-          {/* Expand/collapse arrow */}
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            style={{
-              ...toolIconStyle(false),
-              width: 24,
-              height: 24,
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
-            title={expanded ? "Collapse toolbar" : "Expand toolbar"}
-          >
-            <ChevronRight
-              size={13}
-              style={{
-                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 200ms ease",
-              }}
-            />
-          </button>
 
           {/* Separator */}
           <div style={{ width: 1, height: 16, background: "var(--border)", opacity: 0.4, margin: "0 4px", flexShrink: 0 }} />
