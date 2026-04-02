@@ -52,8 +52,10 @@ export default function GlossaryPage() {
   const [submitting, setSubmitting] = useState(false);
   const [exportingCsv, setExportingCsv] = useState(false);
   const [importingCsv, setImportingCsv] = useState(false);
+  const [importingTbx, setImportingTbx] = useState(false);
   const [importResult, setImportResult] = useState<string | null>(null);
   const csvFileInputRef = useRef<HTMLInputElement>(null);
+  const tbxFileInputRef = useRef<HTMLInputElement>(null);
   // G1: Import from project
   const [showProjectImport, setShowProjectImport] = useState(false);
   const [projects, setProjects] = useState<
@@ -85,6 +87,33 @@ export default function GlossaryPage() {
     } finally {
       setImportingCsv(false);
       if (csvFileInputRef.current) csvFileInputRef.current.value = "";
+    }
+  };
+
+  const handleImportTBX = async (file: File) => {
+    setImportingTbx(true);
+    setImportResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/glossary/import-tbx", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setImportResult(
+          `Imported ${data.imported} terms from TBX (${data.skipped} duplicates skipped)`,
+        );
+        fetchTerms();
+      } else {
+        setImportResult(`Error: ${data.error}`);
+      }
+    } catch {
+      setImportResult("TBX import failed");
+    } finally {
+      setImportingTbx(false);
+      if (tbxFileInputRef.current) tbxFileInputRef.current.value = "";
     }
   };
 
@@ -265,6 +294,31 @@ export default function GlossaryPage() {
             }}
           >
             {importingCsv ? "Importing..." : "Import CSV"}
+          </button>
+
+          {/* Import TBX */}
+          <input
+            ref={tbxFileInputRef}
+            type="file"
+            accept=".tbx"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImportTBX(file);
+            }}
+          />
+          <button
+            onClick={() => tbxFileInputRef.current?.click()}
+            disabled={importingTbx}
+            className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+            style={{
+              background: "var(--bg-card)",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border)",
+              opacity: importingTbx ? 0.6 : 1,
+            }}
+          >
+            {importingTbx ? "Importing..." : "Import TBX"}
           </button>
 
           {/* Export CSV */}
