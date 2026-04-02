@@ -31,6 +31,9 @@ export default function TMPage() {
   } | null>(null);
   const [showStats, setShowStats] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // SDLTM import (Trados)
+  const [importingSdltm, setImportingSdltm] = useState(false);
+  const sdltmFileInputRef = useRef<HTMLInputElement>(null);
   // G3: Aligned file import
   const [importingAligned, setImportingAligned] = useState(false);
   const alignedFileInputRef = useRef<HTMLInputElement>(null);
@@ -59,6 +62,33 @@ export default function TMPage() {
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleImportSdltm = async (file: File) => {
+    setImportingSdltm(true);
+    setImportResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/tm/import-sdltm", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setImportResult(
+          `Imported ${data.imported} Trados entries (${data.skipped} duplicates skipped)`,
+        );
+        fetchEntries();
+      } else {
+        setImportResult(`Error: ${data.error}`);
+      }
+    } catch {
+      setImportResult("Trados import failed");
+    } finally {
+      setImportingSdltm(false);
+      if (sdltmFileInputRef.current) sdltmFileInputRef.current.value = "";
     }
   };
 
@@ -234,6 +264,31 @@ export default function TMPage() {
             }}
           >
             {importing ? "Importing..." : "Import TMX"}
+          </button>
+
+          {/* Import SDLTM (Trados) */}
+          <input
+            ref={sdltmFileInputRef}
+            type="file"
+            accept=".sdltm"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImportSdltm(file);
+            }}
+          />
+          <button
+            onClick={() => sdltmFileInputRef.current?.click()}
+            disabled={importingSdltm}
+            className="px-3 py-1.5 rounded text-xs font-medium transition-colors"
+            style={{
+              background: "var(--bg-card)",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border)",
+              opacity: importingSdltm ? 0.6 : 1,
+            }}
+          >
+            {importingSdltm ? "Importing..." : "Import Trados"}
           </button>
 
           {/* G3: Import Aligned (.txt/.csv) */}
