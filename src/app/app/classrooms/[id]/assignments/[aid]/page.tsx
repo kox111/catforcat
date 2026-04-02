@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Clock, CheckCircle2, AlertCircle, FileText, ArrowLeft, Pencil, X, Check } from "lucide-react";
 import UserPreviewCard from "@/components/UserPreviewCard";
 import GradeModal from "@/components/GradeModal";
+import DatePicker from "@/components/DatePicker";
 
 interface SubmissionData {
   id: string;
@@ -157,18 +158,14 @@ export default function AssignmentDetailPage() {
               }}
             />
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <label style={{ fontSize: 12, color: "var(--text-muted)" }}>Due date:</label>
-              <input
-                type="datetime-local"
-                value={editDueDate}
-                onChange={(e) => setEditDueDate(e.target.value)}
-                style={{
-                  fontSize: 12, padding: "4px 8px",
-                  borderRadius: "var(--radius-sm)", border: "1px solid var(--border)",
-                  background: "var(--bg-card)", color: "var(--text-primary)",
-                  fontFamily: "var(--font-ui-family)",
-                }}
-              />
+              <label style={{ fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>Due date:</label>
+              <div style={{ flex: 1, maxWidth: 260 }}>
+                <DatePicker
+                  value={editDueDate}
+                  onChange={(v) => setEditDueDate(v)}
+                  minDate={new Date().toISOString()}
+                />
+              </div>
             </div>
             <div style={{ display: "flex", gap: 6 }}>
               <button

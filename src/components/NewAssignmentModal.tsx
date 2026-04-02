@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Upload } from "lucide-react";
+import DatePicker from "@/components/DatePicker";
 
 interface NewAssignmentModalProps {
   classroomId: string;
@@ -184,11 +185,10 @@ export default function NewAssignmentModal({ classroomId, onClose, onCreated }: 
             <label style={{ display: "block", fontSize: 12, marginBottom: 4, color: "var(--text-muted)" }}>
               Due Date (optional)
             </label>
-            <input
-              type="datetime-local"
+            <DatePicker
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              style={inputStyle}
+              onChange={(v) => setDueDate(v)}
+              minDate={new Date().toISOString()}
             />
           </div>
 
