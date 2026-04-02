@@ -380,18 +380,19 @@ export default function EditorToolbar({
             overflow: "hidden",
           }}
         >
-          {/* Pre-translate icon */}
+          {/* Pre-translate icon (AI accent color) */}
           {!isCompact && (
             <button
               onClick={() => onPreTranslate?.("full")}
               disabled={preTranslating}
               style={{
                 ...toolIconStyle(false),
+                color: "var(--ai-accent)",
                 opacity: preTranslating ? 0.4 : 1,
                 cursor: preTranslating ? "not-allowed" : "pointer",
               }}
-              onMouseEnter={(e) => { if (!preTranslating) { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; } }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+              onMouseEnter={(e) => { if (!preTranslating) { e.currentTarget.style.background = "var(--bg-hover)"; } }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
               title="Pre-translate"
             >
               <Sparkles size={15} />
