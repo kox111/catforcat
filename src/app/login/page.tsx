@@ -307,6 +307,81 @@ export default function LoginPage() {
             )}
           </form>
 
+          {/* OAuth divider */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              margin: "20px 0",
+              gap: 12,
+            }}
+          >
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "var(--font-ui-family)" }}>or</span>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+          </div>
+
+          {/* OAuth buttons */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => signIn("google", { callbackUrl: "/app/projects" })}
+              style={{
+                width: "100%",
+                height: 44,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                border: "1.5px solid var(--border)",
+                background: "var(--bg-deep)",
+                borderRadius: "var(--radius-sm)",
+                fontFamily: "var(--font-ui-family)",
+                fontSize: 14,
+                color: "var(--text-primary)",
+                cursor: "pointer",
+                transition: "background 150ms",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg-deep)")}
+            >
+              <svg width="20" height="20" viewBox="0 0 48 48">
+                <path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.0 24.0 0 0 0 0 21.56l7.98-6.19z"/>
+                <path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              </svg>
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => signIn("apple", { callbackUrl: "/app/projects" })}
+              style={{
+                width: "100%",
+                height: 44,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                border: "1.5px solid var(--border)",
+                background: "var(--bg-deep)",
+                borderRadius: "var(--radius-sm)",
+                fontFamily: "var(--font-ui-family)",
+                fontSize: 14,
+                color: "var(--text-primary)",
+                cursor: "pointer",
+                transition: "background 150ms",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--bg-deep)")}
+            >
+              <svg width="16" height="20" viewBox="0 0 17 21" fill="currentColor">
+                <path d="M8.29 5.07c.9 0 2.03-.61 2.7-1.42.6-.73 1.04-1.75 1.04-2.76 0-.14-.01-.28-.04-.39-.99.04-2.18.66-2.9 1.5-.56.64-1.08 1.65-1.08 2.67 0 .15.03.3.04.35.07.01.18.04.24.04zM5.8 21c1.23 0 1.77-.82 3.31-.82 1.56 0 1.9.8 3.27.8 1.35 0 2.26-1.25 3.12-2.47.97-1.4 1.37-2.76 1.4-2.83-.09-.03-2.72-1.1-2.72-4.1 0-2.6 2.08-3.76 2.18-3.85-1.35-1.95-3.42-2-4.01-2-.55-.04-1.08.12-1.52.26-.33.1-.62.2-.86.2-.27 0-.57-.1-.91-.21-.43-.14-.91-.29-1.45-.29-2.44 0-4.91 2.01-4.91 5.81 0 2.36.92 4.86 2.06 6.48C5.62 19.41 5.18 21 5.8 21z"/>
+              </svg>
+              Continue with Apple
+            </button>
+          </div>
+
           <p
             style={{
               marginTop: 16,
