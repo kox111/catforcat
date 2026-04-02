@@ -6,7 +6,7 @@ interface SaveDotProps {
   isSaving: boolean;
   lastSavedAt: number | null;
   saveError: string | null;
-  mode: "text" | "dot";
+  mode: "text" | "dot" | "full";
 }
 
 type Phase = "idle" | "saving" | "saved" | "error";
@@ -183,6 +183,72 @@ export default function SaveDot({ isSaving, lastSavedAt, saveError, mode }: Save
             flexShrink: 0,
           }}
         />
+      </>
+    );
+  }
+
+  /* Full render (dot + typewriter text) */
+  if (mode === "full") {
+    return (
+      <>
+        <style>{`
+          @keyframes saveDotPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+          }
+        `}</style>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, height: 20 }}>
+          <div
+            style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: dotColor,
+              transition: "background 400ms ease",
+              animation: dotAnimation,
+              flexShrink: 0,
+              opacity: phase === "idle" ? 0 : 1,
+            }}
+          />
+          {phase === "error" ? (
+            <span style={{ fontFamily: "var(--font-ui-family)", fontSize: 11, fontWeight: 400, color: "var(--red-text)", whiteSpace: "nowrap" }}>Error</span>
+          ) : reduceMotion ? (
+            phase === "saving" ? (
+              <span style={{ fontFamily: "var(--font-ui-family)", fontSize: 11, fontWeight: 400, color: "var(--accent)", whiteSpace: "nowrap" }}>Saving</span>
+            ) : phase === "saved" ? (
+              <span style={{ fontFamily: "var(--font-ui-family)", fontSize: 11, fontWeight: 400, color: "var(--text-muted)", whiteSpace: "nowrap" }}>Saved</span>
+            ) : null
+          ) : phase === "idle" ? null : (
+            <div style={{ position: "relative", overflow: "hidden", height: 16, minWidth: 44 }}>
+              <div style={{
+                position: "absolute", top: 0, left: 0, height: "100%",
+                display: "flex", alignItems: "center",
+                transform: `translateY(${phase === "saving" ? 0 : -14}px)`,
+                opacity: phase === "saving" ? 1 : 0,
+                transition: "transform 200ms ease, opacity 200ms ease",
+                whiteSpace: "nowrap",
+              }}>
+                <span style={{ fontFamily: "var(--font-ui-family)", fontSize: 11, fontWeight: 400, color: "var(--accent)" }}>
+                  {SAVING_TEXT.split("").map((ch, i) => (
+                    <span key={i} style={{ display: "inline-block", opacity: i < savingChars ? 1 : 0, transition: "opacity 0.3s ease" }}>{ch}</span>
+                  ))}
+                </span>
+              </div>
+              <div style={{
+                position: "absolute", top: 0, left: 0, height: "100%",
+                display: "flex", alignItems: "center",
+                transform: `translateY(${phase === "saved" ? 0 : 14}px)`,
+                opacity: phase === "saved" ? 1 : 0,
+                transition: "transform 200ms ease, opacity 200ms ease",
+                whiteSpace: "nowrap",
+              }}>
+                <span style={{ fontFamily: "var(--font-ui-family)", fontSize: 11, fontWeight: 400, color: "var(--text-muted)" }}>
+                  {SAVED_TEXT.split("").map((ch, i) => (
+                    <span key={i} style={{ display: "inline-block", opacity: i < savedChars ? 1 : 0, transition: "opacity 0.25s ease" }}>{ch}</span>
+                  ))}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </>
     );
   }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useViewScale } from "@/components/ViewScaleProvider";
+import { useUserPlan } from "@/components/UserPlanProvider";
 import { type ScaleMode, SCALE_MODES, MODE_ORDER } from "@/lib/view-scale";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
 
@@ -27,6 +28,7 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const { mode, setMode } = useViewScale();
+  const { setAvatarUrl: setProviderAvatarUrl } = useUserPlan();
   const [breakEnabled, setBreakEnabled] = useState(true);
 
   // Load break reminder preference
@@ -61,16 +63,13 @@ export default function SettingsPage() {
       reader.onload = () => {
         img.onload = async () => {
           const MAX = 128;
-          let w = img.width,
-            h = img.height;
-          if (w > MAX || h > MAX) {
-            const scale = MAX / Math.max(w, h);
-            w = Math.round(w * scale);
-            h = Math.round(h * scale);
-          }
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext("2d")?.drawImage(img, 0, 0, w, h);
+          canvas.width = MAX;
+          canvas.height = MAX;
+          const ctx = canvas.getContext("2d")!;
+          const size = Math.min(img.width, img.height);
+          const sx = (img.width - size) / 2;
+          const sy = (img.height - size) / 2;
+          ctx.drawImage(img, sx, sy, size, size, 0, 0, MAX, MAX);
           const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
           try {
             const res = await fetch("/api/settings", {
@@ -78,7 +77,10 @@ export default function SettingsPage() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ avatarUrl: dataUrl }),
             });
-            if (res.ok) setAvatarUrl(dataUrl);
+            if (res.ok) {
+              setAvatarUrl(dataUrl);
+              setProviderAvatarUrl(dataUrl);
+            }
           } catch {
             /* silent */
           }
@@ -99,7 +101,10 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avatarUrl: null }),
       });
-      if (res.ok) setAvatarUrl(null);
+      if (res.ok) {
+        setAvatarUrl(null);
+        setProviderAvatarUrl(null);
+      }
     } catch {
       /* silent */
     }

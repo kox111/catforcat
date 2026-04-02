@@ -9,6 +9,7 @@ import {
   LogOut,
   Sparkles,
   FileText,
+  Type,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
@@ -86,6 +87,12 @@ const THEME_DOTS: {
   },
 ];
 
+const FONT_SIZE_PRESETS = [
+  { key: "compact", label: "Compact", size: 12 },
+  { key: "default", label: "Default", size: 14 },
+  { key: "large", label: "Large", size: 16 },
+] as const;
+
 const navItems = [
   { href: "/app/projects", label: "Projects" },
   { href: "/app/classrooms", label: "Classrooms" },
@@ -104,7 +111,15 @@ export default function TopBar() {
   const isEditor = /^\/app\/projects\/[^/]+$/.test(pathname);
 
   const { theme, setTheme } = useTheme();
-  const { plan: userPlan } = useUserPlan();
+  const { plan: userPlan, avatarUrl } = useUserPlan();
+  const [fontSize, setFontSize] = useState(14);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("tp-editor-font-size");
+      if (stored) setFontSize(parseInt(stored, 10));
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -149,12 +164,23 @@ export default function TopBar() {
   const ring = AVATAR_RING[theme] || AVATAR_RING.dark;
   const isPro = userPlan === "pro";
 
+  const handleFontSize = (size: number) => {
+    setFontSize(size);
+    try { localStorage.setItem("tp-editor-font-size", String(size)); } catch {}
+    window.dispatchEvent(new Event("storage"));
+  };
+
   return (
     <>
       <style>{`
         @keyframes topBarDropdownIn {
           from { opacity: 0; transform: translateY(-4px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes proShimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
       `}</style>
 
@@ -406,27 +432,8 @@ export default function TopBar() {
           )}
         </div>
 
-        {/* Right side: [PRO pill] + Avatar */}
+        {/* Right side: Avatar */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginRight: 4 }}>
-          {/* PRO pill (only for pro users) */}
-          {isPro && (
-            <span
-              style={{
-                padding: "1px 4px",
-                borderRadius: 6,
-                background: ring.gradient,
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 7,
-                fontWeight: 500,
-                letterSpacing: "0.03em",
-                color: "var(--bg-deep)",
-                lineHeight: 1,
-              }}
-            >
-              PRO
-            </span>
-          )}
-
           {/* Notification Bell */}
           <NotificationBell />
 
@@ -442,6 +449,8 @@ export default function TopBar() {
                 height: 32,
                 borderRadius: "50%",
                 background: ring.gradient,
+                backgroundSize: isPro ? "200% 200%" : undefined,
+                animation: isPro ? "proShimmer 3s ease infinite" : undefined,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -462,9 +471,14 @@ export default function TopBar() {
                   fontWeight: 500,
                   color: "var(--text-primary)",
                   fontFamily: "var(--font-ui-family)",
+                  overflow: "hidden",
                 }}
               >
-                {userInitials}
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                ) : (
+                  userInitials
+                )}
               </div>
             </div>
 
@@ -522,9 +536,14 @@ export default function TopBar() {
                         fontWeight: 500,
                         color: "var(--text-primary)",
                         fontFamily: "var(--font-ui-family)",
+                        overflow: "hidden",
                       }}
                     >
-                      {userInitials}
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                      ) : (
+                        userInitials
+                      )}
                     </div>
                   </div>
                   <div style={{ minWidth: 0 }}>
@@ -677,6 +696,46 @@ export default function TopBar() {
                         }}
                         title={t.label}
                       />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Font size picker inline */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "6px 12px",
+                    fontFamily: "var(--font-ui-family)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Type size={13} style={{ color: "var(--text-secondary)" }} />
+                    <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Font size</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    {FONT_SIZE_PRESETS.map((p) => (
+                      <button
+                        key={p.key}
+                        onClick={() => handleFontSize(p.size)}
+                        style={{
+                          padding: "2px 8px",
+                          fontSize: 11,
+                          fontWeight: fontSize === p.size ? 500 : 400,
+                          fontFamily: "var(--font-ui-family)",
+                          border: "none",
+                          borderRadius: 4,
+                          background: fontSize === p.size ? "var(--bg-hover)" : "transparent",
+                          color: fontSize === p.size ? "var(--text-primary)" : "var(--text-muted)",
+                          cursor: "pointer",
+                          transition: "all 150ms",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = fontSize === p.size ? "var(--bg-hover)" : "transparent")}
+                      >
+                        {p.label}
+                      </button>
                     ))}
                   </div>
                 </div>

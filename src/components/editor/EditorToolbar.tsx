@@ -178,7 +178,7 @@ export default function EditorToolbar({
   const { data: session } = useSession();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { plan: userPlan } = useUserPlan();
+  const { plan: userPlan, avatarUrl } = useUserPlan();
   const [avatarOpen, setAvatarOpen] = useState(false);
   const avatarRef = useRef<HTMLDivElement>(null);
 
@@ -516,7 +516,7 @@ export default function EditorToolbar({
             <ChevronRight
               size={13}
               style={{
-                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                transform: expanded ? "rotate(0deg)" : "rotate(180deg)",
                 transition: "transform 250ms ease",
               }}
             />
@@ -685,7 +685,7 @@ export default function EditorToolbar({
             isSaving={saving}
             lastSavedAt={lastSavedAt ?? null}
             saveError={saveError ?? null}
-            mode={expanded ? "dot" : "text"}
+            mode={expanded ? "dot" : "full"}
           />
 
           {/* ── Avatar (visible when collapsed, hidden when expanded) ── */}
@@ -737,9 +737,14 @@ export default function EditorToolbar({
                     fontWeight: 500,
                     color: "var(--text-primary)",
                     fontFamily: "var(--font-ui-family)",
+                    overflow: "hidden",
                   }}
                 >
-                  {userInitials}
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    userInitials
+                  )}
                 </div>
               </div>
 
@@ -772,8 +777,13 @@ export default function EditorToolbar({
                         width: "100%", height: "100%", borderRadius: "50%", background: ring.bg,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontSize: 9, fontWeight: 500, color: "var(--text-primary)", fontFamily: "var(--font-ui-family)",
+                        overflow: "hidden",
                       }}>
-                        {userInitials}
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                        ) : (
+                          userInitials
+                        )}
                       </div>
                     </div>
                     <div style={{ minWidth: 0 }}>
