@@ -21,6 +21,7 @@ import {
   TextSearch,
   StickyNote,
   BarChart3,
+  Type,
 } from "lucide-react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
@@ -135,6 +136,12 @@ const EXPORT_FORMATS = [
   { key: "markdown", label: "Markdown", desc: "Formatted text" },
 ];
 
+const FONT_SIZE_PRESETS = [
+  { key: "compact", label: "Compact", size: 12 },
+  { key: "default", label: "Default", size: 14 },
+  { key: "large", label: "Large", size: 16 },
+] as const;
+
 export default function EditorToolbar({
   projectName,
   projectId,
@@ -153,7 +160,7 @@ export default function EditorToolbar({
   onExportOpenChange,
   onPreTranslate,
   preTranslating,
-  editorFontSize = 13,
+  editorFontSize = 14,
   onFontSizeChange,
   onExportOpen,
   isFullscreen = false,
@@ -233,6 +240,11 @@ export default function EditorToolbar({
     return () => document.removeEventListener("mousedown", handler);
   }, [exportOpen, avatarOpen]);
 
+  /* Close avatar when expanding */
+  useEffect(() => {
+    if (expanded) setAvatarOpen(false);
+  }, [expanded]);
+
   const handleExport = async (format: string) => {
     setExporting(format);
     setExportOpen(false);
@@ -292,14 +304,32 @@ export default function EditorToolbar({
     flexShrink: 0,
   });
 
+  const iconHoverIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.background = "var(--bg-hover)";
+    e.currentTarget.style.color = "var(--text-primary)";
+    e.currentTarget.style.transform = "scale(1.05)";
+  };
+  const iconHoverOut = (active: boolean) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.background = active ? "var(--bg-hover)" : "transparent";
+    e.currentTarget.style.color = active ? "var(--text-primary)" : "var(--text-secondary)";
+    e.currentTarget.style.transform = "scale(1)";
+  };
+
   return (
     <>
-      {/* PRO shimmer keyframe */}
       <style>{`
         @keyframes proShimmer {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
+        }
+        @keyframes saveDotPulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        @keyframes avatarDropdownIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
@@ -311,7 +341,7 @@ export default function EditorToolbar({
       `}</style>
 
       <div
-        className="editor-header glass-header-fade"
+        className="editor-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -323,7 +353,7 @@ export default function EditorToolbar({
           zIndex: 10,
         }}
       >
-        {/* ── LEFT: Logo (link back) + Project name ── */}
+        {/* ── LEFT: Logo + Project name ── */}
         <div
           style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}
         >
@@ -363,7 +393,7 @@ export default function EditorToolbar({
           </span>
         </div>
 
-        {/* ── CENTER: Book page counter ── */}
+        {/* ── CENTER: Segment counter ── */}
         {!isCompact && (
           <div style={{ display: "flex", alignItems: "baseline", gap: 0, flex: "0 0 auto" }}>
             <span style={{ fontFamily: "var(--font-editor-family)", fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>
@@ -398,8 +428,17 @@ export default function EditorToolbar({
                 opacity: preTranslating ? 0.4 : 1,
                 cursor: preTranslating ? "not-allowed" : "pointer",
               }}
-              onMouseEnter={(e) => { if (!preTranslating) { e.currentTarget.style.background = "var(--bg-hover)"; } }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              onMouseEnter={(e) => {
+                if (!preTranslating) {
+                  e.currentTarget.style.background = "var(--bg-hover)";
+                  e.currentTarget.style.transform = "scale(1.05)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "var(--ai-accent)";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
               title="Pre-translate"
               aria-label="Pre-translate"
             >
@@ -434,55 +473,34 @@ export default function EditorToolbar({
             </span>
           )}
 
-          {/* Separator */}
-          <div style={{ width: 1, height: 16, background: "var(--border)", opacity: 0.4, margin: "0 4px", flexShrink: 0 }} />
-
-          {/* ── 3 Primary tool icons ── */}
+          {/* TM button */}
           <button
             onClick={() => onPanelToggle?.("tm")}
             style={toolIconStyle(activePanel === "tm")}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = activePanel === "tm" ? "var(--bg-hover)" : "transparent";
-              e.currentTarget.style.color = activePanel === "tm" ? "var(--text-primary)" : "var(--text-secondary)";
-            }}
+            onMouseEnter={iconHoverIn}
+            onMouseLeave={iconHoverOut(activePanel === "tm")}
             title="TM Matches"
             aria-label="TM Matches"
           >
             <Languages size={15} />
           </button>
 
+          {/* Glossary button */}
           <button
             onClick={() => onPanelToggle?.("glossary")}
             style={toolIconStyle(activePanel === "glossary")}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = activePanel === "glossary" ? "var(--bg-hover)" : "transparent";
-              e.currentTarget.style.color = activePanel === "glossary" ? "var(--text-primary)" : "var(--text-secondary)";
-            }}
+            onMouseEnter={iconHoverIn}
+            onMouseLeave={iconHoverOut(activePanel === "glossary")}
             title="Glossary"
             aria-label="Glossary"
           >
             <Book size={15} />
           </button>
 
-          <button
-            onClick={onRunQA}
-            disabled={qaRunning}
-            style={{
-              ...toolIconStyle(false),
-              opacity: qaRunning ? 0.4 : 1,
-              cursor: qaRunning ? "not-allowed" : "pointer",
-            }}
-            onMouseEnter={(e) => { if (!qaRunning) { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; } }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
-            title="QA Check"
-            aria-label="QA Check"
-          >
-            <FileCheck size={15} />
-          </button>
+          {/* Separator */}
+          <div style={{ width: 1, height: 16, background: "var(--border)", opacity: 0.4, margin: "0 4px", flexShrink: 0 }} />
 
-          {/* Expand/collapse arrow (before secondary icons so they expand to the right) */}
+          {/* Expand/collapse chevron */}
           <button
             onClick={() => setExpanded((v) => !v)}
             style={{
@@ -490,8 +508,8 @@ export default function EditorToolbar({
               width: 24,
               height: 24,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+            onMouseEnter={iconHoverIn}
+            onMouseLeave={iconHoverOut(false)}
             title={expanded ? "Collapse toolbar" : "Expand toolbar"}
             aria-label={expanded ? "Collapse toolbar" : "Expand toolbar"}
           >
@@ -499,28 +517,29 @@ export default function EditorToolbar({
               size={13}
               style={{
                 transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 200ms ease",
+                transition: "transform 250ms ease",
               }}
             />
           </button>
 
-          {/* ── Secondary icons (push animation container — expands to the right) ── */}
+          {/* ── Secondary icons (push animation container) ── */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 4,
               overflow: "hidden",
-              maxWidth: expanded ? 200 : 0,
-              transition: "max-width 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+              maxWidth: expanded ? 300 : 0,
+              opacity: expanded ? 1 : 0,
+              transition: "max-width 300ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease",
               flexShrink: 0,
             }}
           >
             <button
               onClick={onSearchOpen}
               style={toolIconStyle(false)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+              onMouseEnter={iconHoverIn}
+              onMouseLeave={iconHoverOut(false)}
               title="Find & Replace"
               aria-label="Find & Replace"
             >
@@ -530,8 +549,8 @@ export default function EditorToolbar({
             <button
               onClick={onConcordanceOpen}
               style={toolIconStyle(false)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+              onMouseEnter={iconHoverIn}
+              onMouseLeave={iconHoverOut(false)}
               title="Concordance Search"
               aria-label="Concordance Search"
             >
@@ -541,8 +560,8 @@ export default function EditorToolbar({
             <button
               onClick={onNotesOpen}
               style={toolIconStyle(false)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+              onMouseEnter={iconHoverIn}
+              onMouseLeave={iconHoverOut(false)}
               title="Notes"
               aria-label="Notes"
             >
@@ -552,150 +571,148 @@ export default function EditorToolbar({
             <button
               onClick={onAnalysis}
               style={toolIconStyle(false)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+              onMouseEnter={iconHoverIn}
+              onMouseLeave={iconHoverOut(false)}
               title="Analysis"
               aria-label="Analysis"
             >
               <BarChart3 size={15} />
             </button>
+
+            {/* QA button (in expanded section) */}
+            <button
+              onClick={onRunQA}
+              disabled={qaRunning}
+              style={{
+                ...toolIconStyle(false),
+                opacity: qaRunning ? 0.4 : 1,
+                cursor: qaRunning ? "not-allowed" : "pointer",
+              }}
+              onMouseEnter={(e) => { if (!qaRunning) iconHoverIn(e); }}
+              onMouseLeave={(e) => { iconHoverOut(false)(e); }}
+              title="QA Check"
+              aria-label="QA Check"
+            >
+              <FileCheck size={15} />
+            </button>
+
+            {/* Export button */}
+            <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>
+              <button
+                onClick={() => setExportOpen(!exportOpen)}
+                style={toolIconStyle(exportOpen)}
+                onMouseEnter={iconHoverIn}
+                onMouseLeave={iconHoverOut(exportOpen)}
+                title="Export"
+                aria-label="Export"
+              >
+                <Download size={15} />
+              </button>
+
+              {/* Export dropdown */}
+              {exportOpen && (
+                <div
+                  className="glass-panel"
+                  style={{
+                    position: "absolute",
+                    top: 36,
+                    right: 0,
+                    width: 220,
+                    background: "var(--bg-panel)",
+                    borderRadius: "var(--radius)",
+                    padding: "6px 0",
+                    zIndex: 40,
+                    animation: "fadeSlideIn 150ms ease-out",
+                  }}
+                >
+                  {EXPORT_FORMATS.map((fmt) => (
+                    <button
+                      key={fmt.key}
+                      onClick={() => handleExport(fmt.key)}
+                      disabled={!!exporting}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        padding: "7px 14px",
+                        fontSize: 12,
+                        color: "var(--text-primary)",
+                        background: "transparent",
+                        border: "none",
+                        cursor: exporting ? "wait" : "pointer",
+                        fontFamily: "var(--font-ui-family)",
+                        transition: "background 120ms",
+                        textAlign: "left",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "var(--bg-hover)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "transparent")
+                      }
+                    >
+                      <span style={{ fontWeight: 450 }}>{fmt.label}</span>
+                      <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                        {fmt.desc}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Fullscreen toggle (inside expanded section) */}
+            {onToggleFullscreen && (
+              <button
+                onClick={onToggleFullscreen}
+                style={toolIconStyle(false)}
+                onMouseEnter={iconHoverIn}
+                onMouseLeave={iconHoverOut(false)}
+                title={isFullscreen ? "Exit fullscreen (F11)" : "Fullscreen (F11)"}
+                aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+              </button>
+            )}
           </div>
 
           {/* Separator */}
           <div style={{ width: 1, height: 16, background: "var(--border)", opacity: 0.4, margin: "0 4px", flexShrink: 0 }} />
-
-          {/* Export button — icon-only */}
-          <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>
-            <button
-              onClick={() => setExportOpen(!exportOpen)}
-              style={toolIconStyle(exportOpen)}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = exportOpen ? "var(--bg-hover)" : "transparent";
-                e.currentTarget.style.color = exportOpen ? "var(--text-primary)" : "var(--text-secondary)";
-              }}
-              title="Export"
-              aria-label="Export"
-            >
-              <Download size={15} />
-            </button>
-
-            {/* Export dropdown */}
-            {exportOpen && (
-              <div
-                className="glass-panel"
-                style={{
-                  position: "absolute",
-                  top: 36,
-                  right: 0,
-                  width: 220,
-                  background: "var(--bg-panel)",
-                  borderRadius: "var(--radius)",
-                  padding: "6px 0",
-                  zIndex: 40,
-                  animation: "fadeSlideIn 150ms ease-out",
-                }}
-              >
-                {EXPORT_FORMATS.map((fmt) => (
-                  <button
-                    key={fmt.key}
-                    onClick={() => handleExport(fmt.key)}
-                    disabled={!!exporting}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      padding: "7px 14px",
-                      fontSize: 12,
-                      color: "var(--text-primary)",
-                      background: "transparent",
-                      border: "none",
-                      cursor: exporting ? "wait" : "pointer",
-                      fontFamily: "var(--font-ui-family)",
-                      transition: "background 120ms",
-                      textAlign: "left",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "var(--bg-hover)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = "transparent")
-                    }
-                  >
-                    <span style={{ fontWeight: 450 }}>{fmt.label}</span>
-                    <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
-                      {fmt.desc}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {exporting && (
-            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
-              Exporting...
-            </span>
-          )}
-
-          {/* Fullscreen toggle */}
-          {onToggleFullscreen && (
-            <button
-              onClick={onToggleFullscreen}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 28,
-                height: 28,
-                borderRadius: "var(--radius-sm)",
-                border: "none",
-                background: "transparent",
-                color: "var(--text-muted)",
-                cursor: "pointer",
-                transition: "color 150ms ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-              title={isFullscreen ? "Exit fullscreen (F11)" : "Fullscreen (F11)"}
-              aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-            >
-              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
-            </button>
-          )}
 
           {/* SaveDot */}
           <SaveDot
             isSaving={saving}
             lastSavedAt={lastSavedAt ?? null}
             saveError={saveError ?? null}
-            compact={expanded}
+            mode={expanded ? "dot" : "text"}
           />
 
-          {/* ── Avatar section (pushed off by expanded icons) ── */}
+          {/* ── Avatar (visible when collapsed, hidden when expanded) ── */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
+              opacity: expanded ? 0 : 1,
+              transform: expanded ? "scale(0.9)" : "scale(1)",
+              width: expanded ? 0 : 30,
+              overflow: expanded ? "hidden" : "visible",
+              pointerEvents: expanded ? "none" : "auto",
+              transition: "opacity 200ms ease, transform 200ms ease, width 200ms ease",
               flexShrink: 0,
             }}
           >
-            {/* Avatar with gradient ring + PRO shimmer */}
             <div ref={avatarRef} style={{ position: "relative" }}>
               <div
                 role="button"
-                tabIndex={0}
+                tabIndex={expanded ? -1 : 0}
                 aria-label="User menu"
                 aria-expanded={avatarOpen}
-                onClick={() => setAvatarOpen(!avatarOpen)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAvatarOpen(!avatarOpen); } }}
+                onClick={() => { if (!expanded) setAvatarOpen(!avatarOpen); }}
+                onKeyDown={(e) => { if (!expanded && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setAvatarOpen(!avatarOpen); } }}
                 style={{
                   width: 30,
                   height: 30,
                   borderRadius: "50%",
-                  background: isPro ? ring.gradient : ring.gradient,
+                  background: ring.gradient,
                   backgroundSize: isPro ? "200% 200%" : undefined,
                   animation: isPro ? "proShimmer 3s ease infinite" : undefined,
                   display: "flex",
@@ -726,8 +743,8 @@ export default function EditorToolbar({
                 </div>
               </div>
 
-              {/* Avatar dropdown */}
-              {avatarOpen && (
+              {/* Avatar dropdown — only when open AND not expanded */}
+              {avatarOpen && !expanded && (
                 <div
                   className="glass-panel"
                   style={{
@@ -738,7 +755,7 @@ export default function EditorToolbar({
                     background: "var(--bg-panel)",
                     borderRadius: "var(--radius)",
                     zIndex: 40,
-                    animation: "fadeSlideIn 150ms ease-out",
+                    animation: "avatarDropdownIn 200ms ease",
                     overflow: "hidden",
                   }}
                 >
@@ -771,6 +788,52 @@ export default function EditorToolbar({
 
                   <div style={{ borderTop: "0.5px solid var(--border)" }} />
 
+                  {/* Theme picker */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 14px", fontFamily: "var(--font-ui-family)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                      </svg>
+                      <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Theme</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      {THEME_DOTS.map((t) => (
+                        <div key={t.id} onClick={() => setTheme(t.id)}
+                          style={{ width: theme === t.id ? 16 : 14, height: theme === t.id ? 16 : 14, borderRadius: "50%", background: t.color, border: theme === t.id ? "1.5px solid var(--accent)" : t.border, cursor: "pointer", transition: "all 150ms" }}
+                          title={t.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Font size picker */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 14px", fontFamily: "var(--font-ui-family)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Type size={13} style={{ color: "var(--text-secondary)" }} />
+                      <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Font size</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      {FONT_SIZE_PRESETS.map((p) => (
+                        <button key={p.key}
+                          onClick={() => onFontSizeChange?.(p.size)}
+                          style={{
+                            padding: "2px 8px", fontSize: 11, fontWeight: editorFontSize === p.size ? 500 : 400,
+                            fontFamily: "var(--font-ui-family)", border: "none", borderRadius: 4,
+                            background: editorFontSize === p.size ? "var(--bg-hover)" : "transparent",
+                            color: editorFontSize === p.size ? "var(--text-primary)" : "var(--text-muted)",
+                            cursor: "pointer", transition: "all 150ms",
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = editorFontSize === p.size ? "var(--bg-hover)" : "transparent")}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ borderTop: "0.5px solid var(--border)" }} />
+
                   {/* Settings */}
                   <Link href="/app/settings" onClick={() => setAvatarOpen(false)}
                     style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, textDecoration: "none", color: "var(--text-primary)", background: "transparent", transition: "background 150ms", cursor: "pointer", fontFamily: "var(--font-ui-family)" }}
@@ -791,37 +854,19 @@ export default function EditorToolbar({
                     <span>Changelog</span>
                   </Link>
 
-                  {/* Theme picker */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 14px", fontFamily: "var(--font-ui-family)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                      </svg>
-                      <span style={{ fontSize: 13, color: "var(--text-primary)" }}>Theme</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      {THEME_DOTS.map((t) => (
-                        <div key={t.id} onClick={() => setTheme(t.id)}
-                          style={{ width: theme === t.id ? 16 : 14, height: theme === t.id ? 16 : 14, borderRadius: "50%", background: t.color, border: theme === t.id ? "1.5px solid var(--accent)" : t.border, cursor: "pointer", transition: "all 150ms" }}
-                          title={t.label}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
                   <div style={{ borderTop: "0.5px solid var(--border)" }} />
 
                   {/* Upgrade to Pro */}
                   {!isPro && (
                     <>
-                      <button onClick={() => { setAvatarOpen(false); router.push("/app/settings"); }}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, color: "var(--accent)", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer", fontFamily: "var(--font-ui-family)", transition: "background 150ms" }}
+                      <Link href="/app/upgrade" onClick={() => setAvatarOpen(false)}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", fontSize: 13, color: "var(--accent)", textDecoration: "none", background: "transparent", width: "100%", cursor: "pointer", fontFamily: "var(--font-ui-family)", transition: "background 150ms" }}
                         onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
                         <Star size={13} style={{ color: "var(--accent)" }} />
                         <span>Upgrade to Pro</span>
-                      </button>
+                      </Link>
                       <div style={{ borderTop: "0.5px solid var(--border)" }} />
                     </>
                   )}

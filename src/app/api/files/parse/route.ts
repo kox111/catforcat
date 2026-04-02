@@ -27,6 +27,28 @@ const ACCEPTED_EXTENSIONS = new Set([
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
+/** Rejoin paragraphs that were split mid-sentence (line doesn't end with sentence-ending punctuation) */
+function rejoinPdfLines(paragraphs: string[]): string[] {
+  if (paragraphs.length <= 1) return paragraphs;
+
+  const result: string[] = [];
+  let current = paragraphs[0];
+
+  for (let i = 1; i < paragraphs.length; i++) {
+    const trimmed = current.trim();
+    // If current paragraph doesn't end with sentence-ending punctuation, join with next
+    if (trimmed && !/[.!?:;]$/.test(trimmed)) {
+      current = trimmed + " " + paragraphs[i];
+    } else {
+      if (trimmed) result.push(trimmed);
+      current = paragraphs[i];
+    }
+  }
+  if (current.trim()) result.push(current.trim());
+
+  return result;
+}
+
 /** Build paragraphs from position-sorted PDF text items */
 function buildParagraphs(items: { str: string; y: number; fontSize: number }[]): string[] {
   if (items.length === 0) return [];
@@ -43,22 +65,16 @@ function buildParagraphs(items: { str: string; y: number; fontSize: number }[]):
     const fontChanged = Math.abs(item.fontSize - prevFontSize) > 1;
 
     // Large Y gap or font size change = new paragraph
-    if (yGap > lineHeight * 1.3 || fontChanged) {
+    if (yGap > lineHeight * 2.2 || fontChanged) {
       if (current.trim()) paragraphs.push(current.trim());
       current = item.str;
     } else if (yGap > lineHeight * 0.5) {
-      // Normal line break within paragraph
-      const endsWithPunct = /[.!?:;]$/.test(current.trim());
-      const nextStartsUpper = /^[A-ZÁÉÍÓÚÑÜ]/.test(item.str.trim());
-      if (endsWithPunct && nextStartsUpper) {
-        if (current.trim()) paragraphs.push(current.trim());
-        current = item.str;
-      } else {
-        current += " " + item.str;
-      }
+      // Normal line break within paragraph — always join
+      current += " " + item.str;
     } else {
-      // Same line — concatenate
-      current += item.str;
+      // Same line — concatenate with space if needed
+      const needsSpace = current.length > 0 && !current.endsWith(" ") && !item.str.startsWith(" ");
+      current += (needsSpace ? " " : "") + item.str;
     }
 
     prevY = item.y;
@@ -227,11 +243,11 @@ export async function POST(req: NextRequest) {
             const colItems = filtered
               .filter((it) => it.x >= minX && it.x <= maxX)
               .sort((a, b) => b.y - a.y);
-            const colText = buildParagraphs(colItems);
+            const colText = rejoinPdfLines(buildParagraphs(colItems));
             allParagraphs.push(...colText);
           }
         } else {
-          const pageText = buildParagraphs(filtered);
+          const pageText = rejoinPdfLines(buildParagraphs(filtered));
           allParagraphs.push(...pageText);
         }
       }
@@ -616,12 +632,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Filter out garbage segments (single punctuation, single char, too short)
+    const filtered = segments.filter((seg) => {
+      const t = seg.text.trim();
+      if (t.length < 2) return false;
+      if (/^[.!?,;:\-–—…]+$/.test(t)) return false;
+      return true;
+    });
+
     return NextResponse.json({
-      segments,
+      segments: filtered,
       fileName,
       fileFormat,
       totalParagraphs: paragraphs.length,
-      totalSegments: segments.length,
+      totalSegments: filtered.length,
     });
   } catch (err) {
     console.error("File parse error:", err);

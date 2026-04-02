@@ -6,23 +6,17 @@ interface SaveDotProps {
   isSaving: boolean;
   lastSavedAt: number | null;
   saveError: string | null;
-  /** compact = dot only, full = dot + typewriter text */
-  compact?: boolean;
+  mode: "text" | "dot";
 }
 
 type Phase = "idle" | "saving" | "saved" | "error";
 
-const SAVING_TEXT = "Saving...";
+const SAVING_TEXT = "Saving";
 const SAVED_TEXT = "Saved";
 const SAVING_CHAR_MS = 60;
 const SAVED_CHAR_MS = 80;
 
-export default function SaveDot({
-  isSaving,
-  lastSavedAt,
-  saveError,
-  compact = false,
-}: SaveDotProps) {
+export default function SaveDot({ isSaving, lastSavedAt, saveError, mode }: SaveDotProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [savingChars, setSavingChars] = useState(0);
   const [savedChars, setSavedChars] = useState(0);
@@ -58,27 +52,27 @@ export default function SaveDot({
     if (!lastSavedAt || lastSavedAt === prevSavedRef.current) return;
     prevSavedRef.current = lastSavedAt;
     saveCompletedRef.current = true;
-    if (phase === "saving" && (savingChars >= SAVING_TEXT.length || reduceMotion || compact)) {
+    if (phase === "saving" && (savingChars >= SAVING_TEXT.length || reduceMotion || mode === "dot")) {
       setPhase("saved");
       setSavedChars(0);
     }
-  }, [lastSavedAt, phase, savingChars, reduceMotion, compact]);
+  }, [lastSavedAt, phase, savingChars, reduceMotion, mode]);
 
   /* Detect save ERROR */
   useEffect(() => {
     if (!saveError) return;
     saveFailedRef.current = true;
-    if (phase === "saving" && (savingChars >= SAVING_TEXT.length || reduceMotion || compact)) {
+    if (phase === "saving" && (savingChars >= SAVING_TEXT.length || reduceMotion || mode === "dot")) {
       setPhase("error");
     }
     if (phase !== "saving") {
       setPhase("error");
     }
-  }, [saveError, phase, savingChars, reduceMotion, compact]);
+  }, [saveError, phase, savingChars, reduceMotion, mode]);
 
-  /* Typewriter for "Saving..." */
+  /* Typewriter for "Saving" */
   useEffect(() => {
-    if (phase !== "saving" || compact || reduceMotion) return;
+    if (phase !== "saving" || mode === "dot" || reduceMotion) return;
     setSavingChars(0);
     const iv = setInterval(() => {
       setSavingChars((p) => {
@@ -90,11 +84,11 @@ export default function SaveDot({
       });
     }, SAVING_CHAR_MS);
     return () => clearInterval(iv);
-  }, [phase, compact, reduceMotion]);
+  }, [phase, mode, reduceMotion]);
 
   /* Typewriter finished -> transition */
   useEffect(() => {
-    if (phase !== "saving" || compact || reduceMotion) return;
+    if (phase !== "saving" || mode === "dot" || reduceMotion) return;
     if (savingChars < SAVING_TEXT.length) return;
     if (saveFailedRef.current) {
       setPhase("error");
@@ -102,11 +96,11 @@ export default function SaveDot({
       setPhase("saved");
       setSavedChars(0);
     }
-  }, [savingChars, phase, compact, reduceMotion]);
+  }, [savingChars, phase, mode, reduceMotion]);
 
   /* Typewriter for "Saved" */
   useEffect(() => {
-    if (phase !== "saved" || compact || reduceMotion) return;
+    if (phase !== "saved" || mode === "dot" || reduceMotion) return;
     setSavedChars(0);
     const iv = setInterval(() => {
       setSavedChars((p) => {
@@ -118,7 +112,7 @@ export default function SaveDot({
       });
     }, SAVED_CHAR_MS);
     return () => clearInterval(iv);
-  }, [phase, compact, reduceMotion]);
+  }, [phase, mode, reduceMotion]);
 
   /* Auto-dismiss saved */
   useEffect(() => {
@@ -149,8 +143,8 @@ export default function SaveDot({
       ? "saveDotPulse 1.4s ease-in-out infinite"
       : "none";
 
-  /* Compact: dot only */
-  if (compact) {
+  /* Dot-only render */
+  if (mode === "dot") {
     return (
       <>
         <style>{`
@@ -160,9 +154,18 @@ export default function SaveDot({
           }
         `}</style>
         <div
+          aria-label={
+            phase === "saving"
+              ? "Saving"
+              : phase === "saved"
+                ? "Saved"
+                : phase === "error"
+                  ? "Save error"
+                  : "Ready"
+          }
           title={
             phase === "saving"
-              ? "Saving..."
+              ? "Saving"
               : phase === "saved"
                 ? "Saved"
                 : phase === "error"
@@ -174,8 +177,9 @@ export default function SaveDot({
             height: 7,
             borderRadius: "50%",
             background: dotColor,
-            transition: "background 0.4s ease",
+            transition: "background 400ms ease, opacity 200ms ease",
             animation: dotAnimation,
+            opacity: phase === "idle" ? 0 : 1,
             flexShrink: 0,
           }}
         />
@@ -183,7 +187,7 @@ export default function SaveDot({
     );
   }
 
-  /* Full: dot + typewriter text */
+  /* Text-only render (typewriter, no dot) */
   return (
     <>
       <style>{`
@@ -196,30 +200,16 @@ export default function SaveDot({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 5,
           height: 20,
         }}
       >
-        {/* Dot */}
-        <div
-          style={{
-            width: 7,
-            height: 7,
-            borderRadius: "50%",
-            background: dotColor,
-            transition: "background 0.4s ease",
-            animation: dotAnimation,
-            flexShrink: 0,
-          }}
-        />
-
         {/* Text */}
         {phase === "error" ? (
           <span
             style={{
               fontFamily: "var(--font-ui-family)",
               fontSize: 11,
-              color: "var(--red)",
+              color: "var(--red-text)",
               whiteSpace: "nowrap",
             }}
           >
@@ -232,18 +222,18 @@ export default function SaveDot({
               style={{
                 fontFamily: "var(--font-ui-family)",
                 fontSize: 11,
-                color: "var(--text-muted)",
+                color: "var(--accent)",
                 whiteSpace: "nowrap",
               }}
             >
-              Saving...
+              Saving
             </span>
           ) : phase === "saved" ? (
             <span
               style={{
                 fontFamily: "var(--font-ui-family)",
                 fontSize: 11,
-                color: "var(--green)",
+                color: "var(--text-muted)",
                 whiteSpace: "nowrap",
               }}
             >
@@ -256,10 +246,10 @@ export default function SaveDot({
               position: "relative",
               overflow: "hidden",
               height: 16,
-              width: 58,
+              minWidth: 44,
             }}
           >
-            {/* "Saving..." typewriter */}
+            {/* "Saving" typewriter */}
             <div
               style={{
                 position: "absolute",
@@ -278,7 +268,7 @@ export default function SaveDot({
                 style={{
                   fontFamily: "var(--font-ui-family)",
                   fontSize: 11,
-                  color: "var(--text-muted)",
+                  color: "var(--accent)",
                 }}
               >
                 {SAVING_TEXT.split("").map((ch, i) => (
@@ -315,7 +305,7 @@ export default function SaveDot({
                 style={{
                   fontFamily: "var(--font-ui-family)",
                   fontSize: 11,
-                  color: "var(--green)",
+                  color: "var(--text-muted)",
                 }}
               >
                 {SAVED_TEXT.split("").map((ch, i) => (
