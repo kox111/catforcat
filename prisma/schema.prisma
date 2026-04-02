@@ -21,6 +21,7 @@ model User {
   avatarUrl             String?  @map("avatar_url")
   aiRequestsUsed        Int      @default(0) @map("ai_requests_used")
   aiRequestsResetAt     DateTime @default(now()) @map("ai_requests_reset_at")
+  emailVerified         DateTime? @map("email_verified")
   // 2FA
   twoFactorSecret   String?  @map("two_factor_secret")
   twoFactorEnabled  Boolean  @default(false) @map("two_factor_enabled")
@@ -30,6 +31,8 @@ model User {
   projects          Project[]
   translationMemory TranslationMemory[]
   glossaryTerms     GlossaryTerm[]
+  accounts          Account[]
+  sessions          Session[]
 
   // Classroom & Raid relations
   projectMembers       ProjectMember[]
@@ -343,4 +346,46 @@ model ClassSession {
   assignment Assignment? @relation(fields: [assignmentId], references: [id])
 
   @@map("class_sessions")
+}
+
+// ═══════════════════════════════════════════
+// OAuth — NextAuth PrismaAdapter (Track D)
+// ═══════════════════════════════════════════
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
