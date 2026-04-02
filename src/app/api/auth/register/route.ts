@@ -24,9 +24,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
+        { error: "Invalid email format" },
+        { status: 400 },
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 },
+      );
+    }
+
+    if (name && (typeof name !== "string" || name.length > 100)) {
+      return NextResponse.json(
+        { error: "Name must be 100 characters or less" },
         { status: 400 },
       );
     }

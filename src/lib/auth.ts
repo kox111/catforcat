@@ -107,10 +107,14 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       // Handle OAuth account linking for Google/Apple
       if (account?.provider === "google" || account?.provider === "apple") {
         if (!user.email) return true;
+
+        // Only auto-link if the OAuth provider verified the email
+        const emailVerified = (profile as Record<string, unknown>)?.email_verified;
+        if (emailVerified !== true && emailVerified !== "true") return true;
 
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
