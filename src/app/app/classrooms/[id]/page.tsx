@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Users, BookOpen, UserPlus, Copy, Check, LayoutGrid } from "lucide-react";
+import { Users, BookOpen, UserPlus, Copy, Check, LayoutGrid, RefreshCw } from "lucide-react";
 import TaskBoard from "@/components/TaskBoard";
 import MemberCard from "@/components/MemberCard";
 import InviteModal from "@/components/InviteModal";
@@ -97,6 +97,17 @@ export default function ClassroomDashboard() {
     }
   };
 
+  const regenerateCode = async () => {
+    if (!confirm("Generate a new invite code? The old code will stop working.")) return;
+    try {
+      const res = await fetch(`/api/classrooms/${classroomId}/regenerate-code`, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setClassroom((prev: typeof classroom) => prev ? { ...prev, inviteCode: data.inviteCode } : prev);
+      }
+    } catch { /* silent */ }
+  };
+
   if (loading) {
     return <div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>Loading...</div>;
   }
@@ -134,9 +145,17 @@ export default function ClassroomDashboard() {
             </code>
             <button
               onClick={copyCode}
+              title="Copy invite code"
               style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 2 }}
             >
               {codeCopied ? <Check size={14} /> : <Copy size={14} />}
+            </button>
+            <button
+              onClick={regenerateCode}
+              title="Generate new invite code"
+              style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 2 }}
+            >
+              <RefreshCw size={14} />
             </button>
           </div>
         )}
