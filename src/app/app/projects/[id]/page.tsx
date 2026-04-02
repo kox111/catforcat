@@ -12,6 +12,7 @@ import VirtualSegmentList, {
 } from "@/components/editor/VirtualSegmentList";
 import TMPanel from "@/components/editor/TMPanel";
 import GlossaryPanel from "@/components/editor/GlossaryPanel";
+import FloatingPanel from "@/components/editor/FloatingPanel";
 import QAPanel from "@/components/editor/QAPanel";
 import SearchReplaceModal from "@/components/editor/SearchReplaceModal";
 import GoToSegmentModal from "@/components/editor/GoToSegmentModal";
@@ -51,6 +52,8 @@ import {
   Merge,
   Trash2,
   BookPlus,
+  Languages,
+  Book,
 } from "lucide-react";
 import { findPropagations } from "@/lib/auto-propagate";
 import type {
@@ -178,8 +181,11 @@ export default function EditorPage({
   const [focusMode, setFocusMode] = useState(false);
   // Fullscreen mode
   const [isFullscreen, setIsFullscreen] = useState(false);
-  // Bottom panel tab state
-  const [bottomTab, setBottomTab] = useState<"tm" | "glossary">("tm");
+  // Floating panel state (replaces bottom panel)
+  const [tmPanelMode, setTmPanelMode] = useState<"maximized" | "preview" | "minimized">("minimized");
+  const [glossaryPanelMode, setGlossaryPanelMode] = useState<"maximized" | "preview" | "minimized">("minimized");
+  const [tmHasMatches, setTmHasMatches] = useState(false);
+  const [glossaryHasTerms, setGlossaryHasTerms] = useState(false);
   // Add to glossary modal
   const [addGlossaryModal, setAddGlossaryModal] = useState<{
     sourceTerm: string;
@@ -213,13 +219,16 @@ export default function EditorPage({
     };
   }, [toggleFullscreen]);
 
+  // Floating panel toggle handlers
+  const handleTmToggle = useCallback(() => {
+    setTmPanelMode((prev) => prev === "minimized" ? "preview" : "minimized");
+  }, []);
+  const handleGlossaryToggle = useCallback(() => {
+    setGlossaryPanelMode((prev) => prev === "minimized" ? "preview" : "minimized");
+  }, []);
+
   // Export dropdown (controlled from sidebar)
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
-  // Bottom panel collapse/resize
-  const [bottomPanelCollapsed, setBottomPanelCollapsed] = useState(false);
-  const [bottomPanelHeight, setBottomPanelHeight] = useState(150);
-  const [tmMatchCount, setTmMatchCount] = useState(0);
-  const bottomDragRef = useRef<{ startY: number; startH: number } | null>(null);
   // F3: Font size (persisted in localStorage)
   const [editorFontSize, setEditorFontSize] = useState(13);
   // F4: Column width ratio (0.5 = equal, persisted in localStorage)
@@ -237,28 +246,15 @@ export default function EditorPage({
       if (savedFontSize) setEditorFontSize(Number(savedFontSize));
       const savedRatio = localStorage.getItem("tp-column-ratio");
       if (savedRatio) setColumnRatio(Number(savedRatio));
-      const savedPanelH = localStorage.getItem("tp-bottom-panel-height");
-      if (savedPanelH) setBottomPanelHeight(Number(savedPanelH));
     } catch {
       /* ignore */
     }
   }, []);
 
-  // Auto-collapse bottom panel on small viewports
-  useEffect(() => {
-    const check = () => {
-      if (window.innerHeight < 900) {
-        setBottomPanelCollapsed(true);
-      }
-    };
-    check();
-    // Only run on mount, not on resize (user might manually expand)
-  }, []);
-
-  // Keep TM matches in ref for keyboard shortcut access + auto-expand panel
+  // Keep TM matches in ref for keyboard shortcut access
   const handleTMMatchesUpdate = useCallback((matches: TMMatch[]) => {
     tmMatchesRef.current = matches;
-    setTmMatchCount(matches.length);
+    setTmHasMatches(matches.length > 0);
     // Cache matches for inline badges
     if (activeSegmentId && matches.length > 0) {
       setTmMatchesBySegment((prev) => ({
@@ -269,16 +265,13 @@ export default function EditorPage({
         })),
       }));
     }
-    // Auto-expand when matches appear
-    if (matches.length > 0) {
-      setBottomPanelCollapsed(false);
-    }
   }, [activeSegmentId]);
 
   // Track glossary terms found in active segment
   const handleGlossaryTermsFound = useCallback(
     (terms: { sourceTerm: string; targetTerm: string }[]) => {
       setGlossaryTerms(terms);
+      setGlossaryHasTerms(terms.length > 0);
       if (activeSegmentId) {
         setGlossaryMatchCountBySegment((prev) => ({
           ...prev,
@@ -1460,15 +1453,12 @@ export default function EditorPage({
             });
           }
         }}
-        activePanel={bottomPanelCollapsed ? null : bottomTab}
-        onPanelToggle={(panel) => {
-          if (bottomTab === panel && !bottomPanelCollapsed) {
-            setBottomPanelCollapsed(true);
-          } else {
-            setBottomTab(panel as "tm" | "glossary");
-            setBottomPanelCollapsed(false);
-          }
-        }}
+        tmHasMatches={tmHasMatches}
+        glossaryHasTerms={glossaryHasTerms}
+        onTmToggle={handleTmToggle}
+        onGlossaryToggle={handleGlossaryToggle}
+        tmPanelMode={tmPanelMode}
+        glossaryPanelMode={glossaryPanelMode}
         activeSegment={activeSegmentId ? (segments.findIndex((s) => s.id === activeSegmentId) + 1) : 1}
       />
 
@@ -2064,8 +2054,7 @@ export default function EditorPage({
               action: () => {
                 if (seg) {
                   setActiveSegment(seg.id);
-                  setBottomTab("glossary");
-                  setBottomPanelCollapsed(false);
+                  setGlossaryPanelMode((prev) => prev === "minimized" ? "preview" : prev);
                 }
               },
             },
@@ -2134,6 +2123,7 @@ export default function EditorPage({
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            position: "relative",
           }}
         >
           {/* Document header — language labels as notebook tabs */}
@@ -2372,280 +2362,59 @@ export default function EditorPage({
               );
             })()}
 
-          {/* Bottom Panels: Collapsible TM + Glossary */}
-          <div
-            style={{
-              background: "var(--bg-deep)",
-              height: bottomPanelCollapsed ? 28 : bottomPanelHeight,
-              minHeight: 28,
-              maxHeight: 300,
-              display: "flex",
-              flexDirection: "column",
-              margin: 0,
-              borderRadius: 0,
-              borderTop: "1px solid var(--border)",
-              overflow: "hidden",
-              flexShrink: 0,
-              transition: bottomDragRef.current ? "none" : "height 150ms ease",
-            }}
+          {/* Floating TM Panel — left side */}
+          <FloatingPanel
+            anchor="left"
+            mode={tmPanelMode}
+            onModeChange={setTmPanelMode}
+            title="TM Matches"
+            icon={<Languages size={14} />}
+            hasNotification={tmHasMatches}
           >
-            {/* Drag handle */}
-            <div
-              style={{
-                height: 8,
-                cursor: "ns-resize",
-                background: "transparent",
-                flexShrink: 0,
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onDoubleClick={() => {
-                setBottomPanelCollapsed((prev) => !prev);
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                bottomDragRef.current = {
-                  startY: e.clientY,
-                  startH: bottomPanelCollapsed ? 200 : bottomPanelHeight,
-                };
-                if (bottomPanelCollapsed) {
-                  setBottomPanelCollapsed(false);
-                  setBottomPanelHeight(200);
+            <TMPanel
+              sourceText={activeSegment?.sourceText || ""}
+              srcLang={project.srcLang}
+              tgtLang={project.tgtLang}
+              isActive={tmPanelMode !== "minimized"}
+              onApplyMatch={(targetText) => {
+                if (activeSegmentId) {
+                  applyTranslation(activeSegmentId, targetText);
                 }
-                const grip = e.currentTarget.querySelector(
-                  "[data-grip]",
-                ) as HTMLElement;
-                if (grip) {
-                  grip.style.background = "var(--accent)";
-                  grip.style.width = "48px";
-                }
-                const onMove = (ev: MouseEvent) => {
-                  if (!bottomDragRef.current) return;
-                  const delta = bottomDragRef.current.startY - ev.clientY;
-                  const newH = Math.max(
-                    40,
-                    Math.min(300, bottomDragRef.current.startH + delta),
+              }}
+              onMatchesUpdate={handleTMMatchesUpdate}
+            />
+          </FloatingPanel>
+
+          {/* Floating Glossary Panel — right side */}
+          <FloatingPanel
+            anchor="right"
+            mode={glossaryPanelMode}
+            onModeChange={setGlossaryPanelMode}
+            title="Glossary"
+            icon={<Book size={14} />}
+            hasNotification={glossaryHasTerms}
+          >
+            <GlossaryPanel
+              sourceText={activeSegment?.sourceText || ""}
+              srcLang={project.srcLang}
+              tgtLang={project.tgtLang}
+              isActive={glossaryPanelMode !== "minimized"}
+              onTermsFound={handleGlossaryTermsFound}
+              onInsertTerm={(targetTerm) => {
+                if (activeSegmentId) {
+                  const seg = segments.find(
+                    (s) => s.id === activeSegmentId,
                   );
-                  if (newH < 40) {
-                    setBottomPanelCollapsed(true);
-                  } else {
-                    setBottomPanelCollapsed(false);
-                    setBottomPanelHeight(newH);
+                  if (seg) {
+                    const newText = seg.targetText
+                      ? seg.targetText + " " + targetTerm
+                      : targetTerm;
+                    applyTranslation(activeSegmentId, newText);
                   }
-                };
-                const onUp = () => {
-                  if (grip) {
-                    grip.style.background = "var(--border)";
-                    grip.style.width = "32px";
-                  }
-                  if (bottomDragRef.current) {
-                    try {
-                      localStorage.setItem(
-                        "tp-bottom-panel-height",
-                        String(bottomPanelHeight),
-                      );
-                    } catch {
-                      /* */
-                    }
-                  }
-                  bottomDragRef.current = null;
-                  window.removeEventListener("mousemove", onMove);
-                  window.removeEventListener("mouseup", onUp);
-                };
-                window.addEventListener("mousemove", onMove);
-                window.addEventListener("mouseup", onUp);
-              }}
-              onMouseEnter={(e) => {
-                const grip = e.currentTarget.querySelector(
-                  "[data-grip]",
-                ) as HTMLElement;
-                if (grip) {
-                  grip.style.background = "var(--text-muted)";
-                  grip.style.width = "48px";
                 }
               }}
-              onMouseLeave={(e) => {
-                const grip = e.currentTarget.querySelector(
-                  "[data-grip]",
-                ) as HTMLElement;
-                if (grip && !bottomDragRef.current) {
-                  grip.style.background = "var(--border)";
-                  grip.style.width = "32px";
-                }
-              }}
-            >
-              {/* Visual grip line */}
-              <div
-                data-grip
-                style={{
-                  width: 32,
-                  height: 3,
-                  borderRadius: 2,
-                  background: "var(--border)",
-                  transition: "background 150ms, width 150ms",
-                }}
-              />
-            </div>
-
-            {/* Tab bar (always visible — acts as collapsed header) */}
-            <div
-              onClick={() => {
-                if (bottomPanelCollapsed) setBottomPanelCollapsed(false);
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                borderBottom: bottomPanelCollapsed
-                  ? "none"
-                  : "1px solid var(--bg-hover)",
-                padding: "0 12px",
-                gap: 0,
-                cursor: bottomPanelCollapsed ? "pointer" : "default",
-                flexShrink: 0,
-                minHeight: 24,
-              }}
-            >
-              {[
-                { id: "tm" as const, label: "TM Matches" },
-                { id: "glossary" as const, label: "Glossary" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setBottomTab(tab.id);
-                    if (bottomPanelCollapsed) setBottomPanelCollapsed(false);
-                  }}
-                  style={{
-                    padding: "4px 14px",
-                    fontSize: 10,
-                    fontWeight: bottomTab === tab.id ? 600 : 400,
-                    color:
-                      bottomTab === tab.id
-                        ? "var(--accent)"
-                        : "var(--text-muted)",
-                    background: "transparent",
-                    border: "none",
-                    borderBottom: bottomPanelCollapsed
-                      ? "none"
-                      : bottomTab === tab.id
-                        ? "2px solid var(--accent)"
-                        : "2px solid transparent",
-                    cursor: "pointer",
-                    transition: "color 150ms, border-color 150ms",
-                    fontFamily: "inherit",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (bottomTab !== tab.id)
-                      e.currentTarget.style.color = "var(--text-secondary)";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (bottomTab !== tab.id)
-                      e.currentTarget.style.color = "var(--text-muted)";
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-
-              {/* Match count summary + collapse toggle */}
-              <div style={{ flex: 1 }} />
-              {bottomPanelCollapsed && tmMatchCount > 0 && (
-                <span
-                  style={{
-                    fontSize: 9,
-                    color: "var(--text-muted)",
-                    marginRight: 8,
-                  }}
-                >
-                  {tmMatchCount} match{tmMatchCount !== 1 ? "es" : ""} — click
-                  to expand
-                </span>
-              )}
-              {bottomPanelCollapsed && tmMatchCount === 0 && (
-                <span
-                  style={{
-                    fontSize: 9,
-                    color: "var(--text-muted)",
-                    marginRight: 8,
-                  }}
-                >
-                  No matches
-                </span>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setBottomPanelCollapsed(!bottomPanelCollapsed);
-                }}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--text-muted)",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  padding: "2px 4px",
-                  lineHeight: 1,
-                  transition: "color 150ms",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "var(--text-primary)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "var(--text-muted)";
-                }}
-                title={bottomPanelCollapsed ? "Expand panel" : "Collapse panel"}
-              >
-                {bottomPanelCollapsed ? "↑" : "↓"}
-              </button>
-            </div>
-
-            {/* Tab content (hidden when collapsed) */}
-            {!bottomPanelCollapsed && (
-              <div style={{ flex: 1, overflowY: "auto" }}>
-                {bottomTab === "tm" && (
-                  <TMPanel
-                    sourceText={activeSegment?.sourceText || ""}
-                    srcLang={project.srcLang}
-                    tgtLang={project.tgtLang}
-                    isActive={!!activeSegment}
-                    onApplyMatch={(targetText) => {
-                      if (activeSegmentId) {
-                        applyTranslation(activeSegmentId, targetText);
-                      }
-                    }}
-                    onMatchesUpdate={handleTMMatchesUpdate}
-                  />
-                )}
-                {bottomTab === "glossary" && (
-                  <GlossaryPanel
-                    sourceText={activeSegment?.sourceText || ""}
-                    srcLang={project.srcLang}
-                    tgtLang={project.tgtLang}
-                    isActive={!!activeSegment}
-                    onTermsFound={handleGlossaryTermsFound}
-                    onInsertTerm={(targetTerm) => {
-                      if (activeSegmentId) {
-                        const seg = segments.find(
-                          (s) => s.id === activeSegmentId,
-                        );
-                        if (seg) {
-                          const newText = seg.targetText
-                            ? seg.targetText + " " + targetTerm
-                            : targetTerm;
-                          applyTranslation(activeSegmentId, newText);
-                        }
-                      }
-                    }}
-                  />
-                )}
-              </div>
-            )}
-          </div>
+            />
+          </FloatingPanel>
         </div>
         {/* end content area */}
       </div>

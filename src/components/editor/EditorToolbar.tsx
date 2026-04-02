@@ -76,8 +76,12 @@ interface EditorToolbarProps {
   onRunQA?: () => void;
   onAnalysis?: () => void;
   qaRunning?: boolean;
-  activePanel?: string | null;
-  onPanelToggle?: (panel: string) => void;
+  tmHasMatches?: boolean;
+  glossaryHasTerms?: boolean;
+  onTmToggle?: () => void;
+  onGlossaryToggle?: () => void;
+  tmPanelMode?: "maximized" | "preview" | "minimized";
+  glossaryPanelMode?: "maximized" | "preview" | "minimized";
   activeSegment?: number;
 }
 
@@ -171,8 +175,12 @@ export default function EditorToolbar({
   onRunQA,
   onAnalysis,
   qaRunning,
-  activePanel,
-  onPanelToggle,
+  tmHasMatches,
+  glossaryHasTerms,
+  onTmToggle,
+  onGlossaryToggle,
+  tmPanelMode,
+  glossaryPanelMode,
   activeSegment,
 }: EditorToolbarProps) {
   const { data: session } = useSession();
@@ -475,10 +483,13 @@ export default function EditorToolbar({
 
           {/* TM button */}
           <button
-            onClick={() => onPanelToggle?.("tm")}
-            style={toolIconStyle(activePanel === "tm")}
+            onClick={onTmToggle}
+            style={{
+              ...toolIconStyle(tmPanelMode !== "minimized"),
+              color: tmHasMatches ? "var(--accent)" : (tmPanelMode !== "minimized" ? "var(--text-primary)" : "var(--text-secondary)"),
+            }}
             onMouseEnter={iconHoverIn}
-            onMouseLeave={iconHoverOut(activePanel === "tm")}
+            onMouseLeave={iconHoverOut(tmPanelMode !== "minimized")}
             title="TM Matches"
             aria-label="TM Matches"
           >
@@ -487,10 +498,13 @@ export default function EditorToolbar({
 
           {/* Glossary button */}
           <button
-            onClick={() => onPanelToggle?.("glossary")}
-            style={toolIconStyle(activePanel === "glossary")}
+            onClick={onGlossaryToggle}
+            style={{
+              ...toolIconStyle(glossaryPanelMode !== "minimized"),
+              color: glossaryHasTerms ? "var(--accent)" : (glossaryPanelMode !== "minimized" ? "var(--text-primary)" : "var(--text-secondary)"),
+            }}
             onMouseEnter={iconHoverIn}
-            onMouseLeave={iconHoverOut(activePanel === "glossary")}
+            onMouseLeave={iconHoverOut(glossaryPanelMode !== "minimized")}
             title="Glossary"
             aria-label="Glossary"
           >
