@@ -635,6 +635,12 @@ export default function SegmentRow({
             autoResize();
           }}
           onFocus={onActivate}
+          onContextMenu={(e) => {
+            if (onContextMenu) {
+              e.preventDefault();
+              onContextMenu(e);
+            }
+          }}
           style={{
             width: "100%",
             padding: "6px 10px",
