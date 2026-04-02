@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEditorStore } from "@/lib/store";
 import EditorToolbar from "@/components/editor/EditorToolbar";
-import EditorSidebar from "@/components/editor/EditorSidebar";
+
 import StatusBar from "@/components/editor/StatusBar";
 import VirtualSegmentList, {
   type VirtualSegmentListHandle,
@@ -1439,6 +1439,37 @@ export default function EditorPage({
         }}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
+        onAnalysis={() => setAnalysisOpen(true)}
+        onRunQA={handleRunQA}
+        qaRunning={qaRunning}
+        onSearchOpen={() => setSearchOpen(true)}
+        onConcordanceOpen={() => setConcordanceOpen(true)}
+        onNotesOpen={() => {
+          const seg = segments.find((s) => s.id === activeSegmentId);
+          if (seg) {
+            let comment = "";
+            try {
+              comment = JSON.parse(seg.metadata || "{}").comment || "";
+            } catch {
+              /* ignore */
+            }
+            setNoteModal({
+              segmentId: seg.id,
+              position: seg.position,
+              note: comment,
+            });
+          }
+        }}
+        activePanel={bottomPanelCollapsed ? null : bottomTab}
+        onPanelToggle={(panel) => {
+          if (bottomTab === panel && !bottomPanelCollapsed) {
+            setBottomPanelCollapsed(true);
+          } else {
+            setBottomTab(panel as "tm" | "glossary");
+            setBottomPanelCollapsed(false);
+          }
+        }}
+        activeSegment={activeSegmentId ? (segments.findIndex((s) => s.id === activeSegmentId) + 1) : 1}
       />
 
       {/* ─── Session recovery banner ─── */}
@@ -2084,7 +2115,7 @@ export default function EditorPage({
           );
         })()}
 
-      {/* ═══ MAIN LAYOUT: Sidebar + Content ═══ */}
+      {/* ═══ MAIN LAYOUT: Content (full width, no sidebar) ═══ */}
       <div
         style={{
           flex: 1,
@@ -2094,40 +2125,6 @@ export default function EditorPage({
           overflow: "hidden",
         }}
       >
-        {/* Sidebar */}
-        <EditorSidebar
-          onAnalysis={() => setAnalysisOpen(true)}
-          onRunQA={handleRunQA}
-          qaRunning={qaRunning}
-          onSearchOpen={() => setSearchOpen(true)}
-          onConcordanceOpen={() => setConcordanceOpen(true)}
-          onNotesOpen={() => {
-            const seg = segments.find((s) => s.id === activeSegmentId);
-            if (seg) {
-              let comment = "";
-              try {
-                comment = JSON.parse(seg.metadata || "{}").comment || "";
-              } catch {
-                /* ignore */
-              }
-              setNoteModal({
-                segmentId: seg.id,
-                position: seg.position,
-                note: comment,
-              });
-            }
-          }}
-          activePanel={bottomPanelCollapsed ? null : bottomTab}
-          onPanelToggle={(panel) => {
-            if (bottomTab === panel && !bottomPanelCollapsed) {
-              setBottomPanelCollapsed(true);
-            } else {
-              setBottomTab(panel as "tm" | "glossary");
-              setBottomPanelCollapsed(false);
-            }
-          }}
-        />
-
         {/* Content area */}
         <div
           data-editor-content
