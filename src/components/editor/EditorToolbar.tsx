@@ -377,34 +377,24 @@ export default function EditorToolbar({
             gap: 4,
             flex: 1,
             justifyContent: "flex-end",
+            overflow: "hidden",
           }}
         >
-          {/* Pre-translate button */}
+          {/* Pre-translate icon */}
           {!isCompact && (
             <button
               onClick={() => onPreTranslate?.("full")}
               disabled={preTranslating}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                padding: "5px 14px",
-                borderRadius: "var(--radius-sm)",
-                color: preTranslating ? "var(--text-muted)" : "var(--text-primary)",
+                ...toolIconStyle(false),
+                opacity: preTranslating ? 0.4 : 1,
                 cursor: preTranslating ? "not-allowed" : "pointer",
-                opacity: preTranslating ? 0.5 : 1,
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 11,
-                fontWeight: 500,
-                border: "none",
-                background: "transparent",
-                transition: "opacity 150ms ease",
               }}
-              onMouseEnter={(e) => { if (!preTranslating) e.currentTarget.style.opacity = "0.85"; }}
-              onMouseLeave={(e) => { if (!preTranslating) e.currentTarget.style.opacity = "1"; }}
+              onMouseEnter={(e) => { if (!preTranslating) { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; } }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+              title="Pre-translate"
             >
-              <Sparkles size={12} />
-              <span>Pre-translate</span>
+              <Sparkles size={15} />
             </button>
           )}
 
@@ -480,16 +470,16 @@ export default function EditorToolbar({
             <FileCheck size={15} />
           </button>
 
-          {/* ── Secondary icons (animated container) ── */}
+          {/* ── Secondary icons (push animation container) ── */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 4,
               overflow: "hidden",
-              maxWidth: expanded ? 160 : 0,
-              opacity: expanded ? 1 : 0,
-              transition: "max-width 250ms ease, opacity 200ms ease",
+              maxWidth: expanded ? 200 : 0,
+              transition: "max-width 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+              flexShrink: 0,
             }}
           >
             <button
@@ -557,34 +547,19 @@ export default function EditorToolbar({
           {/* Separator */}
           <div style={{ width: 1, height: 16, background: "var(--border)", opacity: 0.4, margin: "0 4px", flexShrink: 0 }} />
 
-          {/* Export button — icon-only when expanded */}
-          <div ref={dropdownRef} style={{ position: "relative" }}>
+          {/* Export button — icon-only */}
+          <div ref={dropdownRef} style={{ position: "relative", flexShrink: 0 }}>
             <button
               onClick={() => setExportOpen(!exportOpen)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: expanded ? 0 : 5,
-                padding: expanded ? "5px 8px" : "5px 14px",
-                borderRadius: "var(--radius-sm)",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                fontFamily: "var(--font-ui-family)",
-                fontSize: 11,
-                fontWeight: 500,
-                border: "none",
-                background: "transparent",
-                transition: "color 150ms ease, border-color 150ms ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--text-primary)";
-              }}
+              style={toolIconStyle(exportOpen)}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-secondary)";
+                e.currentTarget.style.background = exportOpen ? "var(--bg-hover)" : "transparent";
+                e.currentTarget.style.color = exportOpen ? "var(--text-primary)" : "var(--text-secondary)";
               }}
+              title="Export"
             >
-              <Download size={12} />
-              {!expanded && <span>Export</span>}
+              <Download size={15} />
             </button>
 
             {/* Export dropdown */}
@@ -679,16 +654,12 @@ export default function EditorToolbar({
             compact={expanded}
           />
 
-          {/* ── Avatar section (hidden when expanded) ── */}
+          {/* ── Avatar section (pushed off by expanded icons) ── */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              overflow: "hidden",
-              maxWidth: expanded ? 0 : 120,
-              opacity: expanded ? 0 : 1,
-              transition: "max-width 250ms ease, opacity 200ms ease",
               flexShrink: 0,
             }}
           >
