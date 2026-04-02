@@ -27,6 +27,48 @@ const ACCEPTED_EXTENSIONS = new Set([
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
+/** Build paragraphs from position-sorted PDF text items */
+function buildParagraphs(items: { str: string; y: number; fontSize: number }[]): string[] {
+  if (items.length === 0) return [];
+
+  const paragraphs: string[] = [];
+  let current = items[0].str;
+  let prevY = items[0].y;
+  let prevFontSize = items[0].fontSize;
+
+  for (let i = 1; i < items.length; i++) {
+    const item = items[i];
+    const yGap = Math.abs(prevY - item.y);
+    const lineHeight = prevFontSize * 1.4;
+    const fontChanged = Math.abs(item.fontSize - prevFontSize) > 1;
+
+    // Large Y gap or font size change = new paragraph
+    if (yGap > lineHeight * 1.3 || fontChanged) {
+      if (current.trim()) paragraphs.push(current.trim());
+      current = item.str;
+    } else if (yGap > lineHeight * 0.5) {
+      // Normal line break within paragraph
+      const endsWithPunct = /[.!?:;]$/.test(current.trim());
+      const nextStartsUpper = /^[A-ZÁÉÍÓÚÑÜ]/.test(item.str.trim());
+      if (endsWithPunct && nextStartsUpper) {
+        if (current.trim()) paragraphs.push(current.trim());
+        current = item.str;
+      } else {
+        current += " " + item.str;
+      }
+    } else {
+      // Same line — concatenate
+      current += item.str;
+    }
+
+    prevY = item.y;
+    prevFontSize = item.fontSize;
+  }
+  if (current.trim()) paragraphs.push(current.trim());
+
+  return paragraphs;
+}
+
 export async function POST(req: NextRequest) {
   const { error } = await getAuthenticatedUser();
   if (error) return error;
@@ -85,43 +127,116 @@ export async function POST(req: NextRequest) {
       paragraphs = extractParagraphsFromHtml(result.value);
       fileFormat = "docx";
 
-    // ─── PDF (unpdf — pure JS, works in all runtimes) ───
+    // ─── PDF (unpdf — layout-aware extraction via getDocumentProxy) ───
     } else if (ext === "pdf") {
-      const { extractText: extractPdfText } = await import("unpdf");
+      const { getDocumentProxy } = await import("unpdf");
       const data = new Uint8Array(await file.arrayBuffer());
-      const result = await extractPdfText(data);
-      const extractedText = result.text.join("\n\n");
+      const pdf = await getDocumentProxy(data);
 
-      // Post-process: join broken lines from PDF extraction
-      const lines = extractedText.split("\n");
-      const joined: string[] = [];
-      let current = "";
+      // Collect text items with position data from all pages
+      interface PdfTextItem {
+        str: string;
+        x: number;
+        y: number;
+        fontSize: number;
+        page: number;
+      }
+      const allItems: PdfTextItem[][] = []; // grouped by page
 
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed === "") {
-          if (current.trim()) {
-            joined.push(current.trim());
-            current = "";
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        const pageItems: PdfTextItem[] = [];
+        for (const item of content.items) {
+          if ("str" in item && item.str.trim()) {
+            pageItems.push({
+              str: item.str,
+              x: item.transform[4],
+              y: item.transform[5],
+              fontSize: Math.abs(item.transform[0]),
+              page: p,
+            });
           }
-          continue;
         }
-        if (current === "") {
-          current = trimmed;
-        } else {
-          const endsWithPunct = /[.!?:;]$/.test(current);
-          const nextStartsUpper = /^[A-ZÁÉÍÓÚÑÜ]/.test(trimmed);
-          if (endsWithPunct && nextStartsUpper) {
-            joined.push(current.trim());
-            current = trimmed;
-          } else {
-            current += " " + trimmed;
+        allItems.push(pageItems);
+      }
+
+      // Detect headers/footers: text appearing at same Y position on 3+ pages
+      const yTextMap = new Map<string, { text: string; count: number }>();
+      for (const pageItems of allItems) {
+        const seen = new Set<string>();
+        for (const item of pageItems) {
+          const key = `${Math.round(item.y)}_${item.str.trim()}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            const entry = yTextMap.get(key) || { text: item.str.trim(), count: 0 };
+            entry.count++;
+            yTextMap.set(key, entry);
           }
         }
       }
-      if (current.trim()) joined.push(current.trim());
+      const repeatedThreshold = Math.min(3, Math.ceil(pdf.numPages * 0.5));
+      const headerFooterTexts = new Set<string>();
+      for (const [, entry] of yTextMap) {
+        if (entry.count >= repeatedThreshold && entry.text.length < 100) {
+          headerFooterTexts.add(entry.text);
+        }
+      }
 
-      paragraphs = joined.map((text, i) => ({ text, index: i }));
+      // Detect page numbers: isolated short numbers at very top or bottom
+      const isPageNumber = (str: string): boolean => /^\d{1,4}$/.test(str.trim());
+
+      // Process each page: sort by Y (descending = top first), then X
+      const allParagraphs: string[] = [];
+
+      for (const pageItems of allItems) {
+        // Filter out headers/footers and page numbers
+        const filtered = pageItems.filter((item) => {
+          if (headerFooterTexts.has(item.str.trim())) return false;
+          if (isPageNumber(item.str)) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) continue;
+
+        // Sort top-to-bottom (Y descending in PDF coords), then left-to-right
+        filtered.sort((a, b) => b.y - a.y || a.x - b.x);
+
+        // Detect columns: cluster X positions
+        const xPositions = filtered.map((it) => Math.round(it.x));
+        const xClusters: number[][] = [];
+        const sortedX = [...new Set(xPositions)].sort((a, b) => a - b);
+        let cluster: number[] = [];
+        for (const xVal of sortedX) {
+          if (cluster.length === 0 || xVal - cluster[cluster.length - 1] < 50) {
+            cluster.push(xVal);
+          } else {
+            xClusters.push(cluster);
+            cluster = [xVal];
+          }
+        }
+        if (cluster.length > 0) xClusters.push(cluster);
+
+        const isMultiColumn = xClusters.length >= 2;
+
+        if (isMultiColumn) {
+          // Process each column separately (left to right)
+          for (const xCluster of xClusters) {
+            const minX = Math.min(...xCluster) - 25;
+            const maxX = Math.max(...xCluster) + 200;
+            const colItems = filtered
+              .filter((it) => it.x >= minX && it.x <= maxX)
+              .sort((a, b) => b.y - a.y);
+            const colText = buildParagraphs(colItems);
+            allParagraphs.push(...colText);
+          }
+        } else {
+          const pageText = buildParagraphs(filtered);
+          allParagraphs.push(...pageText);
+        }
+      }
+
+      paragraphs = allParagraphs.map((text, i) => ({ text, index: i }));
       fileFormat = "pdf";
 
     // ─── CSV ───
