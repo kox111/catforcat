@@ -301,6 +301,13 @@ export default function EditorToolbar({
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
       `}</style>
 
       <div
@@ -394,6 +401,7 @@ export default function EditorToolbar({
               onMouseEnter={(e) => { if (!preTranslating) { e.currentTarget.style.background = "var(--bg-hover)"; } }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
               title="Pre-translate"
+              aria-label="Pre-translate"
             >
               <Sparkles size={15} />
             </button>
@@ -439,6 +447,7 @@ export default function EditorToolbar({
               e.currentTarget.style.color = activePanel === "tm" ? "var(--text-primary)" : "var(--text-secondary)";
             }}
             title="TM Matches"
+            aria-label="TM Matches"
           >
             <Languages size={15} />
           </button>
@@ -452,6 +461,7 @@ export default function EditorToolbar({
               e.currentTarget.style.color = activePanel === "glossary" ? "var(--text-primary)" : "var(--text-secondary)";
             }}
             title="Glossary"
+            aria-label="Glossary"
           >
             <Book size={15} />
           </button>
@@ -467,6 +477,7 @@ export default function EditorToolbar({
             onMouseEnter={(e) => { if (!qaRunning) { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; } }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
             title="QA Check"
+            aria-label="QA Check"
           >
             <FileCheck size={15} />
           </button>
@@ -482,6 +493,7 @@ export default function EditorToolbar({
             onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
             title={expanded ? "Collapse toolbar" : "Expand toolbar"}
+            aria-label={expanded ? "Collapse toolbar" : "Expand toolbar"}
           >
             <ChevronRight
               size={13}
@@ -510,6 +522,7 @@ export default function EditorToolbar({
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
               title="Find & Replace"
+              aria-label="Find & Replace"
             >
               <Search size={15} />
             </button>
@@ -520,6 +533,7 @@ export default function EditorToolbar({
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
               title="Concordance Search"
+              aria-label="Concordance Search"
             >
               <TextSearch size={15} />
             </button>
@@ -530,6 +544,7 @@ export default function EditorToolbar({
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
               title="Notes"
+              aria-label="Notes"
             >
               <StickyNote size={15} />
             </button>
@@ -540,6 +555,7 @@ export default function EditorToolbar({
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text-primary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
               title="Analysis"
+              aria-label="Analysis"
             >
               <BarChart3 size={15} />
             </button>
@@ -559,6 +575,7 @@ export default function EditorToolbar({
                 e.currentTarget.style.color = exportOpen ? "var(--text-primary)" : "var(--text-secondary)";
               }}
               title="Export"
+              aria-label="Export"
             >
               <Download size={15} />
             </button>
@@ -642,6 +659,7 @@ export default function EditorToolbar({
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
               title={isFullscreen ? "Exit fullscreen (F11)" : "Fullscreen (F11)"}
+              aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
             >
               {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
@@ -667,7 +685,12 @@ export default function EditorToolbar({
             {/* Avatar with gradient ring + PRO shimmer */}
             <div ref={avatarRef} style={{ position: "relative" }}>
               <div
+                role="button"
+                tabIndex={0}
+                aria-label="User menu"
+                aria-expanded={avatarOpen}
                 onClick={() => setAvatarOpen(!avatarOpen)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAvatarOpen(!avatarOpen); } }}
                 style={{
                   width: 30,
                   height: 30,
