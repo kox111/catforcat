@@ -49,9 +49,11 @@ export async function POST(
       );
     }
 
-    await prisma.$transaction([
+    // Interactive transaction: update, delete, and shift positions atomically
+    // $executeRawUnsafe is not supported in the batch array form — use interactive tx
+    await prisma.$transaction(async (tx) => {
       // Merge: update first segment with combined text
-      prisma.segment.update({
+      await tx.segment.update({
         where: { id: segmentId },
         data: {
           sourceText: segA.sourceText + " " + segB.sourceText,
@@ -61,16 +63,16 @@ export async function POST(
               : segA.targetText || segB.targetText || "",
           status: "draft",
         },
-      }),
+      });
       // Delete second segment
-      prisma.segment.delete({ where: { id: nextSegmentId } }),
+      await tx.segment.delete({ where: { id: nextSegmentId } });
       // Shift positions down
-      prisma.$executeRawUnsafe(
+      await tx.$executeRawUnsafe(
         `UPDATE segments SET position = position - 1 WHERE project_id = $1 AND position > $2`,
         id,
         segB.position,
-      ),
-    ]);
+      );
+    });
 
     const allSegments = await prisma.segment.findMany({
       where: { projectId: id },

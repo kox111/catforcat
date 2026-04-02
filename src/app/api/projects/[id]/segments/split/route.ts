@@ -46,26 +46,26 @@ export async function POST(
       );
     }
 
-    // Transaction: shift positions + update original + create new segment
-    // Note: shift must happen first so the new position is available
-    await prisma.$executeRawUnsafe(
-      `UPDATE segments SET position = position + 1 WHERE project_id = $1 AND position > $2`,
-      id,
-      segment.position,
-    );
-
-    const [updated, newSeg] = await prisma.$transaction([
+    // Interactive transaction: shift positions, update original, create new segment
+    // All steps are atomic — if any step fails, positions are not permanently corrupted
+    await prisma.$transaction(async (tx) => {
+      // Shift positions first so the unique constraint allows position + 1
+      await tx.$executeRawUnsafe(
+        `UPDATE segments SET position = position + 1 WHERE project_id = $1 AND position > $2`,
+        id,
+        segment.position,
+      );
       // Update original segment (first half)
-      prisma.segment.update({
+      await tx.segment.update({
         where: { id: segmentId },
         data: {
           sourceText: sourceA,
           targetText: "", // Reset target since source changed
           status: "empty",
         },
-      }),
+      });
       // Create new segment (second half)
-      prisma.segment.create({
+      await tx.segment.create({
         data: {
           projectId: id,
           position: segment.position + 1,
@@ -73,8 +73,8 @@ export async function POST(
           targetText: "",
           status: "empty",
         },
-      }),
-    ]);
+      });
+    });
 
     // Fetch all segments to return updated list
     const allSegments = await prisma.segment.findMany({
