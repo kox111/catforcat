@@ -935,13 +935,19 @@ export default function EditorPage({
         });
         if (res.ok) {
           const data = await res.json();
+          // Clear any pending save for this segment so auto-save doesn't
+          // overwrite the freshly split content returned by the server
+          markSaved([segmentId]);
           setSegments(data.segments);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          setGeneralToast(err.error || "Split failed — please try again");
         }
       } catch {
-        /* ignore */
+        setGeneralToast("Split failed — network error");
       }
     },
-    [project, segments, setSegments],
+    [project, segments, setSegments, markSaved, setGeneralToast],
   );
 
   // D1: Merge with next segment
@@ -961,14 +967,20 @@ export default function EditorPage({
         });
         if (res.ok) {
           const data = await res.json();
+          // Clear pending saves for both merged segments so auto-save doesn't
+          // overwrite the freshly merged content returned by the server
+          markSaved([segmentId, nextSeg.id]);
           setSegments(data.segments);
           setActiveSegment(segmentId);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          setGeneralToast(err.error || "Merge failed — please try again");
         }
       } catch {
-        /* ignore */
+        setGeneralToast("Merge failed — network error");
       }
     },
-    [project, segments, setSegments, setActiveSegment],
+    [project, segments, setSegments, setActiveSegment, markSaved, setGeneralToast],
   );
 
   // D2: Save note to segment metadata
