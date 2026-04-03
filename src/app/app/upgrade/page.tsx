@@ -176,7 +176,7 @@ export default function UpgradePage() {
                 fontFamily: "var(--font-ui-family)",
               }}
             >
-              $10
+              $30
               <span
                 style={{
                   fontSize: 14,

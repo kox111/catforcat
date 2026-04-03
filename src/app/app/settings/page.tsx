@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useViewScale } from "@/components/ViewScaleProvider";
 import { useUserPlan } from "@/components/UserPlanProvider";
 import { type ScaleMode, SCALE_MODES, MODE_ORDER } from "@/lib/view-scale";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
+import Cropper from "react-easy-crop";
+import type { Area } from "react-easy-crop";
 
 interface SettingsData {
   plan: string;
@@ -30,6 +32,57 @@ export default function SettingsPage() {
   const { mode, setMode } = useViewScale();
   const { setAvatarUrl: setProviderAvatarUrl } = useUserPlan();
   const [breakEnabled, setBreakEnabled] = useState(true);
+  const [username, setUsername] = useState("");
+  const [usernameLoading, setUsernameLoading] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [usernameSaved, setUsernameSaved] = useState(false);
+
+  /* Crop modal state */
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
+
+  const getCroppedImage = async (): Promise<string | null> => {
+    if (!cropImage || !croppedAreaPixels) return null;
+    const img = new Image();
+    img.src = cropImage;
+    await new Promise((r) => { img.onload = r; });
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(
+      img,
+      croppedAreaPixels.x, croppedAreaPixels.y,
+      croppedAreaPixels.width, croppedAreaPixels.height,
+      0, 0, 128, 128,
+    );
+    return canvas.toDataURL("image/jpeg", 0.85);
+  };
+
+  const handleCropSave = async () => {
+    setUploadingAvatar(true);
+    const dataUrl = await getCroppedImage();
+    if (!dataUrl) { setUploadingAvatar(false); return; }
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: dataUrl }),
+      });
+      if (res.ok) {
+        setAvatarUrl(dataUrl);
+        setProviderAvatarUrl(dataUrl);
+      }
+    } catch { /* silent */ }
+    setCropImage(null);
+    setUploadingAvatar(false);
+  };
 
   // Load break reminder preference
   useEffect(() => {
@@ -51,47 +104,18 @@ export default function SettingsPage() {
       .toUpperCase()
       .slice(0, 2) || (session?.user?.email?.[0] || "U").toUpperCase();
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingAvatar(true);
-    try {
-      // Resize to max 200KB
-      const canvas = document.createElement("canvas");
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = () => {
-        img.onload = async () => {
-          const MAX = 128;
-          canvas.width = MAX;
-          canvas.height = MAX;
-          const ctx = canvas.getContext("2d")!;
-          const size = Math.min(img.width, img.height);
-          const sx = (img.width - size) / 2;
-          const sy = (img.height - size) / 2;
-          ctx.drawImage(img, sx, sy, size, size, 0, 0, MAX, MAX);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
-          try {
-            const res = await fetch("/api/settings", {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ avatarUrl: dataUrl }),
-            });
-            if (res.ok) {
-              setAvatarUrl(dataUrl);
-              setProviderAvatarUrl(dataUrl);
-            }
-          } catch {
-            /* silent */
-          }
-          setUploadingAvatar(false);
-        };
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    } catch {
-      setUploadingAvatar(false);
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImage(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+    };
+    reader.readAsDataURL(file);
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
   };
 
   const handleRemoveAvatar = async () => {
@@ -117,6 +141,7 @@ export default function SettingsPage() {
         const data = await res.json();
         setSettings(data as SettingsData);
         if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+        if (data.username) setUsername(data.username);
       }
     } catch {
       // silent
@@ -129,6 +154,38 @@ export default function SettingsPage() {
     fetchSettings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleUsernameSave = async () => {
+    const trimmed = username.trim().replace(/^@/, "");
+    if (!trimmed || trimmed.length < 3) {
+      setUsernameError("Username must be at least 3 characters");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      setUsernameError("Only letters, numbers and underscores");
+      return;
+    }
+    setUsernameLoading(true);
+    setUsernameError(null);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: trimmed }),
+      });
+      if (res.ok) {
+        setUsername(trimmed);
+        setUsernameSaved(true);
+        setTimeout(() => setUsernameSaved(false), 2000);
+      } else {
+        const data = await res.json();
+        setUsernameError(data.error || "Failed to save");
+      }
+    } catch {
+      setUsernameError("Network error");
+    }
+    setUsernameLoading(false);
+  };
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -296,6 +353,58 @@ export default function SettingsPage() {
                   style={{ display: "none" }}
                 />
               </div>
+            </div>
+
+            {/* Username / Alias */}
+            <div style={{ marginTop: 16 }}>
+              <label style={{
+                fontSize: 12, fontWeight: 500, color: "var(--text-secondary)",
+                fontFamily: "var(--font-ui-family)", display: "block", marginBottom: 6,
+              }}>
+                @username (public alias)
+              </label>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <span style={{
+                    position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)",
+                    fontSize: 13, color: "var(--text-muted)", fontFamily: "var(--font-ui-family)",
+                  }}>@</span>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => { setUsername(e.target.value); setUsernameError(null); setUsernameSaved(false); }}
+                    placeholder="your_alias"
+                    maxLength={30}
+                    style={{
+                      width: "100%", padding: "7px 10px 7px 24px",
+                      fontSize: 13, fontFamily: "var(--font-ui-family)",
+                      borderRadius: 6, border: "1px solid var(--border)",
+                      background: "var(--bg-deep)", color: "var(--text-primary)",
+                      outline: "none", transition: "border-color 150ms",
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = "var(--accent)"}
+                    onBlur={(e) => e.currentTarget.style.borderColor = "var(--border)"}
+                  />
+                </div>
+                <button
+                  onClick={handleUsernameSave}
+                  disabled={usernameLoading}
+                  style={{
+                    fontSize: 11, padding: "7px 14px", borderRadius: 6,
+                    background: "var(--accent-soft)", border: "1px solid var(--border)",
+                    color: "var(--text-primary)", cursor: "pointer",
+                    fontFamily: "var(--font-ui-family)", transition: "opacity 150ms",
+                    opacity: usernameLoading ? 0.5 : 1,
+                  }}
+                >
+                  {usernameLoading ? "Saving..." : usernameSaved ? "Saved" : "Save"}
+                </button>
+              </div>
+              {usernameError && (
+                <div style={{ fontSize: 11, color: "var(--red-text)", marginTop: 4, fontFamily: "var(--font-ui-family)" }}>
+                  {usernameError}
+                </div>
+              )}
             </div>
           </section>
 
@@ -836,6 +945,82 @@ export default function SettingsPage() {
       >
         made with love, for KL.
       </p>
+
+      {/* ── Crop Modal ── */}
+      {cropImage && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 50,
+          background: "var(--overlay)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{
+            width: 360, background: "var(--bg-panel)",
+            borderRadius: "var(--radius)", overflow: "hidden",
+            boxShadow: "var(--shadow-float)",
+          }}>
+            <div style={{
+              padding: "12px 16px", borderBottom: "1px solid var(--border)",
+              fontFamily: "var(--font-ui-family)", fontSize: 14, fontWeight: 500,
+              color: "var(--text-primary)",
+            }}>
+              Crop photo
+            </div>
+            <div style={{ position: "relative", width: "100%", height: 280, background: "var(--bg-deep)" }}>
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div style={{
+              padding: "8px 16px",
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-ui-family)" }}>Zoom</span>
+              <input
+                type="range" min={1} max={3} step={0.05} value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                style={{ flex: 1, accentColor: "var(--accent)" }}
+              />
+            </div>
+            <div style={{
+              padding: "12px 16px", borderTop: "1px solid var(--border)",
+              display: "flex", justifyContent: "flex-end", gap: 8,
+            }}>
+              <button
+                onClick={() => setCropImage(null)}
+                style={{
+                  fontSize: 12, padding: "6px 14px", borderRadius: 6,
+                  background: "transparent", border: "1px solid var(--border)",
+                  color: "var(--text-secondary)", cursor: "pointer",
+                  fontFamily: "var(--font-ui-family)", transition: "background 150ms",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCropSave}
+                disabled={uploadingAvatar}
+                style={{
+                  fontSize: 12, padding: "6px 14px", borderRadius: 6,
+                  background: "var(--accent-soft)", border: "1px solid var(--border)",
+                  color: "var(--text-primary)", cursor: "pointer",
+                  fontFamily: "var(--font-ui-family)", transition: "opacity 150ms",
+                  opacity: uploadingAvatar ? 0.5 : 1,
+                }}
+              >
+                {uploadingAvatar ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

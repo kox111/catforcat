@@ -15,6 +15,7 @@ export async function GET() {
     select: {
       plan: true,
       avatarUrl: true,
+      username: true,
       aiRequestsUsed: true,
       aiRequestsResetAt: true,
       stripeSubscriptionId: true,
@@ -42,6 +43,7 @@ export async function GET() {
   return NextResponse.json({
     plan: userData.plan,
     avatarUrl: userData.avatarUrl,
+    username: userData.username || null,
     translationProvider: "Google Translate",
     aiRequestsUsed,
     aiRequestsLimit: aiLimit,
@@ -75,6 +77,25 @@ export async function PATCH(req: NextRequest) {
         data.avatarUrl = body.avatarUrl;
       } else {
         return NextResponse.json({ error: "Invalid avatar format" }, { status: 400 });
+      }
+    }
+
+    // Username: alphanumeric + underscore, 3-30 chars, unique
+    if (body.username !== undefined) {
+      if (typeof body.username === "string") {
+        const clean = body.username.trim().replace(/^@/, "");
+        if (clean.length < 3 || clean.length > 30) {
+          return NextResponse.json({ error: "Username must be 3-30 characters" }, { status: 400 });
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(clean)) {
+          return NextResponse.json({ error: "Only letters, numbers and underscores" }, { status: 400 });
+        }
+        // Check uniqueness
+        const existing = await prisma.user.findUnique({ where: { username: clean } });
+        if (existing && existing.id !== user.id) {
+          return NextResponse.json({ error: "Username already taken" }, { status: 409 });
+        }
+        data.username = clean;
       }
     }
 
