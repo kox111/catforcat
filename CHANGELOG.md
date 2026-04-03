@@ -1,5 +1,52 @@
 # Changelog
 
+## [1.4.0] - 2026-04-03
+
+### Editor Toolbar
+- Redesigned as single unified bar with collapsed/expanded states
+- Collapsed: Pre-translate, TM, Glossary + save indicator + avatar
+- Expanded: +Search, Concordance, Notes, Analysis, QA, Export, Fullscreen
+- Save indicator always visible — dot + text when collapsed, dot-only when expanded
+- Hover animations with subtle scale effect on all toolbar icons
+- Accessibility: aria-labels on all icon-only buttons, prefers-reduced-motion respected
+
+### TM & Glossary — Floating Panels
+- TM and Glossary are now floating resizable windows instead of a fixed bottom panel
+- TM appears from the left, Glossary from the right
+- Three modes: maximized, preview (compact), minimized (icon only)
+- Toolbar buttons glow when matches are found — tools come to the translator
+- Drag handles for horizontal and vertical resizing
+- Slide-in animation on open
+
+### Profile & Avatar
+- Avatar crop modal with circular preview and zoom slider on photo upload
+- Profile photo propagates to all avatars across the app (TopBar, EditorToolbar, dropdowns)
+- PRO users get animated gradient shimmer ring on avatar (no separate badge)
+- Username (@alias) editor in Settings with uniqueness validation
+- Font size picker (Compact 12px / Default 14px / Large 16px) in avatar dropdown
+
+### Editor UX
+- Source/Target column headers restyled as notebook tab separators
+- Bottom panel visually integrated — flush against editor, no gap, single border separator
+- Split and merge segments now show error feedback instead of failing silently
+- Auto-save no longer overwrites server state after split/merge operations
+- Quick search filter on projects page
+
+### Import & Export
+- PDF segmenter: fixed single-word segments and broken sentences
+- Paragraph detection threshold tuned for generous line spacing
+- Line rejoin for sentences split across PDF lines
+- Garbage segment filter (single chars, lone punctuation)
+
+### Infrastructure
+- Split/merge API routes converted to atomic interactive transactions
+- PRO plan pricing updated to $30/month
+- Midnight theme (6th theme) with 105 CSS variables
+- OAuth Google + Apple sign-in
+- Security audit: email validation, password min 8 chars, OAuth email_verified check
+
+---
+
 ## [1.3.0] - 2026-03-31
 
 ### New
