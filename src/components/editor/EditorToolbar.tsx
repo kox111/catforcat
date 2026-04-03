@@ -530,7 +530,7 @@ export default function EditorToolbar({
             <ChevronRight
               size={13}
               style={{
-                transform: expanded ? "rotate(0deg)" : "rotate(180deg)",
+                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "transform 250ms ease",
               }}
             />

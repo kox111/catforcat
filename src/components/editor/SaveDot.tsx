@@ -179,7 +179,7 @@ export default function SaveDot({ isSaving, lastSavedAt, saveError, mode }: Save
             background: dotColor,
             transition: "background 400ms ease, opacity 200ms ease",
             animation: dotAnimation,
-            opacity: phase === "idle" ? 0 : 1,
+            opacity: phase === "idle" ? 0.3 : 1,
             flexShrink: 0,
           }}
         />
@@ -202,10 +202,10 @@ export default function SaveDot({ isSaving, lastSavedAt, saveError, mode }: Save
             style={{
               width: 7, height: 7, borderRadius: "50%",
               background: dotColor,
-              transition: "background 400ms ease",
+              transition: "background 400ms ease, opacity 200ms ease",
               animation: dotAnimation,
               flexShrink: 0,
-              opacity: phase === "idle" ? 0 : 1,
+              opacity: phase === "idle" ? 0.3 : 1,
             }}
           />
           {phase === "error" ? (
