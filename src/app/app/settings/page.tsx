@@ -40,7 +40,7 @@ export default function SettingsPage() {
   /* Crop modal state */
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(0.5);
+  const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
@@ -49,20 +49,28 @@ export default function SettingsPage() {
 
   const getCroppedImage = async (): Promise<string | null> => {
     if (!cropImage || !croppedAreaPixels) return null;
-    const img = new Image();
-    img.src = cropImage;
-    await new Promise((r) => { img.onload = r; });
-    const canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(
-      img,
-      croppedAreaPixels.x, croppedAreaPixels.y,
-      croppedAreaPixels.width, croppedAreaPixels.height,
-      0, 0, 128, 128,
-    );
-    return canvas.toDataURL("image/jpeg", 0.85);
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = cropImage;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(
+        img,
+        croppedAreaPixels.x, croppedAreaPixels.y,
+        croppedAreaPixels.width, croppedAreaPixels.height,
+        0, 0, 128, 128,
+      );
+      return canvas.toDataURL("image/jpeg", 0.85);
+    } catch {
+      return null;
+    }
   };
 
   const handleCropSave = async () => {
@@ -111,7 +119,7 @@ export default function SettingsPage() {
     reader.onload = () => {
       setCropImage(reader.result as string);
       setCrop({ x: 0, y: 0 });
-      setZoom(0.5);
+      setZoom(1);
     };
     reader.readAsDataURL(file);
     // Reset input so the same file can be re-selected
@@ -973,8 +981,6 @@ export default function SettingsPage() {
                 aspect={1}
                 cropShape="round"
                 showGrid={false}
-                objectFit="contain"
-                minZoom={0.5}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
@@ -986,7 +992,7 @@ export default function SettingsPage() {
             }}>
               <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-ui-family)" }}>Zoom</span>
               <input
-                type="range" min={0.5} max={3} step={0.05} value={zoom}
+                type="range" min={1} max={3} step={0.05} value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
                 style={{ flex: 1, accentColor: "var(--accent)" }}
               />
