@@ -125,6 +125,7 @@ function ProjectsContent() {
       student: { name: string | null; username: string | null };
     }>;
   }>>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Open new project modal from TopBar ?new=true link
   useEffect(() => {
@@ -267,6 +268,44 @@ function ProjectsContent() {
           yet. Create your first project to start translating.
         </div>
       ) : (
+        <>
+          {/* Search input */}
+          <div style={{ marginBottom: 16 }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects..."
+              style={{
+                width: "100%",
+                maxWidth: 320,
+                padding: "8px 12px",
+                fontSize: 13,
+                fontFamily: "var(--font-ui-family)",
+                borderRadius: 6,
+                border: "1px solid var(--border)",
+                background: "var(--bg-deep)",
+                color: "var(--text-primary)",
+                outline: "none",
+                transition: "border-color 150ms",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+            />
+          </div>
+
+          {/* Projects grid */}
+          {(() => {
+            const filteredProjects = searchQuery.trim()
+              ? projects.filter((p) =>
+                  p.name.toLowerCase().includes(searchQuery.toLowerCase()),
+                )
+              : projects;
+            return filteredProjects.length === 0 ? (
+              <div style={{ color: "var(--text-secondary)", fontSize: 13 }}>
+                No projects match &ldquo;{searchQuery}&rdquo;.
+              </div>
+            ) : (
         <div
           style={{
             display: "grid",
@@ -274,7 +313,7 @@ function ProjectsContent() {
             gap: 16,
           }}
         >
-          {projects.map((project, idx) => (
+          {filteredProjects.map((project, idx) => (
             <Link
               key={project.id}
               href={`/app/projects/${project.id}`}
@@ -403,6 +442,9 @@ function ProjectsContent() {
             </Link>
           ))}
         </div>
+            );
+          })()}
+        </>
       )}
 
       {privacyTarget && (
