@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { X, Search, ArrowRight, Upload, Type, Zap, Users, GitBranch } from "lucide-react";
+import { X, Search, ArrowRight, Upload, Type, Zap } from "lucide-react";
 import { useTheme, type Theme } from "@/components/ThemeProvider";
 
 /* ─── Language data with regional variants (Bloque 7) ─── */
@@ -126,20 +126,6 @@ interface ParsedSegment {
   text: string;
   targetText?: string;
   metadata: Record<string, unknown>;
-}
-
-interface TeamOption {
-  id: string;
-  name: string;
-  _count: { members: number; projects: number };
-  myRole: string;
-}
-
-interface WorkflowOption {
-  id: string;
-  name: string;
-  stages: string; // JSON array
-  isDefault: boolean;
 }
 
 interface NewProjectModalProps {
@@ -437,45 +423,11 @@ export default function NewProjectModal({
   const [isNarrow, setIsNarrow] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Team & Workflow
-  const [teams, setTeams] = useState<TeamOption[]>([]);
-  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
-  const [workflowTemplates, setWorkflowTemplates] = useState<WorkflowOption[]>([]);
-  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>("");
-
   useEffect(() => {
     const check = () => setIsNarrow(window.innerWidth < 480);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
-  }, []);
-
-  // Fetch teams and workflow templates on mount
-  useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const res = await fetch("/api/teams");
-        if (res.ok) {
-          const data = await res.json();
-          setTeams(data.teams || []);
-        }
-      } catch {
-        /* ignore — teams are optional */
-      }
-    };
-    const fetchWorkflows = async () => {
-      try {
-        const res = await fetch("/api/workflow-templates");
-        if (res.ok) {
-          const data = await res.json();
-          setWorkflowTemplates(data || []);
-        }
-      } catch {
-        /* ignore — workflows are optional */
-      }
-    };
-    fetchTeams();
-    fetchWorkflows();
   }, []);
 
   const accentColor = ACCENT_CODE_COLOR[theme] || ACCENT_CODE_COLOR.dark;
@@ -574,12 +526,6 @@ export default function NewProjectModal({
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const body: any = { name: name.trim(), srcLang, tgtLang };
-      if (selectedTeamId) {
-        body.teamId = selectedTeamId;
-        if (selectedWorkflowId) {
-          body.workflowTemplateId = selectedWorkflowId;
-        }
-      }
       if (inputMode === "file" && parsedSegments) {
         body.parsedSegments = parsedSegments;
         body.sourceFile = file?.name || null;
@@ -928,125 +874,6 @@ export default function NewProjectModal({
                 </div>
               </div>
             </div>
-
-            {/* TEAM (optional) */}
-            {teams.length > 0 && (
-              <div style={{ marginTop: 20 }}>
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    fontFamily: "var(--font-ui-family)",
-                    fontSize: 10,
-                    fontWeight: 500,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    color: "var(--text-muted)",
-                    marginBottom: 6,
-                  }}
-                >
-                  <Users size={10} />
-                  Team (optional)
-                </label>
-                <select
-                  value={selectedTeamId}
-                  onChange={(e) => {
-                    setSelectedTeamId(e.target.value);
-                    if (!e.target.value) setSelectedWorkflowId("");
-                  }}
-                  style={{
-                    width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    fontSize: 13,
-                    fontFamily: "var(--font-ui-family)",
-                    background: "var(--bg-card)",
-                    border: "0.5px solid var(--border)",
-                    color: "var(--text-primary)",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border-color 150ms",
-                    boxSizing: "border-box",
-                    appearance: "none",
-                    WebkitAppearance: "none",
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 14px center",
-                    paddingRight: 36,
-                  }}
-                >
-                  <option value="">No team (personal project)</option>
-                  {teams.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name} ({team._count.members} {team._count.members === 1 ? "member" : "members"})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* WORKFLOW (only when team selected) */}
-            {selectedTeamId && workflowTemplates.length > 0 && (
-              <div style={{ marginTop: 14 }}>
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    fontFamily: "var(--font-ui-family)",
-                    fontSize: 10,
-                    fontWeight: 500,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    color: "var(--text-muted)",
-                    marginBottom: 6,
-                  }}
-                >
-                  <GitBranch size={10} />
-                  Workflow
-                </label>
-                <select
-                  value={selectedWorkflowId}
-                  onChange={(e) => setSelectedWorkflowId(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    fontSize: 13,
-                    fontFamily: "var(--font-ui-family)",
-                    background: "var(--bg-card)",
-                    border: "0.5px solid var(--border)",
-                    color: "var(--text-primary)",
-                    outline: "none",
-                    cursor: "pointer",
-                    transition: "border-color 150ms",
-                    boxSizing: "border-box",
-                    appearance: "none",
-                    WebkitAppearance: "none",
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 14px center",
-                    paddingRight: 36,
-                  }}
-                >
-                  <option value="">Select workflow...</option>
-                  {workflowTemplates.map((wf) => {
-                    const stages: string[] = (() => {
-                      try { return JSON.parse(wf.stages); } catch { return []; }
-                    })();
-                    const preview = stages
-                      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-                      .join(" \u2192 ");
-                    return (
-                      <option key={wf.id} value={wf.id}>
-                        {wf.name} ({preview})
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-            )}
 
             {/* Content toggle pills */}
             <div

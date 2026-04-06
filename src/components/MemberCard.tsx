@@ -1,7 +1,6 @@
 "use client";
 
 import UserPreviewCard from "./UserPreviewCard";
-import { TEAM_COLORS, teamColorVar } from "@/lib/team-colors";
 
 interface MemberCardProps {
   member: {
@@ -21,6 +20,12 @@ interface MemberCardProps {
   onRemove?: (userId: string) => void;
 }
 
+const COLOR_OPTIONS = [
+  "#E57373", "#F06292", "#BA68C8", "#9575CD",
+  "#7986CB", "#64B5F6", "#4FC3F7", "#4DB6AC",
+  "#81C784", "#AED581", "#FFD54F", "#FFB74D",
+];
+
 export default function MemberCard({
   member,
   isProfessor = false,
@@ -37,7 +42,7 @@ export default function MemberCard({
         borderRadius: "var(--radius-sm)",
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
-        borderLeft: `3px solid ${member.color.startsWith("#") ? member.color : teamColorVar(member.color)}`,
+        borderLeft: `3px solid ${member.color}`,
       }}
     >
       <div style={{ flex: 1 }}>
@@ -61,17 +66,16 @@ export default function MemberCard({
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           {/* Inline color picker */}
           <div style={{ display: "flex", gap: 2 }}>
-            {TEAM_COLORS.map((c) => (
+            {COLOR_OPTIONS.slice(0, 6).map((c) => (
               <button
-                key={c.value}
-                onClick={() => onColorChange?.(member.user.id, c.value)}
-                title={c.label}
+                key={c}
+                onClick={() => onColorChange?.(member.user.id, c)}
                 style={{
                   width: 14,
                   height: 14,
                   borderRadius: "50%",
-                  background: teamColorVar(c.value),
-                  border: member.color === c.value ? "2px solid var(--text-primary)" : "1px solid transparent",
+                  background: c,
+                  border: member.color === c ? "2px solid var(--text-primary)" : "1px solid transparent",
                   cursor: "pointer",
                   padding: 0,
                 }}
