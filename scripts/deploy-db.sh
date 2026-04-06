@@ -11,8 +11,10 @@ echo "Running Prisma migrations..."
 npx prisma migrate resolve --applied 20260310185543_init 2>/dev/null || true
 npx prisma migrate resolve --applied 20260314192158_add_missing_fields 2>/dev/null || true
 npx prisma migrate resolve --applied 20260328000000_add_2fa_and_rate_limits 2>/dev/null || true
+npx prisma migrate resolve --applied 20260330000000_classroom_mode 2>/dev/null || true
+npx prisma migrate resolve --applied 20260402000000_oauth_models 2>/dev/null || true
 
-# Deploy any pending migrations (classroom_mode is the new one)
+# Deploy pending migrations
 npx prisma migrate deploy
 
 # Generate Prisma client
