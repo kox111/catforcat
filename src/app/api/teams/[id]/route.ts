@@ -36,6 +36,10 @@ export async function GET(
           },
           orderBy: { joinedAt: "asc" },
         },
+        projects: {
+          select: { id: true, name: true, srcLang: true, tgtLang: true, status: true, createdAt: true },
+          orderBy: { createdAt: "desc" as const },
+        },
         _count: { select: { projects: true } },
       },
     });

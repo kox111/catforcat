@@ -95,6 +95,7 @@ const FONT_SIZE_PRESETS = [
 
 const navItems = [
   { href: "/app/projects", label: "Projects" },
+  { href: "/app/teams", label: "Teams" },
   { href: "/app/classrooms", label: "Classrooms" },
 ];
 
