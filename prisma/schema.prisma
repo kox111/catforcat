@@ -45,13 +45,6 @@ model User {
   postIts              PostIt[]
   notifications        Notification[]
 
-  // Teams relations
-  ownedTeams          Team[]              @relation("TeamOwner")
-  teamMembers         TeamMember[]
-  workflowTemplates   WorkflowTemplate[]  @relation("WorkflowTemplateOwner")
-  segmentAssignments  SegmentAssignment[]
-  presences           UserPresence[]
-
   @@map("users")
 }
 
@@ -67,10 +60,6 @@ model Project {
   privacyLevel  String   @default("standard") @map("privacy_level") // "standard" | "private" | "confidential"
   dueDate       DateTime? @map("due_date")
   isTemplate    Boolean  @default(false) @map("is_template")
-  // Teams Mode
-  teamId              String?  @map("team_id")
-  workflowTemplateId  String?  @map("workflow_template_id")
-  pipelineCheckpoints String   @default("[]") @map("pipeline_checkpoints") // JSON array of segment positions
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -83,12 +72,6 @@ model Project {
   invitations      Invitation[]
   assignmentSource Assignment[]  @relation("AssignmentTemplate")
   submissions      Submission[]  @relation("SubmissionProject")
-
-  // Teams relations
-  team               Team?              @relation("TeamProjects", fields: [teamId], references: [id])
-  workflowTemplate   WorkflowTemplate?  @relation("ProjectWorkflow", fields: [workflowTemplateId], references: [id])
-  segmentAssignments SegmentAssignment[]
-  presences          UserPresence[]
 
   @@map("projects")
 }
@@ -109,11 +92,6 @@ model Segment {
   aiScore            Int?     @map("ai_score")
   aiScoreReason      String?  @map("ai_score_reason")
   aiScoredAt         DateTime? @map("ai_scored_at")
-  // Teams Mode — workflow pipeline
-  workflowStage  String    @default("translating") @map("workflow_stage") // translating | reviewing | proofreading | completed
-  confirmedBy    String?   @map("confirmed_by")
-  confirmedAt    DateTime? @map("confirmed_at")
-  needsRecheck   Boolean   @default(false) @map("needs_recheck")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
@@ -410,80 +388,4 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
-}
-
-// ═══════════════════════════════════════════
-// Teams Mode (Fase 23)
-// ═══════════════════════════════════════════
-
-model Team {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  ownerId     String   @map("owner_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  owner    User         @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members  TeamMember[]
-  projects Project[]    @relation("TeamProjects")
-
-  @@map("teams")
-}
-
-model TeamMember {
-  id       String   @id @default(uuid())
-  teamId   String   @map("team_id")
-  userId   String   @map("user_id")
-  role     String   // pm | translator | reviewer | proofreader | terminologist | dtp
-  color    String   @default("azul") // rojo | rosa | morado | azul | celeste | teal | verde | amarillo
-  joinedAt DateTime @default(now()) @map("joined_at")
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, userId])
-  @@unique([teamId, color])
-  @@map("team_members")
-}
-
-model WorkflowTemplate {
-  id        String   @id @default(uuid())
-  name      String
-  stages    String   // JSON array: ["translator","reviewer","proofreader"]
-  ownerId   String?  @map("owner_id")
-  isDefault Boolean  @default(false) @map("is_default")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  owner    User?     @relation("WorkflowTemplateOwner", fields: [ownerId], references: [id])
-  projects Project[] @relation("ProjectWorkflow")
-
-  @@map("workflow_templates")
-}
-
-model SegmentAssignment {
-  id         String   @id @default(uuid())
-  projectId  String   @map("project_id")
-  userId     String   @map("user_id")
-  rangeStart Int?     @map("range_start")
-  rangeEnd   Int?     @map("range_end")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, userId])
-  @@map("segment_assignments")
-}
-
-model UserPresence {
-  projectId              String   @map("project_id")
-  userId                 String   @map("user_id")
-  currentSegmentPosition Int      @map("current_segment_position")
-  lastHeartbeat          DateTime @default(now()) @map("last_heartbeat")
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([projectId, userId])
-  @@map("user_presence")
 }
