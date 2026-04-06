@@ -7,6 +7,8 @@ import {
   canEditTM,
   canViewDashboard,
   canAssignTasks,
+  canConfirmSegments,
+  canRejectSegments,
   normalizeProjectRole,
   VALID_PROJECT_ROLES,
   VALID_CLASSROOM_ROLES,
@@ -50,6 +52,42 @@ describe("roles.ts — permission matrix", () => {
     expect(canEditSegments("fake_role")).toBe(false);
     expect(canCreateSuggestions("fake_role")).toBe(false);
     expect(canViewDashboard("fake_role")).toBe(false);
+  });
+});
+
+describe("roles.ts — Teams Mode permissions (confirm/reject)", () => {
+  it("translator can confirm segments", () => {
+    expect(canConfirmSegments("translator")).toBe(true);
+  });
+
+  it("translator cannot reject segments", () => {
+    expect(canRejectSegments("translator")).toBe(false);
+  });
+
+  it("reviewer can reject segments", () => {
+    expect(canRejectSegments("reviewer")).toBe(true);
+  });
+
+  it("reviewer cannot confirm segments", () => {
+    expect(canConfirmSegments("reviewer")).toBe(false);
+  });
+
+  it("proofreader can reject segments", () => {
+    expect(canRejectSegments("proofreader")).toBe(true);
+  });
+
+  it("pm cannot confirm or reject", () => {
+    expect(canConfirmSegments("pm")).toBe(false);
+    expect(canRejectSegments("pm")).toBe(false);
+  });
+
+  it("dtp can confirm segments", () => {
+    expect(canConfirmSegments("dtp")).toBe(true);
+  });
+
+  it("terminologist cannot confirm or reject", () => {
+    expect(canConfirmSegments("terminologist")).toBe(false);
+    expect(canRejectSegments("terminologist")).toBe(false);
   });
 });
 
