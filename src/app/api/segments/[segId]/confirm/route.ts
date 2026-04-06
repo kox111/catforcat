@@ -18,12 +18,12 @@ const DEFAULT_STAGES = ["translator", "reviewer"];
  */
 export async function PATCH(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ segId: string }> },
 ) {
   const { user, error } = await getAuthenticatedUser();
   if (error) return error;
 
-  const { id } = await params;
+  const { segId: id } = await params;
 
   // 1. Find segment with project, workflow template, assignments, and members
   const segment = await prisma.segment.findUnique({

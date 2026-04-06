@@ -9,12 +9,12 @@ import { prisma } from "@/lib/prisma";
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ segId: string }> },
 ) {
   const { user, error } = await getAuthenticatedUser();
   if (error) return error;
 
-  const { id } = await params;
+  const { segId: id } = await params;
 
   const body = await req.json();
   const reason: string | undefined =
