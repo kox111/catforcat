@@ -454,7 +454,7 @@ export default function SegmentAssigner({
           <p
             style={{
               fontSize: 12,
-              color: "var(--red, #ef4444)",
+              color: "var(--red)",
               marginTop: 8,
             }}
           >

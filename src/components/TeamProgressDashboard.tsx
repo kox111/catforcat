@@ -45,11 +45,11 @@ interface TeamProgressDashboardProps {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  translating: "var(--blue, #3b82f6)",
-  reviewing: "var(--amber, #f59e0b)",
-  proofreading: "var(--purple, #a855f7)",
-  completed: "var(--green, #22c55e)",
-  awaiting_approval: "var(--red, #ef4444)",
+  translating: "var(--accent)",
+  reviewing: "var(--amber)",
+  proofreading: "var(--team-morado)",
+  completed: "var(--green)",
+  awaiting_approval: "var(--red)",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -174,9 +174,9 @@ export default function TeamProgressDashboard({ data }: TeamProgressDashboardPro
                 padding: "8px 14px",
                 borderRadius: "var(--radius-sm)",
                 background: "var(--amber-soft, rgba(245, 158, 11, 0.1))",
-                border: "1px solid var(--amber, #f59e0b)",
+                border: "1px solid var(--amber)",
                 fontSize: 12,
-                color: "var(--amber-text, var(--amber, #f59e0b))",
+                color: "var(--amber-text, var(--amber))",
                 fontWeight: 500,
               }}
             >
@@ -189,9 +189,9 @@ export default function TeamProgressDashboard({ data }: TeamProgressDashboardPro
                 padding: "8px 14px",
                 borderRadius: "var(--radius-sm)",
                 background: "var(--red-soft, rgba(239, 68, 68, 0.1))",
-                border: "1px solid var(--red, #ef4444)",
+                border: "1px solid var(--red)",
                 fontSize: 12,
-                color: "var(--red-text, var(--red, #ef4444))",
+                color: "var(--red-text, var(--red))",
                 fontWeight: 500,
               }}
             >
@@ -204,9 +204,9 @@ export default function TeamProgressDashboard({ data }: TeamProgressDashboardPro
                 padding: "8px 14px",
                 borderRadius: "var(--radius-sm)",
                 background: "var(--purple-soft, rgba(168, 85, 247, 0.1))",
-                border: "1px solid var(--purple, #a855f7)",
+                border: "1px solid var(--team-morado)",
                 fontSize: 12,
-                color: "var(--purple-text, var(--purple, #a855f7))",
+                color: "var(--purple-text, var(--team-morado))",
                 fontWeight: 500,
               }}
             >
@@ -267,7 +267,7 @@ export default function TeamProgressDashboard({ data }: TeamProgressDashboardPro
                   width: 7,
                   height: 7,
                   borderRadius: "50%",
-                  background: isOnline ? "var(--green, #22c55e)" : "var(--text-muted)",
+                  background: isOnline ? "var(--green)" : "var(--text-muted)",
                   opacity: isOnline ? 1 : 0.3,
                   flexShrink: 0,
                 }}
@@ -381,7 +381,7 @@ export default function TeamProgressDashboard({ data }: TeamProgressDashboardPro
                       width: `${member.percentDone}%`,
                       background:
                         member.percentDone === 100
-                          ? "var(--green, #22c55e)"
+                          ? "var(--green)"
                           : "var(--accent)",
                       borderRadius: 3,
                       transition: "width 500ms",
@@ -397,7 +397,7 @@ export default function TeamProgressDashboard({ data }: TeamProgressDashboardPro
                   fontWeight: 600,
                   color:
                     member.percentDone === 100
-                      ? "var(--green, #22c55e)"
+                      ? "var(--green)"
                       : "var(--text-primary)",
                   minWidth: 36,
                   textAlign: "right",
