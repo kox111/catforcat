@@ -52,7 +52,7 @@
 
 ---
 
-## Phase 1: Foundation (Schema + Colors + Roles)
+## Phase 1: Architecture (Schema + Permissions)
 
 ### Task 1: Prisma Schema — New models
 
@@ -228,168 +228,7 @@ git commit -m "feat: schema — Team, TeamMember, WorkflowTemplate, SegmentAssig
 
 ---
 
-### Task 2: Team colors as CSS variables
-
-**Files:**
-- Create: `src/lib/team-colors.ts`
-- Modify: `src/app/globals.css`
-- Modify: `src/components/MemberCard.tsx`
-
-- [ ] **Step 1: Create team-colors.ts**
-
-```typescript
-/**
- * Team color definitions.
- * Colors are stored in DB as string names.
- * Rendered via CSS variables (--team-{name}) per theme.
- */
-
-export const TEAM_COLORS = [
-  { value: "rojo", label: "Rojo" },
-  { value: "rosa", label: "Rosa" },
-  { value: "morado", label: "Morado" },
-  { value: "azul", label: "Azul" },
-  { value: "celeste", label: "Celeste" },
-  { value: "teal", label: "Teal" },
-  { value: "verde", label: "Verde" },
-  { value: "amarillo", label: "Amarillo" },
-] as const;
-
-export type TeamColorName = (typeof TEAM_COLORS)[number]["value"];
-
-export const VALID_TEAM_COLORS = TEAM_COLORS.map((c) => c.value);
-
-/** Get CSS variable name for a team color */
-export function teamColorVar(color: string): string {
-  return `var(--team-${color})`;
-}
-```
-
-- [ ] **Step 2: Add --team-{color} variables to all 6 themes in globals.css**
-
-In `[data-theme="dark"]`, add after the last variable:
-
-```css
-  /* Team member colors */
-  --team-rojo: #E57373;
-  --team-rosa: #F06292;
-  --team-morado: #BA68C8;
-  --team-azul: #64B5F6;
-  --team-celeste: #4FC3F7;
-  --team-teal: #4DB6AC;
-  --team-verde: #81C784;
-  --team-amarillo: #FFD54F;
-```
-
-Repeat for each theme with adjusted values for contrast:
-
-`[data-theme="sakura"]`:
-```css
-  --team-rojo: #D32F2F;
-  --team-rosa: #C2185B;
-  --team-morado: #7B1FA2;
-  --team-azul: #1976D2;
-  --team-celeste: #0288D1;
-  --team-teal: #00796B;
-  --team-verde: #388E3C;
-  --team-amarillo: #F9A825;
-```
-
-`[data-theme="light"]`:
-```css
-  --team-rojo: #C62828;
-  --team-rosa: #AD1457;
-  --team-morado: #6A1B9A;
-  --team-azul: #1565C0;
-  --team-celeste: #0277BD;
-  --team-teal: #00695C;
-  --team-verde: #2E7D32;
-  --team-amarillo: #F57F17;
-```
-
-`[data-theme="linen"]`:
-```css
-  --team-rojo: #B71C1C;
-  --team-rosa: #880E4F;
-  --team-morado: #4A148C;
-  --team-azul: #0D47A1;
-  --team-celeste: #01579B;
-  --team-teal: #004D40;
-  --team-verde: #1B5E20;
-  --team-amarillo: #E65100;
-```
-
-`[data-theme="forest"]`:
-```css
-  --team-rojo: #EF5350;
-  --team-rosa: #EC407A;
-  --team-morado: #AB47BC;
-  --team-azul: #42A5F5;
-  --team-celeste: #29B6F6;
-  --team-teal: #26A69A;
-  --team-verde: #66BB6A;
-  --team-amarillo: #FFEE58;
-```
-
-`[data-theme="midnight"]`:
-```css
-  --team-rojo: #EF9A9A;
-  --team-rosa: #F48FB1;
-  --team-morado: #CE93D8;
-  --team-azul: #90CAF9;
-  --team-celeste: #81D4FA;
-  --team-teal: #80CBC4;
-  --team-verde: #A5D6A7;
-  --team-amarillo: #FFF59D;
-```
-
-- [ ] **Step 3: Replace hardcoded COLOR_OPTIONS in MemberCard.tsx**
-
-Replace:
-```typescript
-const COLOR_OPTIONS = [
-  "#E57373", "#F06292", "#BA68C8", "#9575CD",
-  "#7986CB", "#64B5F6", "#4FC3F7", "#4DB6AC",
-  "#81C784", "#AED581", "#FFD54F", "#FFB74D",
-];
-```
-
-With:
-```typescript
-import { TEAM_COLORS, teamColorVar } from "@/lib/team-colors";
-```
-
-And update the color picker swatches to use `teamColorVar(c.value)` and `c.label` instead of raw hex values.
-
-Update the `borderLeft` style from:
-```typescript
-borderLeft: `3px solid ${member.color}`,
-```
-To:
-```typescript
-borderLeft: `3px solid var(--team-${member.color}, ${member.color})`,
-```
-
-The fallback `${member.color}` handles legacy hex values from existing members.
-
-- [ ] **Step 4: Verify TypeScript + build**
-
-```bash
-npx tsc --noEmit && npx next build
-```
-
-Expected: 0 errors.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/lib/team-colors.ts src/app/globals.css src/components/MemberCard.tsx
-git commit -m "feat: team colors — 8 CSS variables across 6 themes, replace hardcoded hex"
-```
-
----
-
-### Task 3: Update roles.ts with team permissions
+### Task 2: Update roles.ts with team permissions
 
 **Files:**
 - Modify: `src/lib/roles.ts`
@@ -438,9 +277,9 @@ git commit -m "feat: roles — add confirmSegments + rejectSegments permissions"
 
 ---
 
-## Phase 2: Teams CRUD (API + UI)
+## Phase 2: Backend (API)
 
-### Task 4: Teams API — CRUD endpoints
+### Task 3: Teams API — CRUD endpoints
 
 **Files:**
 - Create: `src/app/api/teams/route.ts`
@@ -535,61 +374,31 @@ git commit -m "feat: Teams API — CRUD + member management"
 
 ---
 
-### Task 5: Teams UI — List + Detail pages
+### Task 4: Segment Assignment API
 
 **Files:**
-- Create: `src/app/app/teams/page.tsx`
-- Create: `src/app/app/teams/[id]/page.tsx`
-- Create: `src/components/TeamCard.tsx`
-- Create: `src/components/NewTeamModal.tsx`
-- Modify: `src/components/TopBar.tsx`
+- Create: `src/app/api/projects/[id]/assignments/route.ts`
+- Create: `src/app/api/projects/[id]/assignments/[aid]/route.ts`
 
-- [ ] **Step 1: Create TeamCard.tsx**
+- [ ] **Step 1: Create POST + GET /api/projects/[id]/assignments**
 
-Card showing: team name, description, member count, project count, member avatars with colors. Style matches existing ClassroomCard and ProjectCard patterns. Uses CSS variables for all colors.
+POST: PM assigns a user to a segment range. Validates: user is a project member, ranges don't overlap between translators, rangeStart < rangeEnd, positions exist in project. GET: returns all assignments for project.
 
-- [ ] **Step 2: Create NewTeamModal.tsx**
+- [ ] **Step 2: Create PATCH + DELETE /api/projects/[id]/assignments/[aid]**
 
-Modal with: name (required), description (optional). Same modal pattern as NewClassroomModal. On submit → POST /api/teams.
+PATCH: update range. DELETE: remove assignment. Both PM-only.
 
-- [ ] **Step 3: Create /app/teams page**
-
-Grid of TeamCards. "New Team" button opens NewTeamModal. Fetches from GET /api/teams. Same layout pattern as /app/classrooms.
-
-- [ ] **Step 4: Create /app/teams/[id] page**
-
-Team detail with tabs:
-- **Members tab**: MemberCards with role badge, color swatch. Owner sees "Invite" button + remove buttons. Color picker uses TEAM_COLORS from team-colors.ts. Reuse InviteModal with context="team".
-- **Projects tab**: Projects linked to this team. Link to each project.
-
-- [ ] **Step 5: Add "Teams" to TopBar navigation**
-
-In `TopBar.tsx`, modify navItems:
-
-```typescript
-const navItems = [
-  { href: "/app/projects", label: "Projects" },
-  { href: "/app/teams", label: "Teams" },
-  { href: "/app/classrooms", label: "Classrooms" },
-];
-```
-
-- [ ] **Step 6: Verify TypeScript + build**
+- [ ] **Step 3: Verify + commit**
 
 ```bash
-npx tsc --noEmit && npx next build
-```
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add src/app/app/teams/ src/components/TeamCard.tsx src/components/NewTeamModal.tsx src/components/TopBar.tsx
-git commit -m "feat: Teams UI — list page, detail page, nav item"
+npx tsc --noEmit
+git add src/app/api/projects/[id]/assignments/
+git commit -m "feat: segment assignment API — range assignment for team members"
 ```
 
 ---
 
-### Task 6: Workflow Templates API
+### Task 5: Workflow Templates API
 
 **Files:**
 - Create: `src/app/api/workflow-templates/route.ts`
@@ -613,90 +422,14 @@ git commit -m "feat: Workflow Templates API — CRUD with defaults"
 
 ---
 
-## Phase 3: Project ↔ Team Integration
+## Phase 3: Continuous Flow Engine
 
-### Task 7: NewProjectModal — Team + Workflow selection
+### Task 6: Segment confirm + stage advancement
 
 **Files:**
 - Modify: `src/components/NewProjectModal.tsx`
 
-- [ ] **Step 1: Fetch teams and workflow templates**
-
-Add two new fetch calls in the modal:
-- `GET /api/teams` → populate Team dropdown
-- `GET /api/workflow-templates` → populate Workflow dropdown
-
-- [ ] **Step 2: Add Team selector**
-
-Dropdown after language selectors. Options: "No Team (personal)" + list of user's teams. When team selected, show its members as preview.
-
-- [ ] **Step 3: Add Workflow selector**
-
-Only visible when a Team is selected. Dropdown with workflow templates. Show stage badges preview (e.g., "Translator → Reviewer → Proofreader").
-
-- [ ] **Step 4: Send teamId and workflowTemplateId in project creation**
-
-Modify the POST /api/projects body to include `teamId` and `workflowTemplateId`.
-
-- [ ] **Step 5: Auto-add team members as ProjectMembers**
-
-In `src/app/api/projects/route.ts`, when `teamId` is provided:
-1. Fetch team members
-2. Create ProjectMember for each team member with their role and color
-3. Set the project's teamId and workflowTemplateId
-
-- [ ] **Step 6: Verify + commit**
-
-```bash
-npx tsc --noEmit && npx next build
-git add src/components/NewProjectModal.tsx src/app/api/projects/route.ts
-git commit -m "feat: project creation — Team + Workflow template selection, auto-add members"
-```
-
----
-
-### Task 8: Segment Assignment API + UI
-
-**Files:**
-- Create: `src/app/api/projects/[id]/assignments/route.ts`
-- Create: `src/app/api/projects/[id]/assignments/[aid]/route.ts`
-- Create: `src/components/SegmentAssigner.tsx`
-- Create: `src/app/app/projects/[id]/team/page.tsx`
-
-- [ ] **Step 1: Create POST + GET /api/projects/[id]/assignments**
-
-POST: PM assigns a user to a segment range. Validates: user is a project member, ranges don't overlap between translators, rangeStart < rangeEnd, positions exist in project. GET: returns all assignments for project.
-
-- [ ] **Step 2: Create PATCH + DELETE /api/projects/[id]/assignments/[aid]**
-
-PATCH: update range. DELETE: remove assignment. Both PM-only.
-
-- [ ] **Step 3: Create SegmentAssigner.tsx**
-
-Visual component: horizontal bar representing all segments (1-N). PM drags to create colored ranges. Each range shows member name + color. Shows unassigned gaps. Uses TEAM_COLORS CSS variables.
-
-- [ ] **Step 4: Create /app/projects/[id]/team page (PM Dashboard)**
-
-Tab layout:
-- **Assignments tab**: SegmentAssigner + list of current assignments
-- **Progress tab**: placeholder for now (Task 12 will fill this)
-- **Checkpoints tab**: placeholder for now (Task 11 will fill this)
-
-Link to this page from the project editor toolbar (only for PM role).
-
-- [ ] **Step 5: Verify + commit**
-
-```bash
-npx tsc --noEmit && npx next build
-git add src/app/api/projects/[id]/assignments/ src/components/SegmentAssigner.tsx src/app/app/projects/[id]/team/
-git commit -m "feat: segment assignment — API + visual assigner + PM dashboard shell"
-```
-
----
-
-## Phase 4: Continuous Flow Engine
-
-### Task 9: Segment confirm + stage advancement
+### Task 6: Segment confirm + stage advancement
 
 **Files:**
 - Create: `src/app/api/segments/[id]/confirm/route.ts`
@@ -809,7 +542,7 @@ git commit -m "feat: segment confirm — advance workflow stage with checkpoint 
 
 ---
 
-### Task 10: Segment reject + error propagation
+### Task 7: Segment reject + error propagation
 
 **Files:**
 - Create: `src/app/api/segments/[id]/reject/route.ts`
@@ -908,7 +641,7 @@ git commit -m "feat: segment reject — revert stage + propagate needsRecheck to
 
 ---
 
-### Task 11: PM Checkpoint approval
+### Task 8: PM Checkpoint approval
 
 **Files:**
 - Create: `src/app/api/projects/[id]/checkpoints/approve/route.ts`
@@ -927,9 +660,9 @@ git commit -m "feat: PM checkpoint approval — advance awaiting segments"
 
 ---
 
-## Phase 5: Real-Time Presence
+## Phase 4: Real-Time Presence
 
-### Task 12: Presence API
+### Task 9: Presence API
 
 **Files:**
 - Create: `src/app/api/projects/[id]/presence/route.ts`
@@ -998,7 +731,7 @@ git commit -m "feat: presence API — heartbeat + active members query"
 
 ---
 
-### Task 13: Presence in Editor
+### Task 10: Presence in Editor
 
 **Files:**
 - Create: `src/components/PresenceBar.tsx`
@@ -1060,7 +793,7 @@ git commit -m "feat: real-time presence — color bars in editor + range enforce
 
 ---
 
-### Task 14: Go-to-teammate shortcut (Ctrl+G)
+### Task 11: Go-to-teammate shortcut (Ctrl+G)
 
 **Files:**
 - Create: `src/components/GoToTeamMemberModal.tsx`
@@ -1084,50 +817,169 @@ git commit -m "feat: Ctrl+G — jump to teammate's current segment"
 
 ---
 
-## Phase 6: PM Dashboard
+## Phase 5: UI Funcional (Páginas + Modales)
 
-### Task 15: Team progress API + Dashboard UI
+### Task 12: Teams UI — List + Detail pages
 
 **Files:**
-- Create: `src/app/api/projects/[id]/team-progress/route.ts`
-- Create: `src/components/TeamProgressDashboard.tsx`
-- Modify: `src/app/app/projects/[id]/team/page.tsx`
+- Create: `src/app/app/teams/page.tsx`
+- Create: `src/app/app/teams/[id]/page.tsx`
+- Create: `src/components/TeamCard.tsx`
+- Create: `src/components/NewTeamModal.tsx`
+- Modify: `src/components/TopBar.tsx`
 
-- [ ] **Step 1: Create GET /api/projects/[id]/team-progress**
+- [ ] **Step 1: Add "Teams" to TopBar navigation**
 
-Returns:
-- Total segments, segments per workflowStage (translating, reviewing, proofreading, completed)
-- Per-member progress: userId, name, color, assigned range, completed count, % done, last active
-- Online members (from UserPresence)
-- Pending checkpoints count
-- Unresolved post-its/suggestions count
-- Alerts: members inactive >2 hours, segments with needsRecheck
+In `TopBar.tsx`, modify navItems:
 
-- [ ] **Step 2: Create TeamProgressDashboard.tsx**
+```typescript
+const navItems = [
+  { href: "/app/projects", label: "Projects" },
+  { href: "/app/teams", label: "Teams" },
+  { href: "/app/classrooms", label: "Classrooms" },
+];
+```
 
-Visual dashboard with:
-- Overall progress bar (segmented by stage, colored)
-- Per-member progress rows: name, color swatch, range badge, progress bar, last active indicator
-- Online dots (green = active, gray = offline)
-- Alerts section
+- [ ] **Step 2: Create TeamCard.tsx**
 
-- [ ] **Step 3: Wire into /app/projects/[id]/team page**
+Card showing: team name, description, member count, project count, member avatars. Same layout pattern as ClassroomCard. All colors via CSS variables.
 
-Replace placeholder Progress tab content with TeamProgressDashboard.
+- [ ] **Step 3: Create NewTeamModal.tsx**
+
+Modal with: name (required), description (optional). Same modal pattern as NewClassroomModal. On submit → POST /api/teams.
+
+- [ ] **Step 4: Create /app/teams page**
+
+Grid of TeamCards. "New Team" button opens NewTeamModal. Fetches from GET /api/teams.
+
+- [ ] **Step 5: Create /app/teams/[id] page**
+
+Team detail with tabs:
+- **Members tab**: MemberCards with role badge. Owner sees "Invite" + remove buttons. Reuse InviteModal with context="team".
+- **Projects tab**: Projects linked to this team.
+
+- [ ] **Step 6: Verify + commit**
+
+```bash
+npx tsc --noEmit && npx next build
+git add src/app/app/teams/ src/components/TeamCard.tsx src/components/NewTeamModal.tsx src/components/TopBar.tsx
+git commit -m "feat: Teams UI — list page, detail page, nav item"
+```
+
+---
+
+### Task 13: NewProjectModal — Team + Workflow selection
+
+**Files:**
+- Modify: `src/components/NewProjectModal.tsx`
+- Modify: `src/app/api/projects/route.ts`
+
+- [ ] **Step 1: Add Team + Workflow selectors to NewProjectModal**
+
+Fetch teams (GET /api/teams) and workflow templates (GET /api/workflow-templates). Add dropdowns after language selectors. Workflow only visible when Team is selected.
+
+- [ ] **Step 2: Send teamId and workflowTemplateId in project creation**
+
+Modify the POST body to include teamId and workflowTemplateId.
+
+- [ ] **Step 3: Auto-add team members as ProjectMembers**
+
+In POST /api/projects/route.ts, when teamId is provided: fetch team members → create ProjectMember for each with their role and color.
 
 - [ ] **Step 4: Verify + commit**
 
 ```bash
 npx tsc --noEmit && npx next build
-git add src/app/api/projects/[id]/team-progress/ src/components/TeamProgressDashboard.tsx src/app/app/projects/[id]/team/
-git commit -m "feat: PM dashboard — team progress, per-member stats, alerts"
+git add src/components/NewProjectModal.tsx src/app/api/projects/route.ts
+git commit -m "feat: project creation — Team + Workflow template selection, auto-add members"
 ```
 
 ---
 
-## Phase 7: Integration + Polish
+### Task 14: PM Dashboard + Segment Assigner
 
-### Task 16: Team notifications
+**Files:**
+- Create: `src/app/app/projects/[id]/team/page.tsx`
+- Create: `src/components/SegmentAssigner.tsx`
+- Create: `src/components/TeamProgressDashboard.tsx`
+- Create: `src/app/api/projects/[id]/team-progress/route.ts`
+
+- [ ] **Step 1: Create GET /api/projects/[id]/team-progress**
+
+Returns: total segments, segments per workflowStage, per-member progress, online members, pending checkpoints, alerts.
+
+- [ ] **Step 2: Create SegmentAssigner.tsx**
+
+Visual horizontal bar (1-N segments). PM creates colored ranges per member. Shows unassigned gaps.
+
+- [ ] **Step 3: Create TeamProgressDashboard.tsx**
+
+Overall progress bar (segmented by stage). Per-member rows: name, range, progress bar, last active. Online dots. Alerts section.
+
+- [ ] **Step 4: Create /app/projects/[id]/team page**
+
+Tabs: Assignments (SegmentAssigner) | Progress (TeamProgressDashboard) | Checkpoints. Link from editor toolbar (PM only).
+
+- [ ] **Step 5: Verify + commit**
+
+```bash
+npx tsc --noEmit && npx next build
+git add src/app/app/projects/[id]/team/ src/components/SegmentAssigner.tsx src/components/TeamProgressDashboard.tsx src/app/api/projects/[id]/team-progress/
+git commit -m "feat: PM dashboard — segment assigner + team progress + checkpoints"
+```
+
+---
+
+## Phase 6: Visuales (Colores + Badges + Polish)
+
+### Task 15: Team colors as CSS variables
+
+**Files:**
+- Create: `src/lib/team-colors.ts`
+- Modify: `src/app/globals.css`
+- Modify: `src/components/MemberCard.tsx`
+
+- [ ] **Step 1: Create team-colors.ts**
+
+```typescript
+export const TEAM_COLORS = [
+  { value: "rojo", label: "Rojo" },
+  { value: "rosa", label: "Rosa" },
+  { value: "morado", label: "Morado" },
+  { value: "azul", label: "Azul" },
+  { value: "celeste", label: "Celeste" },
+  { value: "teal", label: "Teal" },
+  { value: "verde", label: "Verde" },
+  { value: "amarillo", label: "Amarillo" },
+] as const;
+
+export type TeamColorName = (typeof TEAM_COLORS)[number]["value"];
+export const VALID_TEAM_COLORS = TEAM_COLORS.map((c) => c.value);
+
+export function teamColorVar(color: string): string {
+  return `var(--team-${color})`;
+}
+```
+
+- [ ] **Step 2: Add --team-{color} to all 6 themes in globals.css**
+
+8 variables × 6 themes = 48 values. Each calibrated for contrast in its theme.
+
+- [ ] **Step 3: Replace hardcoded COLOR_OPTIONS in MemberCard.tsx**
+
+Migrate from hex array to TEAM_COLORS + CSS variables. Fallback for legacy hex values.
+
+- [ ] **Step 4: Verify + commit**
+
+```bash
+npx tsc --noEmit && npx next build
+git add src/lib/team-colors.ts src/app/globals.css src/components/MemberCard.tsx
+git commit -m "feat: team colors — 8 CSS variables across 6 themes, replace hardcoded hex"
+```
+
+---
+
+### Task 16: Workflow stage badges in editor
 
 **Files:**
 - Modify: `src/app/api/segments/[id]/confirm/route.ts`
@@ -1152,7 +1004,7 @@ git commit -m "feat: team notifications — segments_ready, correction_needed, c
 
 ---
 
-### Task 17: Workflow stage badge in editor
+### Task 17: Team notifications
 
 **Files:**
 - Modify: `src/components/editor/SegmentRow.tsx`
@@ -1221,14 +1073,14 @@ git commit -m "docs: ESTADO.md — Fase 23 Teams Mode complete"
 
 ## Summary
 
-| Phase | Tasks | What it delivers |
-|-------|-------|-----------------|
-| 1. Foundation | 1-3 | Schema, colors, permissions |
-| 2. Teams CRUD | 4-6 | Create/manage teams, workflow templates |
-| 3. Project Integration | 7-8 | Team projects, segment assignment |
-| 4. Continuous Flow | 9-11 | Confirm/reject/checkpoint pipeline |
-| 5. Real-Time Presence | 12-14 | Color bars, heartbeat, Ctrl+G |
-| 6. PM Dashboard | 15 | Progress tracking, alerts |
-| 7. Integration | 16-18 | Notifications, badges, polish |
+| Phase | Capa | Tasks | Qué entrega |
+|-------|------|-------|-------------|
+| 1. Arquitectura | Schema + permisos | 1-2 | Prisma models, migración, roles |
+| 2. Backend | API | 3-5 | Teams CRUD, assignments, workflows |
+| 3. Continuous Flow | Motor de pipeline | 6-8 | Confirm/reject/checkpoints |
+| 4. Real-Time | Presencia | 9-11 | Heartbeat, barras de color, Ctrl+G |
+| 5. UI Funcional | Páginas + modales | 12-14 | Teams pages, project integration, PM dashboard |
+| 6. Visuales | Colores + polish | 15-18 | CSS variables, badges, notificaciones, build |
 
-**Total: 18 tasks across 7 phases. Each phase produces working, deployable software.**
+**Orden: Arquitectura → Backend → Motor → Real-Time → UI → Visuales.**
+**Total: 18 tasks across 6 phases. Cada fase construye sobre cimientos sólidos.**
