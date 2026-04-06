@@ -5,7 +5,6 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts"],
     exclude: ["node_modules", "_backup"],
-    exclude: ["node_modules", "_backup"],
   },
   resolve: {
     alias: {
