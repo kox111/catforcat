@@ -446,6 +446,7 @@ export default function NewProjectModal({
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
+        formData.append("lang", srcLang.split("-")[0].toLowerCase());
         const res = await fetch("/api/files/parse", {
           method: "POST",
           body: formData,

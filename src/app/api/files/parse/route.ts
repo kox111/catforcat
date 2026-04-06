@@ -27,8 +27,12 @@ const ACCEPTED_EXTENSIONS = new Set([
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
-/** Rejoin paragraphs that were split mid-sentence (line doesn't end with sentence-ending punctuation) */
-function rejoinPdfLines(paragraphs: string[]): string[] {
+/**
+ * Clean PDF paragraphs: join lines that were split mid-sentence by PDF line wrapping.
+ * Rule: if a line does NOT end with . ? ! : ; then join it with the next line.
+ * This produces clean paragraphs that sentencex can segment correctly.
+ */
+function cleanPdfParagraphs(paragraphs: string[]): string[] {
   if (paragraphs.length <= 1) return paragraphs;
 
   const result: string[] = [];
@@ -36,7 +40,6 @@ function rejoinPdfLines(paragraphs: string[]): string[] {
 
   for (let i = 1; i < paragraphs.length; i++) {
     const trimmed = current.trim();
-    // If current paragraph doesn't end with sentence-ending punctuation, join with next
     if (trimmed && !/[.!?:;]$/.test(trimmed)) {
       current = trimmed + " " + paragraphs[i];
     } else {
@@ -99,6 +102,7 @@ export async function POST(req: NextRequest) {
     }
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const lang = (formData.get("lang") as string | null) || "en";
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -243,11 +247,11 @@ export async function POST(req: NextRequest) {
             const colItems = filtered
               .filter((it) => it.x >= minX && it.x <= maxX)
               .sort((a, b) => b.y - a.y);
-            const colText = rejoinPdfLines(buildParagraphs(colItems));
+            const colText = cleanPdfParagraphs(buildParagraphs(colItems));
             allParagraphs.push(...colText);
           }
         } else {
-          const pageText = rejoinPdfLines(buildParagraphs(filtered));
+          const pageText = cleanPdfParagraphs(buildParagraphs(filtered));
           allParagraphs.push(...pageText);
         }
       }
@@ -619,7 +623,7 @@ export async function POST(req: NextRequest) {
     const segments: { text: string; metadata: Record<string, unknown> }[] = [];
 
     for (const para of paragraphs) {
-      const segmented = segmentText(para.text);
+      const segmented = segmentText(para.text, lang);
       for (const segText of segmented) {
         segments.push({
           text: segText,

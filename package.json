@@ -27,6 +27,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-easy-crop": "^5.5.7",
+    "sentencex": "^1.0.17",
     "sql.js": "^1.14.1",
     "stripe": "^20.4.1",
     "unpdf": "^1.4.0",
