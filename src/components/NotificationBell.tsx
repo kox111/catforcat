@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, CheckCircle, AlertTriangle, Shield, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface NotificationItem {
@@ -12,6 +12,26 @@ interface NotificationItem {
   link: string;
   read: boolean;
   createdAt: string;
+}
+
+function NotificationIcon({ type }: { type: string }) {
+  const iconStyle: React.CSSProperties = {
+    flexShrink: 0,
+    marginTop: 2,
+  };
+
+  switch (type) {
+    case "segments_ready":
+      return <CheckCircle size={16} style={{ ...iconStyle, color: "var(--green)" }} />;
+    case "correction_needed":
+      return <AlertTriangle size={16} style={{ ...iconStyle, color: "var(--red)" }} />;
+    case "checkpoint_pending":
+      return <Shield size={16} style={{ ...iconStyle, color: "var(--amber)" }} />;
+    case "member_completed":
+      return <Trophy size={16} style={{ ...iconStyle, color: "var(--accent)" }} />;
+    default:
+      return <Bell size={16} style={{ ...iconStyle, color: "var(--text-muted)" }} />;
+  }
 }
 
 export default function NotificationBell() {
@@ -194,6 +214,8 @@ export default function NotificationBell() {
                   e.currentTarget.style.background = n.read ? "transparent" : "var(--accent-soft)";
                 }}
               >
+                {/* Type-specific icon */}
+                <NotificationIcon type={n.type} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 13, fontWeight: n.read ? 400 : 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

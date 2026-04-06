@@ -43,15 +43,15 @@ export function normalizeProjectRole(role: string): string {
 
 /** Permission checks by role */
 export const ROLE_PERMISSIONS = {
-  pm:            { editSegments: false, createSuggestions: false, createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: true,  assignTasks: true  },
-  translator:    { editSegments: true,  createSuggestions: false, createPostIts: false, editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false },
-  reviewer:      { editSegments: true,  createSuggestions: true,  createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false },
-  proofreader:   { editSegments: true,  createSuggestions: true,  createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false },
-  terminologist: { editSegments: false, createSuggestions: false, createPostIts: false, editGlossary: true,  editTM: true,  viewDashboard: false, assignTasks: false },
-  dtp:           { editSegments: false, createSuggestions: false, createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false },
+  pm:            { editSegments: false, createSuggestions: false, createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: true,  assignTasks: true,  confirmSegments: false, rejectSegments: false },
+  translator:    { editSegments: true,  createSuggestions: false, createPostIts: false, editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false, confirmSegments: true,  rejectSegments: false },
+  reviewer:      { editSegments: true,  createSuggestions: true,  createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false, confirmSegments: false, rejectSegments: true  },
+  proofreader:   { editSegments: true,  createSuggestions: true,  createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false, confirmSegments: false, rejectSegments: true  },
+  terminologist: { editSegments: false, createSuggestions: false, createPostIts: false, editGlossary: true,  editTM: true,  viewDashboard: false, assignTasks: false, confirmSegments: false, rejectSegments: false },
+  dtp:           { editSegments: false, createSuggestions: false, createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false, confirmSegments: true,  rejectSegments: false },
   // Legacy/classroom — professor gets PM-like perms, student gets translator perms
-  professor:     { editSegments: false, createSuggestions: true,  createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: true,  assignTasks: true  },
-  student:       { editSegments: true,  createSuggestions: false, createPostIts: false, editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false },
+  professor:     { editSegments: false, createSuggestions: true,  createPostIts: true,  editGlossary: false, editTM: false, viewDashboard: true,  assignTasks: true,  confirmSegments: false, rejectSegments: false },
+  student:       { editSegments: true,  createSuggestions: false, createPostIts: false, editGlossary: false, editTM: false, viewDashboard: false, assignTasks: false, confirmSegments: true,  rejectSegments: false },
 } as const;
 
 type RoleKey = keyof typeof ROLE_PERMISSIONS;
@@ -82,4 +82,12 @@ export function canViewDashboard(role: string): boolean {
 
 export function canAssignTasks(role: string): boolean {
   return ROLE_PERMISSIONS[role as RoleKey]?.assignTasks ?? false;
+}
+
+export function canConfirmSegments(role: string): boolean {
+  return ROLE_PERMISSIONS[role as RoleKey]?.confirmSegments ?? false;
+}
+
+export function canRejectSegments(role: string): boolean {
+  return ROLE_PERMISSIONS[role as RoleKey]?.rejectSegments ?? false;
 }

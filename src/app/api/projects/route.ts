@@ -133,6 +133,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate team membership if teamId provided
+    const teamId = body.teamId as string | undefined;
+    const workflowTemplateId = body.workflowTemplateId as string | undefined;
+
+    if (teamId) {
+      const membership = await prisma.teamMember.findUnique({
+        where: { teamId_userId: { teamId, userId: user.id } },
+      });
+      if (!membership) {
+        return NextResponse.json(
+          { error: "You are not a member of this team" },
+          { status: 403 },
+        );
+      }
+    }
+
     // Create project with segments in a transaction
     const project = await prisma.project.create({
       data: {
@@ -142,6 +158,8 @@ export async function POST(req: NextRequest) {
         tgtLang,
         sourceFile: body.sourceFile || null,
         fileFormat: body.fileFormat || "txt",
+        teamId: teamId || null,
+        workflowTemplateId: workflowTemplateId || null,
         segments: {
           create: segmentData.map((seg, index) => ({
             position: index + 1,
@@ -158,6 +176,34 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // If team project, add all team members as project members
+    if (teamId) {
+      const teamMembers = await prisma.teamMember.findMany({
+        where: { teamId },
+      });
+
+      const ROLE_MAP: Record<string, string> = {
+        pm: "owner",
+        translator: "translator",
+        reviewer: "reviewer",
+        proofreader: "reviewer",
+        terminologist: "reviewer",
+        dtp: "translator",
+      };
+
+      await prisma.projectMember.createMany({
+        data: teamMembers.map((tm) => ({
+          projectId: project.id,
+          userId: tm.userId,
+          role: tm.userId === user.id ? "owner" : (ROLE_MAP[tm.role] || "translator"),
+          color: tm.color,
+          canEdit: true,
+          invitedBy: user.id,
+        })),
+        skipDuplicates: true,
+      });
+    }
 
     return NextResponse.json(
       {

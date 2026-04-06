@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState } from "react";
-import { Check, MessageSquare, Sparkles, BookOpen } from "lucide-react";
+import { Check, MessageSquare, Sparkles, BookOpen, Clock, AlertTriangle as TriangleAlert } from "lucide-react";
 import type { Segment } from "@/lib/store";
 import SuggestionInline from "@/components/editor/SuggestionInline";
 import PostItAnchor from "@/components/editor/PostItAnchor";
@@ -63,6 +63,9 @@ interface SegmentRowProps {
   }>;
   onResolvePostIt?: (id: string) => void;
   onDeletePostIt?: (id: string) => void;
+  // Workflow stage badge (team projects)
+  workflowStage?: string;
+  needsRecheck?: boolean;
 }
 
 /**
@@ -227,6 +230,80 @@ function AIScoreBadge({
   );
 }
 
+/**
+ * Workflow stage badge — subtle indicator for team projects.
+ * Only renders for non-default stages or when recheck is needed.
+ */
+function WorkflowBadge({
+  stage,
+  needsRecheck,
+}: {
+  stage?: string;
+  needsRecheck: boolean;
+}) {
+  if (needsRecheck) {
+    return (
+      <div title="Needs recheck" style={{ display: "flex", alignItems: "center" }}>
+        <TriangleAlert size={10} style={{ color: "var(--destructive, var(--accent))" }} />
+      </div>
+    );
+  }
+
+  if (!stage || stage === "translating") return null;
+
+  if (stage === "completed") {
+    return (
+      <div title="Completed" style={{ display: "flex", alignItems: "center" }}>
+        <Check size={10} style={{ color: "var(--text-muted)" }} />
+      </div>
+    );
+  }
+
+  if (stage === "awaiting_approval") {
+    return (
+      <div title="Awaiting approval" style={{ display: "flex", alignItems: "center" }}>
+        <Clock size={10} style={{ color: "var(--warning, var(--accent))" }} />
+      </div>
+    );
+  }
+
+  if (stage === "reviewing") {
+    return (
+      <span
+        title="Reviewing"
+        style={{
+          fontSize: 9,
+          fontWeight: 600,
+          fontFamily: "var(--font-editor-family)",
+          color: "var(--accent)",
+          lineHeight: 1,
+        }}
+      >
+        R
+      </span>
+    );
+  }
+
+  if (stage === "proofreading") {
+    return (
+      <span
+        title="Proofreading"
+        style={{
+          fontSize: 9,
+          fontWeight: 600,
+          fontFamily: "var(--font-editor-family)",
+          color: "var(--accent)",
+          lineHeight: 1,
+        }}
+      >
+        P
+      </span>
+    );
+  }
+
+  return null;
+}
+
 export default function SegmentRow({
   segment,
   isActive,
@@ -259,6 +336,9 @@ export default function SegmentRow({
   postIts = [],
   onResolvePostIt,
   onDeletePostIt,
+  // Workflow stage
+  workflowStage,
+  needsRecheck = false,
 }: SegmentRowProps) {
   const [tmPopoverOpen, setTmPopoverOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -344,6 +424,9 @@ export default function SegmentRow({
         >
           {segment.position}
         </span>
+
+        {/* Workflow stage badge (team projects) */}
+        <WorkflowBadge stage={workflowStage} needsRecheck={needsRecheck} />
 
         {/* Status: tiny colored dot */}
         <div
